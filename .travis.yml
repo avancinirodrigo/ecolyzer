@@ -3,13 +3,13 @@ language: python
 python:
   - "3.5"
 
-before_install:
+install:
+  - pip install -r requirements.txt
+
+before_script:
   - cd tests
   - mkdir repo
   - git clone https://github.com/TerraME/terrame.git repo/terrame
-
-install:
-  - pip install -r requirements.txt
 
 script:
   - pytest
