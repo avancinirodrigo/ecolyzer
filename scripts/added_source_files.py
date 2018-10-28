@@ -19,7 +19,7 @@ tags = [
 	'2.0-RC-7'
 ]
 
-analyzer = GitAnalyzer('D:/win/terrame/git/terrame')
+analyzer = GitAnalyzer('repo/terrame')
 analyzer.set_tags(tags)
 analyzer.extract_added_source_files()
 analyzer.show_csv()

@@ -1,0 +1,20 @@
+language: python
+
+python:
+  - "3.5"
+  - "3.6"
+
+install:
+  - pip install -r requirements.txt
+
+branches:
+  only:
+    - master
+
+before_script:
+  - cd tests
+  - mkdir repo
+  - git clone https://github.com/TerraME/terrame.git repo/terrame
+
+script:
+  - pytest
