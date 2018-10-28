@@ -12,11 +12,11 @@ class PyDriller(object):
 		for commit in RepositoryMining(repo_path, only_in_branches=['master'],
 									only_no_merge=True, from_tag=from_tag,
 									to_tag=to_tag).traverse_commits():
-			for m in commit.modifications:
-				if m.change_type != None:
-					if ((m.change_type.name == "ADD") and (m.added > 0)):
-						git_file = GitFile(m.filename)
-						git_file.added = m.added
+			for mod in commit.modifications:
+				if mod.change_type != None:
+					if ((mod.change_type.name == "ADD") and (mod.added > 0)):
+						git_file = GitFile(mod.new_path)
+						git_file.added = mod.added
 						git_files.append(git_file)
 
 		return git_files
