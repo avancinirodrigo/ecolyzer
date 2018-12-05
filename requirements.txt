@@ -1,2 +1,3 @@
 pydriller
 pytest>=3.5.0
+psycopg2
