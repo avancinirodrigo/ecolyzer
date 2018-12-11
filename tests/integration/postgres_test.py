@@ -43,3 +43,48 @@ def test_dropdb():
 	Postgres().createdb('pythondb')
 	assert Postgres().dropdb('pythondb')
 	Postgres().close()
+
+def test_dropdb_dbopened():
+	Postgres().connect('postgres')
+	dbname = 'drop_opened_db'
+	Postgres().dropdb(dbname)
+	Postgres().createdb(dbname)
+	Postgres().close()
+	Postgres().connect(dbname)
+	with pytest.raises(Exception) as e:
+		Postgres().dropdb(dbname)
+	assert (('Error while dropping database: '
+			+ 'cannot drop the currently open database\n.')
+			in str(e.value))
+	Postgres().close()
+	Postgres().connect('postgres')
+	Postgres().dropdb(dbname)
+	Postgres().close()
+
+def test_create_release_table():
+	Postgres().connect('postgres')
+	dbname = 'release_test'
+	Postgres().dropdb(dbname)
+	Postgres().createdb(dbname)
+	Postgres().close()
+	Postgres().connect(dbname)
+	Postgres().create_release_table()
+	assert Postgres().table_exists('release')
+	Postgres().close()
+	Postgres().connect('postgres')
+	Postgres().dropdb(dbname)
+	Postgres().close()
+
+def test_create_source_file_db():
+	Postgres().connect('postgres')
+	dbname = 'source_file_test'
+	Postgres().dropdb(dbname)
+	Postgres().createdb(dbname)
+	Postgres().close()
+	Postgres().connect(dbname)
+	Postgres().create_source_file_table()
+	assert Postgres().table_exists('source_file')
+	Postgres().close()
+	Postgres().connect('postgres')
+	Postgres().dropdb(dbname)
+	Postgres().close()

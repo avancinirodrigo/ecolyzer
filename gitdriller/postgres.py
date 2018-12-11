@@ -56,3 +56,29 @@ class Postgres(object):
 			raise Exception('Error while checking if database exists: {}.'.format(error))
 
 		return self.cursor.fetchone() != None
+
+	def create_release_table(self):
+		try:
+			self.cursor.execute('CREATE TABLE release (id integer PRIMARY KEY,'
+								+ ' name varchar);')
+			self.connection.commit()
+		except (Exception, psycopg2.DatabaseError) as error:
+			raise Exception('Error while creating release table: {}.'.format(error))
+
+	def insert_into_release_table(self, id, name):
+		raise Exception('not implemented yet')
+
+	def create_source_file_table(self):
+		try:
+			self.cursor.execute('CREATE TABLE source_file (id integer PRIMARY KEY,'
+								+ 'tagid integer,'
+								+ 'path varchar,'
+								+ ' added_lines integer);')
+			self.connection.commit()
+		except (Exception, psycopg2.DatabaseError) as error:
+			raise Exception('Error while creating source_file table: {}.'.format(error))
+
+	def table_exists(self, table):
+		self.cursor.execute('SELECT EXISTS(SELECT * FROM'
+							+ ' information_schema.tables WHERE table_name=%s)', (table,))
+		return self.cursor.fetchone()[0]
