@@ -59,21 +59,25 @@ class Postgres(object):
 
 	def create_release_table(self):
 		try:
-			self.cursor.execute('CREATE TABLE release (id integer PRIMARY KEY,'
-								+ ' name varchar);')
+			self.cursor.execute('CREATE TABLE release (id INTEGER PRIMARY KEY,'
+								+ ' name VARCHAR UNIQUE NOT NULL);')
 			self.connection.commit()
 		except (Exception, psycopg2.DatabaseError) as error:
 			raise Exception('Error while creating release table: {}.'.format(error))
 
 	def insert_into_release_table(self, id, name):
-		raise Exception('not implemented yet')
+		try:
+			self.cursor.execute('INSERT INTO release (id, name) VALUES (%s, %s)', (id, name))
+			self.connection.commit()
+		except (Exception, psycopg2.DatabaseError) as error:
+			raise Exception('Error while inserting into release table: {}.'.format(error))
 
 	def create_source_file_table(self):
 		try:
-			self.cursor.execute('CREATE TABLE source_file (id integer PRIMARY KEY,'
-								+ 'tagid integer,'
-								+ 'path varchar,'
-								+ ' added_lines integer);')
+			self.cursor.execute('CREATE TABLE source_file (id INTEGER PRIMARY KEY,'
+								+ 'tagid INTEGER,'
+								+ 'path VARCHAR,'
+								+ ' added_lines INTEGER);')
 			self.connection.commit()
 		except (Exception, psycopg2.DatabaseError) as error:
 			raise Exception('Error while creating source_file table: {}.'.format(error))
@@ -82,3 +86,7 @@ class Postgres(object):
 		self.cursor.execute('SELECT EXISTS(SELECT * FROM'
 							+ ' information_schema.tables WHERE table_name=%s)', (table,))
 		return self.cursor.fetchone()[0]
+
+	def select_from(self, table):
+		self.cursor.execute('SELECT * FROM {};'.format(table))
+		return self.cursor.fetchall()

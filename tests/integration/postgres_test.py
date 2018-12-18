@@ -88,3 +88,21 @@ def test_create_source_file_db():
 	Postgres().connect('postgres')
 	Postgres().dropdb(dbname)
 	Postgres().close()
+
+def test_insert_into_release_table():
+	Postgres().connect('postgres')
+	dbname = 'insert_into_release'
+	Postgres().dropdb(dbname)
+	Postgres().createdb(dbname)
+	Postgres().close()
+	Postgres().connect(dbname)
+	Postgres().create_release_table()
+	Postgres().insert_into_release_table(0, "rc1")
+	rels = Postgres().select_from('release')
+	# change to dictCursor https://wiki.postgresql.org/wiki/Psycopg2_Tutorial
+	assert rels[0][0] == 0
+	assert rels[0][1] == 'rc1'
+	Postgres().close()
+	Postgres().connect('postgres')
+	Postgres().dropdb(dbname)
+	Postgres().close()
