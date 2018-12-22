@@ -1,4 +1,5 @@
 import psycopg2
+import psycopg2.extras
 
 class Postgres(object):
 	_instance = None
@@ -88,5 +89,6 @@ class Postgres(object):
 		return self.cursor.fetchone()[0]
 
 	def select_from(self, table):
-		self.cursor.execute('SELECT * FROM {};'.format(table))
-		return self.cursor.fetchall()
+		cursor = self.connection.cursor(cursor_factory=psycopg2.extras.NamedTupleCursor)
+		cursor.execute('SELECT * FROM {};'.format(table))
+		return cursor.fetchall()

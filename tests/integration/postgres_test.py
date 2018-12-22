@@ -99,9 +99,14 @@ def test_insert_into_release_table():
 	Postgres().create_release_table()
 	Postgres().insert_into_release_table(0, "rc1")
 	rels = Postgres().select_from('release')
-	# change to dictCursor https://wiki.postgresql.org/wiki/Psycopg2_Tutorial
-	assert rels[0][0] == 0
-	assert rels[0][1] == 'rc1'
+	assert rels[0].id == 0
+	assert rels[0].name == 'rc1'
+	Postgres().insert_into_release_table(1, "rc2")
+	rels = Postgres().select_from('release')
+	assert rels[0].id == 0
+	assert rels[0].name == 'rc1'
+	assert rels[1].id == 1
+	assert rels[1].name == 'rc2'
 	Postgres().close()
 	Postgres().connect('postgres')
 	Postgres().dropdb(dbname)
