@@ -51,37 +51,49 @@ class Postgres(object):
 
 	def existsdb(self, dbname):
 		try:
-			self.cursor.execute('SELECT datname FROM pg_catalog.pg_database WHERE datname=\'{}\';'.format(dbname))
+			self.cursor.execute('SELECT datname FROM pg_catalog.pg_database'
+								+ ' WHERE datname=\'{}\';'.format(dbname))
 			self.connection.commit()
 		except (Exception, psycopg2.DatabaseError) as error:
 			raise Exception('Error while checking if database exists: {}.'.format(error))
 
 		return self.cursor.fetchone() != None
 
-	def create_release_table(self):
+	def create_tag_table(self):
 		try:
-			self.cursor.execute('CREATE TABLE release (id INTEGER PRIMARY KEY,'
+			self.cursor.execute('CREATE TABLE tag (id INTEGER PRIMARY KEY,'
 								+ ' name VARCHAR UNIQUE NOT NULL);')
 			self.connection.commit()
 		except (Exception, psycopg2.DatabaseError) as error:
-			raise Exception('Error while creating release table: {}.'.format(error))
+			raise Exception('Error while creating tag table: {}.'.format(error))
 
-	def insert_into_release_table(self, id, name):
+	def insert_into_tag_table(self, id, name):
 		try:
-			self.cursor.execute('INSERT INTO release (id, name) VALUES (%s, %s)', (id, name))
+			self.cursor.execute('INSERT INTO tag (id, name) VALUES (%s, %s)', (id, name))
 			self.connection.commit()
 		except (Exception, psycopg2.DatabaseError) as error:
-			raise Exception('Error while inserting into release table: {}.'.format(error))
+			raise Exception('Error while inserting into tag table: {}.'.format(error))
 
 	def create_source_file_table(self):
 		try:
-			self.cursor.execute('CREATE TABLE source_file (id INTEGER PRIMARY KEY,'
-								+ 'tagid INTEGER,'
-								+ 'path VARCHAR,'
-								+ ' added_lines INTEGER);')
+			self.cursor.execute('CREATE TABLE source_file'
+								+ '(id INTEGER PRIMARY KEY,'
+								+ ' path VARCHAR UNIQUE NOT NULL,'
+								+ ' added_lines INTEGER,'
+								+ ' ext VARCHAR,'
+								+ ' tagid INTEGER NULL NULL);')
 			self.connection.commit()
 		except (Exception, psycopg2.DatabaseError) as error:
 			raise Exception('Error while creating source_file table: {}.'.format(error))
+
+	def insert_into_source_file_table(self, id, src, tagid):
+		try:
+			self.cursor.execute('INSERT INTO source_file (id, path, added_lines, ext, tagid)'
+								+ ' VALUES (%s, %s, %s, %s, %s)',
+								(id, src.fullpath, src.added, src.ext, tagid))
+			self.connection.commit()
+		except (Exception, psycopg2.DatabaseError) as error:
+			raise Exception('Error while inserting into source_file table: {}.'.format(error))
 
 	def table_exists(self, table):
 		self.cursor.execute('SELECT EXISTS(SELECT * FROM'

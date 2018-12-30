@@ -1,6 +1,6 @@
 import pytest
 
-from gitdriller import Postgres
+from gitdriller import Postgres, GitFile
 
 def test_connect():
 	assert Postgres().connect('postgres')
@@ -61,15 +61,15 @@ def test_dropdb_dbopened():
 	Postgres().dropdb(dbname)
 	Postgres().close()
 
-def test_create_release_table():
+def test_create_tag_table():
 	Postgres().connect('postgres')
-	dbname = 'release_test'
+	dbname = 'tag_test'
 	Postgres().dropdb(dbname)
 	Postgres().createdb(dbname)
 	Postgres().close()
 	Postgres().connect(dbname)
-	Postgres().create_release_table()
-	assert Postgres().table_exists('release')
+	Postgres().create_tag_table()
+	assert Postgres().table_exists('tag')
 	Postgres().close()
 	Postgres().connect('postgres')
 	Postgres().dropdb(dbname)
@@ -89,24 +89,60 @@ def test_create_source_file_db():
 	Postgres().dropdb(dbname)
 	Postgres().close()
 
-def test_insert_into_release_table():
+def test_insert_into_tag_table():
 	Postgres().connect('postgres')
-	dbname = 'insert_into_release'
+	dbname = 'insert_into_tag'
 	Postgres().dropdb(dbname)
 	Postgres().createdb(dbname)
 	Postgres().close()
 	Postgres().connect(dbname)
-	Postgres().create_release_table()
-	Postgres().insert_into_release_table(0, "rc1")
-	rels = Postgres().select_from('release')
+	Postgres().create_tag_table()
+	Postgres().insert_into_tag_table(0, "rc1")
+	rels = Postgres().select_from('tag')
 	assert rels[0].id == 0
 	assert rels[0].name == 'rc1'
-	Postgres().insert_into_release_table(1, "rc2")
-	rels = Postgres().select_from('release')
+	Postgres().insert_into_tag_table(1, "rc2")
+	rels = Postgres().select_from('tag')
 	assert rels[0].id == 0
 	assert rels[0].name == 'rc1'
 	assert rels[1].id == 1
 	assert rels[1].name == 'rc2'
+	Postgres().close()
+	Postgres().connect('postgres')
+	Postgres().dropdb(dbname)
+	Postgres().close()
+
+def test_insert_into_src_table():
+	Postgres().connect('postgres')
+	dbname = 'insert_into_src'
+	Postgres().dropdb(dbname)
+	Postgres().createdb(dbname)
+	Postgres().close()
+	Postgres().connect(dbname)
+	Postgres().create_source_file_table()
+	src1 = GitFile('some/path/file1.ext')
+	src1.added = 10
+	Postgres().insert_into_source_file_table(0, src1, 0)
+	src = Postgres().select_from('source_file')
+	assert src[0].id == 0
+	assert src[0].path == src1.fullpath
+	assert src[0].added_lines == src1.added
+	assert src[0].ext == src1.ext
+	assert src[0].tagid == 0
+	src2 = GitFile('other/path/file2.txe')
+	src2.added = 20
+	Postgres().insert_into_source_file_table(1, src2, 1)
+	src = Postgres().select_from('source_file')
+	assert src[0].id == 0
+	assert src[0].path == src1.fullpath
+	assert src[0].added_lines == src1.added
+	assert src[0].ext == src1.ext
+	assert src[0].tagid == 0
+	assert src[1].id == 1
+	assert src[1].path == src2.fullpath
+	assert src[1].added_lines == src2.added
+	assert src[1].ext == src2.ext
+	assert src[1].tagid == 1
 	Postgres().close()
 	Postgres().connect('postgres')
 	Postgres().dropdb(dbname)
