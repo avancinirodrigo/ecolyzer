@@ -25,7 +25,7 @@ class Postgres(object):
 		return True
 
 	def close(self):
-		if self.connection:
+		if hasattr(self, 'connection'):
 			self.cursor.close()
 			self.connection.close()
 

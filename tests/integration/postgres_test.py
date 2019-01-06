@@ -6,6 +6,15 @@ def test_connect():
 	assert Postgres().connect('postgres')
 	Postgres().close()
 
+def test_close_two_times():
+	Postgres().connect('postgres')
+	Postgres().close()
+	Postgres().close()
+
+def test_close_without_connection():
+	Postgres().close()
+	assert True
+
 def test_connect_exception():
 	with pytest.raises(Exception) as e:
 		Postgres().connect('pos')
