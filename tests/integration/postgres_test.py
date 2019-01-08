@@ -10,6 +10,7 @@ def test_close_two_times():
 	Postgres().connect('postgres')
 	Postgres().close()
 	Postgres().close()
+	assert True
 
 def test_close_without_connection():
 	Postgres().close()
