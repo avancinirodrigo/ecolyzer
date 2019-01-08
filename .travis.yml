@@ -1,8 +1,10 @@
 language: python
 
 python:
-  - "3.5"
   - "3.6"
+
+services:
+  - postgresql
 
 install:
   - pip install -r requirements.txt
@@ -15,6 +17,7 @@ before_script:
   - cd tests
   - mkdir repo
   - git clone https://github.com/TerraME/terrame.git repo/terrame
+  - psql -c "ALTER USER postgres WITH PASSWORD 'postgres'" -U postgres;
 
 script:
   - pytest

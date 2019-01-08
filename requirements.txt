@@ -1,2 +1,3 @@
-pydriller
+pydriller==1.4.3
 pytest>=3.5.0
+psycopg2-binary

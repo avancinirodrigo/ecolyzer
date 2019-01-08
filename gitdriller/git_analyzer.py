@@ -1,10 +1,14 @@
+import os
 import pickle
 from gitdriller.pydriller import PyDriller
+from gitdriller.postgres import Postgres
+from gitdriller.git_file import GitFile
 
 class GitAnalyzer:
 
 	def __init__(self, repo_path):
 		self.repo_path = repo_path
+		self.repo_name = os.path.basename(repo_path)
 		self.source_file_extensions = [
 			'c', 'cc', 'cpp', 'h', 'hpp', 'hxx',
 			'ui', 'qrc',
@@ -30,23 +34,46 @@ class GitAnalyzer:
 
 		return True
 
+	def is_valid_source(self, src):
+		return (src.ext in self.source_file_extensions and
+				self.is_valid_dir(src.path))
+
 	def extract_added_source_files(self):
 		self.added_source_files = {}
-
 		for i in range(1, len(self.tags)):
 			self.added_source_files[self.tags[i]] = PyDriller().get_added_files_between_tags(
 														self.repo_path,
-														self.tags[i-1], self.tags[i]
-													)
+														self.tags[i-1], self.tags[i])
 		self.set_source_files()
+
+	def extract_added_source_files_todb(self, overwrite):
+		Postgres().connect('postgres')
+		if overwrite:
+			Postgres().dropdb(self.repo_name)
+		Postgres().createdb(self.repo_name)
+		Postgres().close()
+		Postgres().connect(self.repo_name)
+		Postgres().create_tag_table()
+		Postgres().create_source_file_table()
+		src_id = 0
+		for i in range(1, len(self.tags)):
+			added_source_files = PyDriller().get_added_files_between_tags(
+														self.repo_path,
+														self.tags[i-1], self.tags[i])
+			tagid = i-1
+			Postgres().insert_into_tag_table(tagid, self.tags[i])
+			for src in added_source_files:
+				if self.is_valid_source(src):
+					Postgres().insert_into_source_file_table(src_id, src, tagid)
+					src_id += 1
+		Postgres().close()
 
 	def set_source_files(self):
 		for tag in self.added_source_files:
 			sources = []
 			for i in range(0, len(self.added_source_files[tag])):
 				source_file = self.added_source_files[tag][i]
-				if (source_file.ext in self.source_file_extensions and
-						self.is_valid_dir(source_file.path)):
+				if self.is_valid_source(source_file):
 					sources.append(self.added_source_files[tag][i])
 
 			self.source_files[tag] = sources
@@ -84,3 +111,16 @@ class GitAnalyzer:
 		file = open(filename, 'rb')
 		self.source_files = pickle.load(file)
 		file.close()
+
+	def load_db(self, dbname):
+		Postgres().connect(dbname)
+		sources = Postgres().select_from('source_file')
+		tags = Postgres().select_from('tag')
+		self.source_files = {}
+		for tag in tags:
+			self.source_files[tag.name] = []
+		for src in sources:
+			git_file = GitFile(src.path)
+			git_file.added = src.added_lines
+			self.source_files[tags[src.tagid].name].append(git_file)
+		Postgres().close()
