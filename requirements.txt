@@ -1,3 +1,5 @@
 pydriller==1.4.3
-pytest>=3.5.0
 psycopg2-binary
+pytest>=3.5.0
+pytest-cov
+codecov
