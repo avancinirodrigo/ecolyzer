@@ -1,4 +1,4 @@
-from gitdriller import GitAnalyzer, Postgres
+from ecolyzer import GitAnalyzer, Postgres
 
 tags = [
 	# None,

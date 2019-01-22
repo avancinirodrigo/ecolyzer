@@ -1,4 +1,4 @@
-from gitdriller import GitAnalyzer
+from ecolyzer import GitAnalyzer
 
 tags = [
 	# None,
