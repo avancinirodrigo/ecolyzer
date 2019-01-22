@@ -1,6 +1,6 @@
 import pytest
 
-from gitdriller import Postgres, GitFile
+from ecolyzer import Postgres, GitFile
 
 def test_connect():
 	assert Postgres().connect('postgres')

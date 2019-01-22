@@ -1,8 +1,8 @@
 import os
 import pickle
-from gitdriller.pydriller import PyDriller
-from gitdriller.postgres import Postgres
-from gitdriller.git_file import GitFile
+from ecolyzer.pydriller import PyDriller
+from ecolyzer.postgres import Postgres
+from ecolyzer.git_file import GitFile
 
 class GitAnalyzer:
 

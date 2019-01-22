@@ -20,7 +20,7 @@ before_script:
   - psql -c "ALTER USER postgres WITH PASSWORD 'postgres'" -U postgres;
 
 script:
-  - pytest -v --cov=../gitdriller
+  - pytest -v --cov=../ecolyzer
 
 after_success:
   - codecov -t e0ca1fb4-91fe-4111-9fb1-232f58b4e2e2

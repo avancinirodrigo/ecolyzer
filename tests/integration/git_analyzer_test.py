@@ -1,7 +1,7 @@
 import time
 import filecmp
 import os
-from gitdriller import GitAnalyzer
+from ecolyzer import GitAnalyzer
 
 tags = [
 	'2.0-RC-5',
