@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.com/avancinirodrigo/ecolyzer.svg?token=5ZEHUCMbsFiYovGrh5Hp&branch=master)](https://travis-ci.com/avancinirodrigo/ecolyzer)
 [![codecov](https://codecov.io/gh/avancinirodrigo/gitdriller/branch/master/graph/badge.svg?token=s6IQehSnnQ)](https://codecov.io/gh/avancinirodrigo/gitdriller)
-[![BCH compliance](https://bettercodehub.com/edge/badge/avancinirodrigo/gitdriller?branch=master&token=466b238641f2108578dedc8551647e7df4fc7ff8)](https://bettercodehub.com/)
+[![BCH compliance](https://bettercodehub.com/edge/badge/avancinirodrigo/ecolyzer?branch=master&token=6d8614cbef4cf7651e3c754b572d8e7fcee2f018)](https://bettercodehub.com/)
 
 # Ecolyzer
 
