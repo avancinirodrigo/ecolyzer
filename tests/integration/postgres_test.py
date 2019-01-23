@@ -1,6 +1,7 @@
 import pytest
 
-from ecolyzer import Postgres, GitFile
+from ecolyzer.system import GitFile
+from ecolyzer.dataaccess import Postgres
 
 def test_connect():
 	assert Postgres().connect('postgres')

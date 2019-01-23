@@ -1,5 +1,5 @@
 from pydriller import RepositoryMining
-from ecolyzer.git_file import GitFile
+from ecolyzer.system.git_file import GitFile
 
 class PyDriller(object):
 	def __new__(cls, *args, **kwargs):
