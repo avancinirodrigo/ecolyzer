@@ -1,11 +1,10 @@
 import os
 import pickle
-from ecolyzer.pydriller import PyDriller
-from ecolyzer.postgres import Postgres
-from ecolyzer.git_file import GitFile
+from .pydriller import PyDriller
+from ecolyzer.dataaccess.postgres import Postgres
+from ecolyzer.system.git_file import GitFile
 
 class GitAnalyzer:
-
 	def __init__(self, repo_path):
 		self.repo_path = repo_path
 		self.repo_name = os.path.basename(repo_path)
