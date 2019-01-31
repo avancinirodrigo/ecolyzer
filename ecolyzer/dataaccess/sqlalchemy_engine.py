@@ -15,7 +15,13 @@ class SQLAlchemyEngine:
 
 	def create_engine(self, url):
 		self.engine = create_engine(url)
-		Session = sessionmaker(bind=self.engine)
+		self.session = sessionmaker(bind=self.engine)
+		
+	def create_all_tables(self):
+		Base.metadata.create_all(self.engine)
+		
+	def create_session(self):
+		return self.session()
 
 	def createdb(self, url, overwrite):
 		if database_exists(url):
