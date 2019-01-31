@@ -52,6 +52,8 @@ def test_extract_functions():
 		'replaceLatinCharacters' : True
 	}
 
+	assert len(functions) == len(file_functions)
+
 	for func in functions:
 		assert file_functions[func]
 
