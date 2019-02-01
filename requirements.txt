@@ -3,3 +3,6 @@ psycopg2-binary
 pytest>=3.5.0
 pytest-cov
 codecov
+git+https://github.com/boolangery/py-lua-parser.git
+sqlalchemy
+sqlalchemy-utils
