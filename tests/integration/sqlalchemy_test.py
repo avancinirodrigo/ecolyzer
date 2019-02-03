@@ -6,6 +6,7 @@ def test_createdb():
 	SQLAlchemyEngine().createdb(url, True)
 	assert SQLAlchemyEngine().existsdb(url)
 	SQLAlchemyEngine().dropdb(url)
+	assert not SQLAlchemyEngine().existsdb(url)
 
 def test_createdb_dbexists():
 	url = 'postgresql://postgres:postgres@localhost:5432/createdb'

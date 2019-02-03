@@ -1,18 +1,20 @@
 from ecolyzer.system import System
+from ecolyzer.repository import Repository
 from ecolyzer.dataaccess import SQLAlchemyEngine
 
 db_url = 'postgresql://postgres:postgres@localhost:5432/system_test'
-SQLAlchemyEngine().createdb(db_url, True)
-SQLAlchemyEngine().create_engine(db_url)
-SQLAlchemyEngine().create_all_tables()
+SQLAlchemyEngine().create_all(db_url, True)
 
 def test_system_create():
-	session = SQLAlchemyEngine().create_session()
-	sys = System('terrame')
+	repo = Repository('repo/terrame')
+	sys = System('terrame', repo)
+	session = SQLAlchemyEngine().create_session()	
+	session.add(repo)
 	session.add(sys)
 	session.commit()	
 	sysdb = session.query(System).get(1)
 	assert sys.name == sysdb.name
+	assert sys.repository.path == sysdb.repository.path
 	session.close()
-	SQLAlchemyEngine().dropdb(db_url)
+	SQLAlchemyEngine().drop_all(db_url)
 	
