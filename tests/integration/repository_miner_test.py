@@ -15,7 +15,7 @@ def test_get_commit():
 	assert commit_info.msg == 'Initial commit'
 	assert commit_info.date.strftime('%Y-%m-%d %H:%M:%S') == '2014-09-15 08:12:11'
 	assert commit_info.hash == '80a562be869dbb984229f608ae9a04d05c5e1689'
-
+	# <<< TODO AUTHOR >>>> #
 	commit = Commit(commit_info, repo)
 	
 	session = db.create_session()

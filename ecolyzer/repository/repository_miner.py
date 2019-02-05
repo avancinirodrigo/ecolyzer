@@ -37,6 +37,9 @@ class RepositoryMiner:
 		commit_info = CommitInfo(hash)
 		commit_info.date = commit_driller.author_date
 		commit_info.msg = commit_driller.msg
+		author_driller = commit_driller.author
+		commit_info.author = author_driller.name
+		commit_info.author_email = author_driller.email
 		return commit_info
 
 
