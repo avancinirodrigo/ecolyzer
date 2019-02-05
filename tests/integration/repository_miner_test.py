@@ -3,7 +3,8 @@ from ecolyzer.system import System
 from ecolyzer.dataaccess import SQLAlchemyEngine
 
 db_url = 'postgresql://postgres:postgres@localhost:5432/miner_test'
-SQLAlchemyEngine().create_all(db_url, True)
+db = SQLAlchemyEngine(db_url)
+db.create_all(True)
 
 def test_get_commit():
 	repo = Repository('repo/terrame')
@@ -18,7 +19,7 @@ def test_get_commit():
 
 	commit = Commit(commit_info, repo)
 	
-	session = SQLAlchemyEngine().create_session()
+	session = db.create_session()
 	session.add(repo)
 	session.add(sys)
 	session.add(commit)
@@ -41,7 +42,7 @@ def test_get_commit():
 
 	commit = Commit(commit_info, repo)
 
-	session = SQLAlchemyEngine().create_session()
+	session = db.create_session()
 	session.add(commit)
 	session.commit()
 
@@ -60,4 +61,4 @@ def test_get_commit():
 	assert commitdb1.repository.path == repo.path	
 
 	session.close()
-	SQLAlchemyEngine().drop_all(db_url)
+	db.drop_all()

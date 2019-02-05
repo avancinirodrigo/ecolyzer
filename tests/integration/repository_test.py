@@ -3,22 +3,41 @@ from ecolyzer.system import System
 from ecolyzer.dataaccess import SQLAlchemyEngine
 
 db_url = 'postgresql://postgres:postgres@localhost:5432/repo_test'
-SQLAlchemyEngine().create_all(db_url, True)
+db = SQLAlchemyEngine(db_url)
+db.create_all(True)
 
-def test_repository_create():
+def test_repository_crud():
+	#create
 	repo = Repository('repo/terrame')
-	sys1 = System('terrame', repo)
-	session = SQLAlchemyEngine().create_session()	
+	sys = System('terrame', repo)
+	session = db.create_session()	
 	session.add(repo)
-	session.add(sys1)
+	session.add(sys)
 	session.commit()
+
+	#read
 	repodb = session.query(Repository).get(1)
-	sys1db = session.query(System).get(1)
+	sysdb = session.query(System).get(1)
 	assert repo.path == repodb.path	
-	assert sys1db.repo_id == repodb.id
+	assert sysdb.repo_id == repodb.id
 	#sys2 = System('ca', repo) < TODO: review
 	#session.add(sys2)
+
+	# update
+	repo.path = 'repo/ca'
 	session.commit()	
+	repodb = session.query(Repository).get(1)
+	assert repo.path == repodb.path	
+	assert sysdb.repo_id == repodb.id
+
+	#delete
+	session.delete(repo)
+	session.commit()
+	repodb = session.query(Repository).get(1)
+	sysdb = session.query(System).get(1)
+	assert repodb == None
+	assert sysdb == None
+
 	session.close()
-	SQLAlchemyEngine().drop_all(db_url)
+	db.drop_all()
 	
