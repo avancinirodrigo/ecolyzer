@@ -13,29 +13,19 @@ class Commit(Base):
 	repo_id = Column(Integer, ForeignKey('repository.id'))
 	repository = relationship('Repository', backref=backref('commit', cascade='all,delete'))
 	author_id = Column(Integer, ForeignKey('author.id'))
-	author = relationship('Author', backref=backref('commit'))		
+	author = relationship('Author', backref=backref('commit'))
 
 	def __init__(self, commit_info, author, repository):
 		self.hash = commit_info.hash
 		self.date = commit_info.date.replace(tzinfo=None)
 		self.msg = commit_info.msg
-		self.author = author #Author(commit_info.author, commit_info.author_email)
+		self.author = author
 		self.repository = repository
-		
+
 class CommitInfo:
 	def __init__(self, hash):
 		self.hash = hash
 		self.date = None
-		self.msg = None		
-		self.author = None
+		self.msg = None
+		self.author_name = None
 		self.author_email = None
-
-	    #'Hash: {}\n'.format(commit.hash),
-        #'Author: {}'.format(commit.author.name),
-        #'Committer: {}'.format(commit.committer.name),
-        #'In project named: {}'.format(commit.project_name),
-        #'In path: {}'.format(commit.project_path),
-        #'Author date: {}'.format(commit.author_date.strftime("%Y-%m-%d %H:%M:%S")),
-        #'Message: {}'.format(commit.msg),
-        #'Merge: {}'.format(commit.merge),
-        #'In main branch: {}'.format(commit.in_main_branch)	

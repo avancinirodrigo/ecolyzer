@@ -15,10 +15,10 @@ def test_get_commit():
 	assert commit_info.msg == 'Initial commit'
 	assert commit_info.date.strftime('%Y-%m-%d %H:%M:%S') == '2014-09-15 08:12:11'
 	assert commit_info.hash == '80a562be869dbb984229f608ae9a04d05c5e1689'
-	assert commit_info.author == 'pedro-andrade-inpe'
+	assert commit_info.author_name == 'pedro-andrade-inpe'
 	assert commit_info.author_email == 'pedro.andrade@inpe.br'
 
-	author = Author(commit_info.author, commit_info.author_email)
+	author = Author(commit_info.author_name, commit_info.author_email)
 	commit = Commit(commit_info, author, repo)
 	
 	session = db.create_session()
@@ -41,7 +41,7 @@ def test_get_commit():
 	assert commit_info.msg == 'Delete LICENSE'
 	assert commit_info.date.strftime('%Y-%m-%d %H:%M:%S') == '2014-09-17 11:49:45'
 	assert commit_info.hash == 'ffb8347b2de44eb05f6c5eba3b3cb8b7716acebb'
-	assert commit_info.author == 'pedro-andrade-inpe'
+	assert commit_info.author_name == 'pedro-andrade-inpe'
 	assert commit_info.author_email == 'pedro.andrade@inpe.br'
 
 	commit = Commit(commit_info, author, repo)

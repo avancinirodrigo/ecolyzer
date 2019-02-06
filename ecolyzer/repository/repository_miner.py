@@ -38,11 +38,10 @@ class RepositoryMiner:
 		commit_info.date = commit_driller.author_date
 		commit_info.msg = commit_driller.msg
 		author_driller = commit_driller.author
-		commit_info.author = author_driller.name
+		commit_info.author_name = author_driller.name
 		commit_info.author_email = author_driller.email
-		return commit_info
-
-
-
-
-
+		#commit_info.project_name = commit_driller.project_name
+		#commit_info.project_path = commit_driller.project_path
+		#commit_info.merge = commit_driller.merge
+		#commit_info.in_main_branch = commit_driller.in_main_branch
+		return commit_info	
