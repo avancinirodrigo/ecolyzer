@@ -17,6 +17,12 @@ def test_get_commit():
 	assert commit_info.hash == '80a562be869dbb984229f608ae9a04d05c5e1689'
 	assert commit_info.author_name == 'pedro-andrade-inpe'
 	assert commit_info.author_email == 'pedro.andrade@inpe.br'
+	assert len(commit_info.files_modification) == 1
+	assert commit_info.files_modification[0].filename == 'LICENSE'
+	assert commit_info.files_modification[0].old_path == None
+	assert commit_info.files_modification[0].new_path == 'LICENSE'
+	assert commit_info.files_modification[0].added == 674
+	assert commit_info.files_modification[0].removed == 0
 
 	author = Author(commit_info.author_name, commit_info.author_email)
 	commit = Commit(commit_info, author, repo)
@@ -43,6 +49,12 @@ def test_get_commit():
 	assert commit_info.hash == 'ffb8347b2de44eb05f6c5eba3b3cb8b7716acebb'
 	assert commit_info.author_name == 'pedro-andrade-inpe'
 	assert commit_info.author_email == 'pedro.andrade@inpe.br'
+	assert len(commit_info.files_modification) == 1
+	assert commit_info.files_modification[0].filename == 'LICENSE'
+	assert commit_info.files_modification[0].old_path == 'LICENSE'
+	assert commit_info.files_modification[0].new_path == None
+	assert commit_info.files_modification[0].added == 0
+	assert commit_info.files_modification[0].removed == 674	
 
 	commit = Commit(commit_info, author, repo)
 	session.add(commit)
