@@ -8,7 +8,7 @@ class Commit(Base):
 
 	id = Column(Integer, primary_key=True)
 	hash = Column(String, nullable=False, unique=True)
-	date = Column(DateTime(timezone=True), nullable=False)
+	date = Column(DateTime, nullable=False)
 	msg = Column(String)
 	repo_id = Column(Integer, ForeignKey('repository.id'))
 	repository = relationship('Repository', backref=backref('commit', cascade='all,delete'))
