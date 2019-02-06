@@ -1,6 +1,5 @@
 from sqlalchemy import Column, String, Integer, DateTime, ForeignKey
 from sqlalchemy.orm import relationship, backref
-from ecolyzer.repository.author import Author
 from ecolyzer.dataaccess import Base
 
 class Commit(Base):
@@ -9,18 +8,18 @@ class Commit(Base):
 
 	id = Column(Integer, primary_key=True)
 	hash = Column(String, nullable=False, unique=True)
-	date = Column(DateTime, nullable=False)
+	date = Column(DateTime(timezone=False), nullable=False)
 	msg = Column(String)
 	repo_id = Column(Integer, ForeignKey('repository.id'))
 	repository = relationship('Repository', backref=backref('commit', cascade='all,delete'))
 	author_id = Column(Integer, ForeignKey('author.id'))
 	author = relationship('Author', backref=backref('commit'))		
 
-	def __init__(self, commit_info, repository):
+	def __init__(self, commit_info, author, repository):
 		self.hash = commit_info.hash
 		self.date = commit_info.date
 		self.msg = commit_info.msg
-		self.author = Author(commit_info.author, commit_info.author_email)
+		self.author = author #Author(commit_info.author, commit_info.author_email)
 		self.repository = repository
 		
 class CommitInfo:

@@ -6,8 +6,8 @@ class Author(Base):
 	__tablename__ = 'author'
 
 	id = Column(Integer, primary_key=True)
-	name = Column(String, nullable=False)
-	email = Column(String, nullable=False)
+	name = Column(String, nullable=False, unique=True)
+	email = Column(String, nullable=False, unique=True)
 
 	def __init__(self, name, email):
 		self.name = name
