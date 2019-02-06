@@ -31,7 +31,7 @@ def test_get_commit():
 	commitdb = session.query(Commit).get(1)
 
 	assert commitdb.msg == 'Initial commit'
-	assert commitdb.date == datetime.datetime(2014, 9, 15, 8, 12, 11)
+	assert commitdb.date.replace(tzinfo=None) == datetime.datetime(2014, 9, 15, 8, 12, 11)
 	assert commitdb.hash == '80a562be869dbb984229f608ae9a04d05c5e1689'
 	assert commitdb.repository.path == repo.path
 	assert commitdb.author.name == 'pedro-andrade-inpe'
@@ -52,7 +52,7 @@ def test_get_commit():
 	commitdb2 = session.query(Commit).get(2)
 
 	assert commitdb2.msg == 'Delete LICENSE'
-	assert commitdb2.date == datetime.datetime(2014, 9, 17, 11, 49, 45)
+	assert commitdb2.date.replace(tzinfo=None) == datetime.datetime(2014, 9, 17, 11, 49, 45)
 	assert commitdb2.hash == 'ffb8347b2de44eb05f6c5eba3b3cb8b7716acebb'
 	assert commitdb2.repository.id == repo.id
 	assert commitdb2.author.name == 'pedro-andrade-inpe'
@@ -61,7 +61,7 @@ def test_get_commit():
 	commitdb1 = session.query(Commit).get(1)
 
 	assert commitdb1.msg == 'Initial commit'
-	assert commitdb1.date == datetime.datetime(2014, 9, 15, 8, 12, 11)
+	assert commitdb1.date.replace(tzinfo=None) == datetime.datetime(2014, 9, 15, 8, 12, 11)
 	assert commitdb1.hash == '80a562be869dbb984229f608ae9a04d05c5e1689'
 	assert commitdb1.repository.path == repo.path	
 	assert commitdb2.author.name == 'pedro-andrade-inpe'
