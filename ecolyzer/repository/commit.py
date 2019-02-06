@@ -17,7 +17,7 @@ class Commit(Base):
 
 	def __init__(self, commit_info, author, repository):
 		self.hash = commit_info.hash
-		self.date = commit_info.date
+		self.date = commit_info.date.replace(tzinfo=None)
 		self.msg = commit_info.msg
 		self.author = author #Author(commit_info.author, commit_info.author_email)
 		self.repository = repository

@@ -35,7 +35,7 @@ class RepositoryMiner:
 		repo_driller = GitRepository(self.repo_path)
 		commit_driller = repo_driller.get_commit(hash)
 		commit_info = CommitInfo(hash)
-		commit_info.date = commit_driller.author_date.replace(tzinfo=None)
+		commit_info.date = commit_driller.author_date
 		commit_info.msg = commit_driller.msg
 		author_driller = commit_driller.author
 		commit_info.author = author_driller.name
