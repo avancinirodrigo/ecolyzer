@@ -1,4 +1,6 @@
+from enum import Enum
 from pydriller import RepositoryMining, GitRepository
+from pydriller.domain.commit import ModificationType
 from ecolyzer.repository.commit import CommitInfo
 from ecolyzer.repository.file_modification import FileModificationInfo
 
@@ -59,7 +61,6 @@ class RepositoryMiner:
 			file_mod.new_path = mod.new_path
 			file_mod.added = mod.added
 			file_mod.removed = mod.removed
+			file_mod.type = mod.change_type.name
 			files_modification.append(file_mod)
 		return files_modification
-			
-			
