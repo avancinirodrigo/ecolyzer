@@ -10,7 +10,6 @@ class File(Base):
 	name = Column(String, nullable=False)
 	path = Column(String)
 	ext = Column(String)
-	fullpath = Column(String, nullable=False, unique=True)
 
 	def __init__(self, fullpath):
 		path, file_with_ext = os.path.split(fullpath)
@@ -20,7 +19,17 @@ class File(Base):
 			filename, ext = file_with_ext.split('.')
 		else:
 			filename = file_with_ext
-		self.fullpath = fullpath
 		self.path = path
 		self.name = filename
 		self.ext = ext
+
+	def fullpath(self):
+		if self.ext == '':
+			if self.path == '':
+				return self.name
+			else:
+				return self.path + self.name		
+		elif self.path == '':
+			return self.name + '.' + self.ext
+		return self.path + '/' + self.name + '.' + self.ext
+		
