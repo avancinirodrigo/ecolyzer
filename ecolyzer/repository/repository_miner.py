@@ -2,7 +2,7 @@ from enum import Enum
 from pydriller import RepositoryMining, GitRepository
 from pydriller.domain.commit import ModificationType
 from ecolyzer.repository.commit import CommitInfo
-from ecolyzer.repository.file_modification import FileModificationInfo
+from ecolyzer.repository.modification import ModificationInfo
 
 class RepositoryMiner:
 	"""RepositoryMiner"""
@@ -46,7 +46,7 @@ class RepositoryMiner:
 		author_driller = commit_driller.author
 		commit_info.author_name = author_driller.name
 		commit_info.author_email = author_driller.email
-		commit_info.files_modification = self._get_modifications_info(commit_driller.modifications)
+		commit_info.modifications = self._get_modifications_info(commit_driller.modifications)
 		#commit_info.project_name = commit_driller.project_name
 		#commit_info.project_path = commit_driller.project_path
 		#commit_info.merge = commit_driller.merge
@@ -56,7 +56,7 @@ class RepositoryMiner:
 	def _get_modifications_info(self, modifications):
 		files_modification = []
 		for mod in modifications:
-			file_mod = FileModificationInfo(mod.filename)
+			file_mod = ModificationInfo(mod.filename)
 			file_mod.old_path = mod.old_path
 			file_mod.new_path = mod.new_path
 			file_mod.added = mod.added

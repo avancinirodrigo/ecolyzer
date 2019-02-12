@@ -2,9 +2,9 @@ from sqlalchemy import Column, String, Integer, ForeignKey
 from sqlalchemy.orm import relationship, backref
 from ecolyzer.dataaccess import Base
 
-class FileModification(Base):
-	"""FileModification"""
-	__tablename__ = 'file_modification'
+class Modification(Base):
+	"""Modification"""
+	__tablename__ = 'modification'
 
 	id = Column(Integer, primary_key=True)
 	old_path = Column(String, unique=True)
@@ -13,9 +13,9 @@ class FileModification(Base):
 	removed = Column(Integer)
 	type = Column(String, nullable=False)
 	commit_id = Column(Integer, ForeignKey('commit.id'))
-	commit = relationship('Commit', backref=backref('file_modification'))
+	commit = relationship('Commit', backref=backref('modification', cascade='all,delete'))
 	file_id = Column(Integer, ForeignKey('file.id'))
-	file = relationship('File', backref=backref('file_modification'))	
+	file = relationship('File', backref=backref('modification'))	
 
 	def __init__(self, mod_info, file, commit):
 		self.old_path = mod_info.old_path
@@ -26,7 +26,7 @@ class FileModification(Base):
 		self.commit = commit
 		self.file = file
 	
-class FileModificationInfo:
+class ModificationInfo:
 	def __init__(self, filename):
 		self.filename = filename
 		self.old_path = ''

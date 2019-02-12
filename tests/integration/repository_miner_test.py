@@ -1,4 +1,4 @@
-from ecolyzer.repository import RepositoryMiner, Repository, CommitInfo, Commit, Author, FileModification, File
+from ecolyzer.repository import RepositoryMiner, Repository, CommitInfo, Commit, Author, Modification, File
 from ecolyzer.system import System
 from ecolyzer.dataaccess import SQLAlchemyEngine
 
@@ -17,19 +17,19 @@ def test_get_commit():
 	assert commit_info.hash == '80a562be869dbb984229f608ae9a04d05c5e1689'
 	assert commit_info.author_name == 'pedro-andrade-inpe'
 	assert commit_info.author_email == 'pedro.andrade@inpe.br'
-	assert len(commit_info.files_modification) == 1
-	assert commit_info.files_modification[0].filename == 'LICENSE'
-	assert commit_info.files_modification[0].old_path == None
-	assert commit_info.files_modification[0].new_path == 'LICENSE'
-	assert commit_info.files_modification[0].added == 674
-	assert commit_info.files_modification[0].removed == 0
-	assert commit_info.files_modification[0].type == 'ADD'
+	assert len(commit_info.modifications) == 1
+	assert commit_info.modifications[0].filename == 'LICENSE'
+	assert commit_info.modifications[0].old_path == None
+	assert commit_info.modifications[0].new_path == 'LICENSE'
+	assert commit_info.modifications[0].added == 674
+	assert commit_info.modifications[0].removed == 0
+	assert commit_info.modifications[0].type == 'ADD'
 
 	author = Author(commit_info.author_name, commit_info.author_email)
 	commit = Commit(commit_info, author, repo)
-	fmodinfo = commit_info.files_modification[0]
+	fmodinfo = commit_info.modifications[0]
 	file = File(fmodinfo.filename)
-	filemod = FileModification(fmodinfo, file, commit)
+	filemod = Modification(fmodinfo, file, commit)
 	session = db.create_session()
 	session.add(repo)
 	session.add(sys)
@@ -38,7 +38,7 @@ def test_get_commit():
 	session.add(filemod)
 	session.commit()
 
-	filemoddb = session.query(FileModification).get(1)
+	filemoddb = session.query(Modification).get(1)
 	commitdb = filemoddb.commit
 	filedb = filemoddb.file
 
@@ -62,22 +62,22 @@ def test_get_commit():
 	assert commit_info.hash == 'ffb8347b2de44eb05f6c5eba3b3cb8b7716acebb'
 	assert commit_info.author_name == 'pedro-andrade-inpe'
 	assert commit_info.author_email == 'pedro.andrade@inpe.br'
-	assert len(commit_info.files_modification) == 1
-	assert commit_info.files_modification[0].filename == 'LICENSE'
-	assert commit_info.files_modification[0].old_path == 'LICENSE'
-	assert commit_info.files_modification[0].new_path == None
-	assert commit_info.files_modification[0].added == 0
-	assert commit_info.files_modification[0].removed == 674	
-	assert commit_info.files_modification[0].type == 'DELETE'
+	assert len(commit_info.modifications) == 1
+	assert commit_info.modifications[0].filename == 'LICENSE'
+	assert commit_info.modifications[0].old_path == 'LICENSE'
+	assert commit_info.modifications[0].new_path == None
+	assert commit_info.modifications[0].added == 0
+	assert commit_info.modifications[0].removed == 674	
+	assert commit_info.modifications[0].type == 'DELETE'
 
 	commit = Commit(commit_info, author, repo)
-	fmodinfo = commit_info.files_modification[0]
-	filemod = FileModification(fmodinfo, file, commit)
+	fmodinfo = commit_info.modifications[0]
+	filemod = Modification(fmodinfo, file, commit)
 	session.add(commit)
 	session.add(filemod)
 	session.commit()
 	
-	filemoddb2 = session.query(FileModification).get(2)
+	filemoddb2 = session.query(Modification).get(2)
 	commitdb2 = filemoddb2.commit
 	filedb2 = filemoddb2.file
 
@@ -94,7 +94,7 @@ def test_get_commit():
 	assert filemoddb2.removed == 674
 	assert filemoddb2.type == 'DELETE'	
 
-	filemoddb1 = session.query(FileModification).get(1)
+	filemoddb1 = session.query(Modification).get(1)
 	commitdb1 = filemoddb1.commit
 	filedb1 = filemoddb1.file
 

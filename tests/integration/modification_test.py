@@ -3,11 +3,11 @@ from ecolyzer.system import System
 from ecolyzer.repository import Repository, Commit, CommitInfo, Author, Modification, ModificationInfo, File
 from ecolyzer.dataaccess import SQLAlchemyEngine
 
-db_url = 'postgresql://postgres:postgres@localhost:5432/commit_test'
+db_url = 'postgresql://postgres:postgres@localhost:5432/modific_test'
 db = SQLAlchemyEngine(db_url)
 db.create_all(True)
 
-def test_commit_crud():
+def test_modification_crud():
 	#create
 	repo = Repository('repo/terrame')
 	sys = System('terrame', repo)
@@ -25,40 +25,42 @@ def test_commit_crud():
 	modinfo.removed = 0
 	modinfo.type = 'ADD'
 	file = File(modinfo.filename)
-	mod = Modification(modinfo, file, commit)	
+	mod = Modification(modinfo, file, commit)
 	
 	session = db.create_session()
-	session.add(commit)
+	session.add(mod)
 	session.commit()
 
 	#read	
-	commitdb = session.query(Commit).get(1)
-	assert commitdb.msg == commit_info.msg
-	assert commitdb.date.strftime('%Y-%m-%d %H:%M:%S') == '2019-02-06 14:14:55'
-	assert commitdb.hash == commit_info.hash
-	assert commitdb.repository.path == repo.path
-	assert commitdb.author.name == commit_info.author_name
-	assert commitdb.author.email == commit_info.author_email
+	moddb = session.query(Modification).get(1)
+	assert moddb.new_path == 'some/path/file.ext'
+	assert moddb.old_path == ''
+	assert moddb.added == 10
+	assert moddb.removed == 0
+	assert moddb.type == 'ADD'
+	assert moddb.commit_id == 1
+	assert moddb.file_id == 1
 
 	#update
-	commit.msg = 'updating message'
+	mod.type = 'DELETED'
 	session.commit()	
-	commitdb = session.query(Commit).get(1)
-	assert commitdb.msg == commit.msg
+	moddb = session.query(Modification).get(1)
+	assert moddb.type == 'DELETED'
 
 	#delete
-	session.delete(commit)
+	session.delete(mod)
 	session.commit()
-	commitdb = session.query(Commit).get(1)
 	moddb = session.query(Modification).get(1)
+	commitdb = session.query(Commit).get(1)
 	repodb = session.query(Repository).get(1)
 	authordb = session.query(Author).get(1)
 	filedb = session.query(File).get(1)
-	assert commitdb == None
 	assert moddb == None
-	assert repodb.path == repo.path 
-	assert authordb.name == author.name
+	assert commitdb.id == 1
+	assert repodb.id == 1 
+	assert authordb.id == 1
 	assert filedb.id == 1
+
 
 	session.close()
 	db.drop_all()

@@ -29,4 +29,4 @@ class CommitInfo:
 		self.msg = None
 		self.author_name = None
 		self.author_email = None
-		self.files_modification = None
+		self.modifications = None
