@@ -2,11 +2,10 @@ from ecolyzer.repository import RepositoryMiner, Repository, CommitInfo, Commit,
 from ecolyzer.system import System
 from ecolyzer.dataaccess import SQLAlchemyEngine
 
-db_url = 'postgresql://postgres:postgres@localhost:5432/miner_test'
-db = SQLAlchemyEngine(db_url)
-db.create_all(True)
-
 def test_get_commit():
+	db_url = 'postgresql://postgres:postgres@localhost:5432/miner_test'
+	db = SQLAlchemyEngine(db_url)
+	db.create_all(True)
 	repo = Repository('repo/terrame')
 	sys = System('terrame', repo)
 	miner = RepositoryMiner(repo.path)
@@ -113,3 +112,17 @@ def test_get_commit():
 
 	session.close()
 	db.drop_all()
+	
+def test_extract():
+	db_url = 'postgresql://postgres:postgres@localhost:5432/miner_test'
+	db = SQLAlchemyEngine(db_url)
+	db.create_all(True)
+	repo = Repository('repo/terrame')
+	sys = System('terrame', repo)
+	session = db.create_session()
+	session.add(repo)
+	session.add(sys)
+	session.commit()
+	miner = RepositoryMiner(repo)
+	miner.extract(session, '082dff5e822ea1b4491911b7bf434a7f47a4be26')
+	session.close()

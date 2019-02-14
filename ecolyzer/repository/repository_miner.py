@@ -1,13 +1,15 @@
 from enum import Enum
 from pydriller import RepositoryMining, GitRepository
 from pydriller.domain.commit import ModificationType
-from ecolyzer.repository.commit import CommitInfo
-from ecolyzer.repository.modification import ModificationInfo
+from ecolyzer.repository.commit import CommitInfo, Commit
+from ecolyzer.repository.modification import ModificationInfo, Modification
+from .author import Author
+from .file import File
 
 class RepositoryMiner:
 	"""RepositoryMiner"""
-	def __init__(self, repo_path):
-		self.repo_path = repo_path
+	def __init__(self, repo):
+		self.repo = repo
 		self.source_file_extensions = [
 			#'c', 'cc', 'cpp', 'h', 'hpp', 'hxx',
 			#'ui', 'qrc',
@@ -19,26 +21,29 @@ class RepositoryMiner:
 			#'rc',
 			# 'log', # verificar
 			#'lp', 'css',
-		]		
+		]
 
-	def extract(self):
-		for commit in RepositoryMining(self.repo_path, only_in_branches=['master']).traverse_commits():
-			self._add_commit(commit)
-			#for mod in commit.modifications:
-				
-				# if mod.change_type != None:
-					# if ((mod.change_type.name == "ADD") and (mod.added > 0)):
-						# git_file = GitFile(mod.new_path)
-						# git_file.added = mod.added
-						# git_files.append(git_file)
+	def extract(self, session, hash):
+		for commit_driller in RepositoryMining(self.repo.path,
+							only_modifications_with_file_types=self.source_file_extensions,
+							single=hash,
+							only_in_branch=['master']).traverse_commits():
+			#session = db.create_session()
+			commit_info = self._get_commit_info(commit_driller)
+			author = Author(commit_info.author_name, commit_info.author_email)
+			commit = Commit(commit_info, author, self.repo)
+			session.add(commit)
+			for mod_info in commit_info.modifications:
+				file = File(mod_info.new_path)
+				mod = Modification(mod_info, file, commit)
+				session.add(mod)
+			session.commit()
 
-		#return git_files
-		
 	def get_commit_info(self, hash):
 		repo_driller = GitRepository(self.repo_path)
 		commit_driller = repo_driller.get_commit(hash)
-		return self._get_commit_info(commit_driller)	
-		
+		return self._get_commit_info(commit_driller)
+
 	def _get_commit_info(self, commit_driller):
 		commit_info = CommitInfo(commit_driller.hash)
 		commit_info.date = commit_driller.author_date
@@ -50,9 +55,9 @@ class RepositoryMiner:
 		#commit_info.project_name = commit_driller.project_name
 		#commit_info.project_path = commit_driller.project_path
 		#commit_info.merge = commit_driller.merge
-		#commit_info.in_main_branch = commit_driller.in_main_branch		
+		#commit_info.in_main_branch = commit_driller.in_main_branch
 		return commit_info
-	
+
 	def _get_modifications_info(self, modifications):
 		files_modification = []
 		for mod in modifications:
