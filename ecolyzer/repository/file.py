@@ -17,9 +17,15 @@ class File(Base):
 		ext = ''
 		if '.' in file_with_ext:
 			split_list = file_with_ext.split('.')
-			if len(split_list) == 2: 
-				filename, ext = file_with_ext.split('.') #TODO: two time here
-			#else: TODO
+			if len(split_list) > 2:
+				ext = split_list.pop()
+				filename = '.'.join(split_list)
+			else:
+				if file_with_ext.startswith('.'):
+					filename = '.' + split_list[1]
+				else:
+					filename = split_list[0] 
+					ext = split_list[1]
 		else:
 			filename = file_with_ext
 		self.path = path
