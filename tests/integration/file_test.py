@@ -5,7 +5,7 @@ db_url = 'postgresql://postgres:postgres@localhost:5432/file_test'
 db = SQLAlchemyEngine(db_url)
 db.create_all(True)
 
-def test_system_crud():
+def test_file_crud():
 	#create
 	filepath = 'some/path/file.ext'
 	file = File(filepath)

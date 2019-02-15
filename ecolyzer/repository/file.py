@@ -24,7 +24,7 @@ class File(Base):
 				if file_with_ext.startswith('.'):
 					filename = '.' + split_list[1]
 				else:
-					filename = split_list[0] 
+					filename = split_list[0]
 					ext = split_list[1]
 		else:
 			filename = file_with_ext
@@ -37,8 +37,7 @@ class File(Base):
 			if self.path == '':
 				return self.name
 			else:
-				return self.path + self.name		
+				return self.path + self.name
 		elif self.path == '':
 			return self.name + '.' + self.ext
 		return self.path + '/' + self.name + '.' + self.ext
-		
