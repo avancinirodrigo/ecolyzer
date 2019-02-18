@@ -5,8 +5,9 @@ import os
 def test_extract_functions():
 	luafile = os.path.join(os.path.dirname(__file__), 'data', 'Utils.lua')
 	src = open(luafile).read()
-	LuaParser().parser(src)
-	functions = LuaParser().extract_functions()
+	parser = LuaParser()
+	parser.parser(src)
+	functions = parser.extract_functions()
 
 	file_functions = {
 		'clean' : True,

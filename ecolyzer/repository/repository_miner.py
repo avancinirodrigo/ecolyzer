@@ -1,8 +1,10 @@
 from enum import Enum
 from pydriller import RepositoryMining, GitRepository
 from pydriller.domain.commit import ModificationType
-from ecolyzer.repository.commit import CommitInfo, Commit
-from ecolyzer.repository.modification import ModificationInfo, Modification
+from ecolyzer.system import SourceFile, Function
+from ecolyzer.parser import LuaParser
+from .commit import CommitInfo, Commit
+from .modification import ModificationInfo, Modification
 from .author import Author
 from .file import File
 
@@ -36,11 +38,21 @@ class RepositoryMiner:
 			for mod_info in commit_info.modifications:
 				file = File(mod_info.new_path)
 				mod = Modification(mod_info, file, commit)
+				if self._is_source_file_ext(file.ext):
+					srcfile = SourceFile(file)
+					session.add(srcfile)
+					functions = self._extract_functions(srcfile, mod.source_code)
+					for func in functions:
+						function = Function(func, srcfile)
+						session.add(function)
 				session.add(mod)
 			session.commit()
 
+	def _is_source_file_ext(self, ext):
+		return ext in self.source_file_extensions
+
 	def get_commit_info(self, hash):
-		repo_driller = GitRepository(self.repo_path)
+		repo_driller = GitRepository(self.repo.path)
 		commit_driller = repo_driller.get_commit(hash)
 		return self._get_commit_info(commit_driller)
 
@@ -67,5 +79,13 @@ class RepositoryMiner:
 			file_mod.added = mod.added
 			file_mod.removed = mod.removed
 			file_mod.type = mod.change_type.name
+			file_mod.source_code = mod.source_code
 			files_modification.append(file_mod)
 		return files_modification
+
+	def _extract_functions(self, source_file, source_code):
+		if source_file.ext == 'lua':
+			parser = LuaParser()
+			parser.parser(source_code)
+			return parser.extract_functions()
+		return []

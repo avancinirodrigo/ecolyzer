@@ -9,7 +9,7 @@ class SourceFile(Base):
 	id = Column(Integer, primary_key=True)
 	ext = Column(String)
 	file_id = Column(Integer, ForeignKey('file.id'))
-	file = relationship('File', backref=backref('source_file'))
+	file = relationship('File', backref=backref('source_file', uselist=False))
 
 	def __init__(self, file):
 		self.file = file

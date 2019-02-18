@@ -2,13 +2,14 @@ from ecolyzer.repository import RepositoryMiner, Repository, CommitInfo, Commit,
 from ecolyzer.system import System
 from ecolyzer.dataaccess import SQLAlchemyEngine
 
+db_url = 'postgresql://postgres:postgres@localhost:5432/miner_test'
+	
 def test_get_commit():
-	db_url = 'postgresql://postgres:postgres@localhost:5432/miner_test'
 	db = SQLAlchemyEngine(db_url)
 	db.create_all(True)
 	repo = Repository('repo/terrame')
 	sys = System('terrame', repo)
-	miner = RepositoryMiner(repo.path)
+	miner = RepositoryMiner(repo)
 	commit_info = miner.get_commit_info('80a562be869dbb984229f608ae9a04d05c5e1689')
 
 	assert commit_info.msg == 'Initial commit'
@@ -114,7 +115,6 @@ def test_get_commit():
 	db.drop_all()
 	
 def test_extract():
-	db_url = 'postgresql://postgres:postgres@localhost:5432/miner_test'
 	db = SQLAlchemyEngine(db_url)
 	db.create_all(True)
 	repo = Repository('repo/terrame')
@@ -126,3 +126,4 @@ def test_extract():
 	miner = RepositoryMiner(repo)
 	miner.extract(session, '082dff5e822ea1b4491911b7bf434a7f47a4be26')
 	session.close()
+	db.drop_all()
