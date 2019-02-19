@@ -46,3 +46,23 @@ def test_function_crud():
 	
 	session.close()
 	db.drop_all()
+	
+def test_add_function_same_name():
+	db = SQLAlchemyEngine(db_url)
+	db.create_all(True)
+ 
+	file1 = File('some/path/file1.src')
+	src_file1 = SourceFile(file1)
+	f1 = Function('get', src_file1)
+	
+	file2 = File('some/path/file2.src')
+	src_file2 = SourceFile(file2)
+	f2 = Function('get', src_file2)
+
+	session = db.create_session()
+	#session.add(src_file1)
+	#session.add(src_file2)
+	session.commit()
+	
+	session.close()
+	db.drop_all()	
