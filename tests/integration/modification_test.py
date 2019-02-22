@@ -1,6 +1,6 @@
 import datetime
-from ecolyzer.system import System
-from ecolyzer.repository import Repository, Commit, CommitInfo, Author, Modification, ModificationInfo, File
+from ecolyzer.system import File, System
+from ecolyzer.repository import Repository, Commit, CommitInfo, Author, Modification, ModificationInfo
 from ecolyzer.dataaccess import SQLAlchemyEngine
 
 db_url = 'postgresql://postgres:postgres@localhost:5432/modific_test'

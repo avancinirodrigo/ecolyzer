@@ -1,12 +1,12 @@
-from ecolyzer.system import System
+from ecolyzer.system import System, File
 from ecolyzer.repository import Repository
 from ecolyzer.dataaccess import SQLAlchemyEngine
 
-db_url = 'postgresql://postgres:postgres@localhost:5432/system_test'
-db = SQLAlchemyEngine(db_url)
-db.create_all(True)
-
 def test_system_crud():
+	db_url = 'postgresql://postgres:postgres@localhost:5432/system_crud'
+	db = SQLAlchemyEngine(db_url)
+	db.create_all(True)	
+
 	#create
 	repo = Repository('repo/terrame')
 	sys = System('terrame', repo)
@@ -37,3 +37,24 @@ def test_system_crud():
 	session.close()
 	db.drop_all()
 	
+def test_add_file():
+	db_url = 'postgresql://postgres:postgres@localhost:5432/system_add_file'
+	db = SQLAlchemyEngine(db_url)
+	db.create_all(True)
+
+	repo = Repository('repo/terrame')
+	sys = System('terrame', repo)
+	session = db.create_session()	
+	session.add(repo)
+	session.add(sys)
+
+	file1 = File('path/file1.ext')
+	sys.add_file(file1)
+
+	session.commit()
+
+	file1db = session.query(File).get(1)	
+	assert file1db.system_id == sys.id
+
+	session.close()
+	db.drop_all()

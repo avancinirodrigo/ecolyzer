@@ -1,11 +1,12 @@
-from ecolyzer.repository import File
+from ecolyzer.repository import Repository #TODO: why import module?
+from ecolyzer.system import File
 from ecolyzer.dataaccess import SQLAlchemyEngine
 
-db_url = 'postgresql://postgres:postgres@localhost:5432/file_test'
-db = SQLAlchemyEngine(db_url)
-db.create_all(True)
-
 def test_file_crud():
+	db_url = 'postgresql://postgres:postgres@localhost:5432/file_crud'
+	db = SQLAlchemyEngine(db_url)
+	db.create_all(True)
+
 	#create
 	filepath = 'some/path/file.ext'
 	file = File(filepath)

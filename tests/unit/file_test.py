@@ -1,4 +1,4 @@
-from ecolyzer.repository import File
+from ecolyzer.system import File
 
 def test_fullpath():
 	filepath1 = 'some/path/file1.exa'

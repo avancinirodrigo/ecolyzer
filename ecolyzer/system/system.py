@@ -15,3 +15,8 @@ class System(Base):
 	def __init__(self, name, repository):
 		self.name = name
 		self.repository = repository
+		self.files = []
+
+	def add_file(self, file):
+		file.system = self
+		self.files.append(file)

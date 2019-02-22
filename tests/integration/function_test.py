@@ -1,5 +1,4 @@
-from ecolyzer.repository import File
-from ecolyzer.system import SourceFile, Function
+from ecolyzer.system import File, SourceFile, Function
 from ecolyzer.dataaccess import SQLAlchemyEngine
 
 db_url = 'postgresql://postgres:postgres@localhost:5432/function_test'

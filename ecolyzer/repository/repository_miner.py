@@ -1,12 +1,11 @@
 from enum import Enum
 from pydriller import RepositoryMining, GitRepository
 from pydriller.domain.commit import ModificationType
-from ecolyzer.system import SourceFile, Function
+from ecolyzer.system import File, SourceFile, Function
 from ecolyzer.parser import LuaParser
 from .commit import CommitInfo, Commit
 from .modification import ModificationInfo, Modification
 from .author import Author
-from .file import File
 
 class RepositoryMiner:
 	"""RepositoryMiner"""

@@ -1,5 +1,4 @@
 from sqlalchemy import Column, String, Integer
-#from sqlalchemy.orm import relationship, backref
 from ecolyzer.dataaccess import Base
 
 class Repository(Base):

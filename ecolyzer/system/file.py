@@ -1,5 +1,6 @@
 import os
-from sqlalchemy import Column, String, Integer
+from sqlalchemy import Column, String, Integer, ForeignKey
+from sqlalchemy.orm import relationship, backref
 from ecolyzer.dataaccess import Base
 
 class File(Base):
@@ -10,6 +11,8 @@ class File(Base):
 	name = Column(String, nullable=False)
 	path = Column(String)
 	ext = Column(String)
+	system_id = Column(Integer, ForeignKey('system.id'))
+	system = relationship('System', backref=backref('file'))	
 
 	def __init__(self, fullpath):
 		path, file_with_ext = os.path.split(fullpath)
@@ -31,6 +34,14 @@ class File(Base):
 		self.path = path
 		self.name = filename
 		self.ext = ext
+
+	@property
+	def path(self):
+		return self._path
+
+	@path.setter
+	def path(self, path):
+		self._path = path
 
 	def fullpath(self):
 		if self.ext == '':

@@ -1,5 +1,5 @@
-from ecolyzer.repository import RepositoryMiner, Repository, CommitInfo, Commit, Author, Modification, File
-from ecolyzer.system import System
+from ecolyzer.repository import RepositoryMiner, Repository, CommitInfo, Commit, Author, Modification
+from ecolyzer.system import System, File
 from ecolyzer.dataaccess import SQLAlchemyEngine
 
 db_url = 'postgresql://postgres:postgres@localhost:5432/miner_test'
