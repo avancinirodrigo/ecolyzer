@@ -1,3 +1,4 @@
+from ecolyzer.repository import Repository #TODO: why import module?
 from ecolyzer.system import File
 
 def test_fullpath():
@@ -9,19 +10,19 @@ def test_fullpath():
 	assert file1.name == 'file1'
 	assert file1.path == 'some/path'
 	assert file1.ext == 'exa'
-	assert file1.fullpath() == filepath1
+	assert file1.fullpath == filepath1
 
 	file2 = File(filepath2)
 	assert file2.name == 'file2'
 	assert file2.path == ''
 	assert file2.ext == 'exb'
-	assert file2.fullpath() == filepath2
+	assert file2.fullpath == filepath2
 
 	file3 = File(filepath3)
 	assert file3.name == 'file3'
 	assert file3.path == ''
 	assert file3.ext == ''
-	assert file3.fullpath() == filepath3
+	assert file3.fullpath == filepath3
 
 def test_more_than_one_dot():
 	file_2dots = File('file.ex.t')
@@ -36,16 +37,16 @@ def test_dot_at_begin():
 	file1 = File('.file')
 	assert file1.name == '.file'
 	assert file1.ext == ''
-	assert file1.fullpath() == '.file'
+	assert file1.fullpath == '.file'
 
 	file2 = File('path/.file.ext')
 	assert file2.name == '.file'
 	assert file2.ext == 'ext' 
 	assert file2.path == 'path'
-	assert file2.fullpath() == 'path/.file.ext' 
+	assert file2.fullpath == 'path/.file.ext' 
 
 	file3 = File('some/path/.file.e.x.t')
 	assert file3.name == '.file.e.x'
 	assert file3.ext == 't' 
 	assert file3.path == 'some/path'
-	assert file3.fullpath() == 'some/path/.file.e.x.t' 
+	assert file3.fullpath == 'some/path/.file.e.x.t' 

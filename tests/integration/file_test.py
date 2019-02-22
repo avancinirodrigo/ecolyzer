@@ -13,7 +13,7 @@ def test_file_crud():
 	assert file.name == 'file'
 	assert file.path == 'some/path'
 	assert file.ext == 'ext'
-	assert file.fullpath() == filepath
+	assert file.fullpath == filepath
 
 	session = db.create_session()	
 	session.add(file)
@@ -24,14 +24,19 @@ def test_file_crud():
 	assert filedb.name == file.name
 	assert filedb.path == file.path
 	assert filedb.ext == file.ext
-	assert filedb.fullpath() == file.fullpath()
+	assert filedb.fullpath == file.fullpath
 
 	#update
 	file.name = 'renamed_file'
-	assert file.fullpath() == 'some/path/renamed_file.ext'
+	assert file.fullpath == 'some/path/renamed_file.ext'
+	file.path = 'new/path'
+	assert file.fullpath == 'new/path/renamed_file.ext'
+	file.ext = 'txe'
+	assert file.fullpath == 'new/path/renamed_file.txe'	
 	session.commit()	
 	filedb = session.query(File).get(1)
-	assert filedb.fullpath() == file.fullpath()
+	assert filedb.fullpath == file.fullpath
+	assert filedb.name == file.name
 
 	#delete
 	session.delete(file)

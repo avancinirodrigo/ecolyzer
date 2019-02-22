@@ -11,6 +11,7 @@ class File(Base):
 	name = Column(String, nullable=False)
 	path = Column(String)
 	ext = Column(String)
+	fullpath = Column(String, nullable=False, unique=True)
 	system_id = Column(Integer, ForeignKey('system.id'))
 	system = relationship('System', backref=backref('file'))	
 
@@ -34,6 +35,7 @@ class File(Base):
 		self.path = path
 		self.name = filename
 		self.ext = ext
+		self.fullpath = fullpath
 
 	@property
 	def path(self):
@@ -42,9 +44,57 @@ class File(Base):
 	@path.setter
 	def path(self, path):
 		self._path = path
+		self.fullpath = self._fullpath()
+		
+	@property
+	def name(self):
+		return self._name
 
-	def fullpath(self):
-		if self.ext == '':
+	@name.setter
+	def name(self, name):
+		self._name = name	
+		self.fullpath = self._fullpath()
+		
+	@property
+	def ext(self):
+		return self._ext
+
+	@ext.setter
+	def ext(self, ext):
+		self._ext = ext	
+		self.fullpath = self._fullpath()
+
+	# @hibrid_property # TODO: how to handle fullpath if change it?
+	# def fullpath(self):
+		# return self._fullpath()	
+		
+	# @fullpath.setter
+	# def fullpath(self, fullpath):
+		# self._fullpath = fullpath	
+		# path, file_with_ext = os.path.split(fullpath)
+		# filename = ''
+		# ext = ''
+		# if '.' in file_with_ext:
+			# split_list = file_with_ext.split('.')
+			# if len(split_list) > 2:
+				# ext = split_list.pop()
+				# filename = '.'.join(split_list)
+			# else:
+				# if file_with_ext.startswith('.'):
+					# filename = '.' + split_list[1]
+				# else:
+					# filename = split_list[0]
+					# ext = split_list[1]
+		# else:
+			# filename = file_with_ext		
+		# self.path = path
+		# self.name = filename
+		# self.ext = ext	
+
+	def _fullpath(self):
+		if self.fullpath == None:
+			return
+		elif self.ext == '':
 			if self.path == '':
 				return self.name
 			else:
