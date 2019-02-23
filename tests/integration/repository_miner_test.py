@@ -48,7 +48,7 @@ def test_get_commit():
 	assert commitdb.repository.path == repo.path
 	assert commitdb.author.name == 'pedro-andrade-inpe'
 	assert commitdb.author.email == 'pedro.andrade@inpe.br'	
-	assert filedb.fullpath() == 'LICENSE'
+	assert filedb.fullpath == 'LICENSE'
 	assert filemoddb.old_path == None
 	assert filemoddb.new_path == 'LICENSE'
 	assert filemoddb.added == 674
@@ -87,7 +87,7 @@ def test_get_commit():
 	assert commitdb2.repository.id == repo.id
 	assert commitdb2.author.name == 'pedro-andrade-inpe'
 	assert commitdb2.author.email == 'pedro.andrade@inpe.br'		
-	assert filedb2.fullpath() == 'LICENSE'
+	assert filedb2.fullpath == 'LICENSE'
 	assert filemoddb2.old_path == 'LICENSE'
 	assert filemoddb2.new_path == None
 	assert filemoddb2.added == 0
@@ -104,7 +104,7 @@ def test_get_commit():
 	assert commitdb1.repository.path == repo.path	
 	assert commitdb2.author.name == 'pedro-andrade-inpe'
 	assert commitdb2.author.email == 'pedro.andrade@inpe.br'
-	assert filedb1.fullpath() == 'LICENSE'
+	assert filedb1.fullpath == 'LICENSE'
 	assert filemoddb1.old_path == None
 	assert filemoddb1.new_path == 'LICENSE'
 	assert filemoddb1.added == 674

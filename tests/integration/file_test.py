@@ -32,7 +32,9 @@ def test_file_crud():
 	file.path = 'new/path'
 	assert file.fullpath == 'new/path/renamed_file.ext'
 	file.ext = 'txe'
-	assert file.fullpath == 'new/path/renamed_file.txe'	
+	assert file.fullpath == 'new/path/renamed_file.txe'
+	file.fullpath = 'new/full/path/renamed_file.txe'	
+	assert file.fullpath == 'new/full/path/renamed_file.txe'
 	session.commit()	
 	filedb = session.query(File).get(1)
 	assert filedb.fullpath == file.fullpath
