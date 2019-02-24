@@ -25,7 +25,7 @@ def test_source_file_crud():
 
 	#update
 	file.ext = 'crs'
-	src_file.ext = 'crs' #TODO: HOW UPDATE WHEN FILE UPDATE
+	src_file.ext = 'crs'
 	session.commit()
 	src_filedb = session.query(SourceFile).get(1)
 	assert src_filedb.ext == file.ext
