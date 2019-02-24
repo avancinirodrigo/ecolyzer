@@ -15,8 +15,11 @@ class System(Base):
 	def __init__(self, name, repository):
 		self.name = name
 		self.repository = repository
-		self.files = []
+		self.files = {}
 
 	def add_file(self, file):
-		file.system = self
-		self.files.append(file)
+		if file.fullpath not in self.files: 
+			file.system = self
+			self.files[file.fullpath] = file
+		else:
+			raise ValueError('File \'{0}\' is already present'.format(file.fullpath))
