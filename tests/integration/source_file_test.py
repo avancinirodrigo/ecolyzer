@@ -1,9 +1,9 @@
+from ecolyzer.repository import Repository
 from ecolyzer.system import File, SourceFile, Function
 from ecolyzer.dataaccess import SQLAlchemyEngine
 
-db_url = 'postgresql://postgres:postgres@localhost:5432/src_file_test'
-
 def test_source_file_crud():
+	db_url = 'postgresql://postgres:postgres@localhost:5432/src_file_crud'
 	db = SQLAlchemyEngine(db_url)
 	db.create_all(True)
 
@@ -44,6 +44,7 @@ def test_source_file_crud():
 	db.drop_all()
 
 def test_one_to_one_relation():
+	db_url = 'postgresql://postgres:postgres@localhost:5432/src_file_one_to_one'	
 	db = SQLAlchemyEngine(db_url)
 	db.create_all(True)
 	
@@ -64,3 +65,26 @@ def test_one_to_one_relation():
 	
 	session.close()
 	db.drop_all()
+
+def test_add_function():
+	db_url = 'postgresql://postgres:postgres@localhost:5432/src_file_one_to_one'	
+	db = SQLAlchemyEngine(db_url)
+	db.create_all(True)
+
+	filepath = 'some/path/file.src'
+	file = File(filepath)
+	src_file = SourceFile(file)
+
+	f1 = Function('get')
+	src_file.add_function(f1)
+
+	session = db.create_session()
+	session.add(src_file)
+	session.commit()	
+
+	f1db = session.query(Function).get(1)
+	assert f1db.name == 'get'
+	assert f1db.source_file_id == 1
+
+	session.close()
+	db.drop_all()	 

@@ -12,6 +12,6 @@ class Function(Base):
 	source_file = relationship('SourceFile', backref=backref('function', 
 											cascade='all,delete'))
 
-	def __init__(self, name, source_file):
+	def __init__(self, name, source_file=None):
 		self.name = name
 		self.source_file = source_file

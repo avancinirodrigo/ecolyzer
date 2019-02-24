@@ -14,3 +14,14 @@ class SourceFile(Base):
 	def __init__(self, file):
 		self.file = file
 		self.ext = file.ext
+		self.functions = {}
+
+	def add_function(self, function):
+		if function.name not in self.functions: 
+			function.source_file = self
+			self.functions[function.name] = function
+		else:
+			raise ValueError('Function \'{0}\' is already present'.format(function.name))
+
+	def function_exists(self, name):
+		return name in self.function	
