@@ -88,3 +88,12 @@ class RepositoryMiner:
 			parser.parser(source_code)
 			return parser.extract_functions()
 		return []
+
+	def is_source_file(self, file):
+		return self._is_source_file_ext(file.ext)
+
+	def extract_functions(self, source_file, modification):
+		function_names = self._extract_functions(source_file, modification.source_code)
+		for name in function_names:
+			if not source_file.function_exists(name):
+				source_file.add_function(Function(name))

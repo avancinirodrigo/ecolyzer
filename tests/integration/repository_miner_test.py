@@ -1,10 +1,9 @@
 from ecolyzer.repository import RepositoryMiner, Repository, CommitInfo, Commit, Author, Modification
-from ecolyzer.system import System, File
+from ecolyzer.system import System, File, SourceFile, Function
 from ecolyzer.dataaccess import SQLAlchemyEngine
-
-db_url = 'postgresql://postgres:postgres@localhost:5432/miner_test'
 	
 def test_get_commit():
+	db_url = 'postgresql://postgres:postgres@localhost:5432/miner_get_commit'
 	db = SQLAlchemyEngine(db_url)
 	db.create_all(True)
 	repo = Repository('repo/terrame')
@@ -115,6 +114,7 @@ def test_get_commit():
 	db.drop_all()
 	
 def test_extract():
+	db_url = 'postgresql://postgres:postgres@localhost:5432/miner_extract'
 	db = SQLAlchemyEngine(db_url)
 	db.create_all(True)
 	repo = Repository('repo/terrame')
@@ -127,3 +127,38 @@ def test_extract():
 	miner.extract(session, '082dff5e822ea1b4491911b7bf434a7f47a4be26')
 	session.close()
 	db.drop_all()
+
+def test_get_commit_source_file():
+	db_url = 'postgresql://postgres:postgres@localhost:5432/miner_sources'
+	db = SQLAlchemyEngine(db_url)
+	db.create_all(True)
+	repo = Repository('repo/terrame')
+	sys = System('terrame', repo)
+	miner = RepositoryMiner(repo)
+	commit_info = miner.get_commit_info('082dff5e822ea1b4491911b7bf434a7f47a4be26')
+	author = Author(commit_info.author_name, commit_info.author_email)
+	commit = Commit(commit_info, author, repo)
+	session = db.create_session()
+	for mod_info in commit_info.modifications:
+		file = File(mod_info.new_path)
+		sys.add_file(file)
+		mod = Modification(mod_info, file, commit)
+		if miner.is_source_file(file):
+			srcfile = SourceFile(file)
+			miner.extract_functions(srcfile, mod)	
+		session.add(mod)
+
+	session.commit()
+	afile = sys.get_file('base/lua/CellularSpace.lua')
+	srcfiledb = session.query(SourceFile).filter_by(file_id = afile.id).first()
+	assert srcfiledb.ext == 'lua'
+	moddb = session.query(Modification).filter_by(file_id = afile.id).first()
+	#print(moddb.source_code)
+	functions = session.query(Function).filter_by(source_file_id = srcfiledb.id).all()
+
+	#for func in functions:
+	#	print(func.name)
+
+	session.close()
+	db.drop_all()
+
