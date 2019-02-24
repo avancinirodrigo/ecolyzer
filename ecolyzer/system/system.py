@@ -23,3 +23,6 @@ class System(Base):
 			self.files[file.fullpath] = file
 		else:
 			raise ValueError('File \'{0}\' is already present'.format(file.fullpath))
+
+	def file_exists(self, file_fullpath):
+		return file_fullpath in self.files
