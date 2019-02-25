@@ -97,3 +97,4 @@ class RepositoryMiner:
 		for name in function_names:
 			if not source_file.function_exists(name):
 				source_file.add_function(Function(name))
+				

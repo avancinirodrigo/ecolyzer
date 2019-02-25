@@ -24,4 +24,7 @@ class SourceFile(Base):
 			raise ValueError('Function \'{0}\' is already present'.format(function.name))
 
 	def function_exists(self, name):
-		return name in self.function	
+		return name in self.functions
+
+	def get_function(self, name):
+		return self.functions[name]	

@@ -1,3 +1,4 @@
+import os
 from ecolyzer.repository import RepositoryMiner, Repository, CommitInfo, Commit, Author, Modification
 from ecolyzer.system import System, File, SourceFile, Function
 from ecolyzer.dataaccess import SQLAlchemyEngine
@@ -152,12 +153,19 @@ def test_get_commit_source_file():
 	afile = sys.get_file('base/lua/CellularSpace.lua')
 	srcfiledb = session.query(SourceFile).filter_by(file_id = afile.id).first()
 	assert srcfiledb.ext == 'lua'
-	moddb = session.query(Modification).filter_by(file_id = afile.id).first()
-	#print(moddb.source_code)
-	functions = session.query(Function).filter_by(source_file_id = srcfiledb.id).all()
+	#TODO: how to load all functions together?
+	#assert len(srcfiledb.functions) == 1
 
-	#for func in functions:
-	#	print(func.name)
+	moddb = session.query(Modification).filter_by(file_id = afile.id).first()
+	asrc_file = SourceFile(afile)
+	assert len(asrc_file.functions) == 0
+
+	miner.extract_functions(asrc_file, moddb)
+	assert len(asrc_file.functions) == 1
+	assert asrc_file.function_exists('CellularSpace')
+
+	functions = session.query(Function).filter_by(source_file_id = srcfiledb.id).all()	
+	assert asrc_file.function_exists(functions[0].name)
 
 	session.close()
 	db.drop_all()

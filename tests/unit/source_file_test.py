@@ -23,5 +23,5 @@ def test_function_exists():
 	f1 = Function('get')
 	src_file.add_function(f1)	
 
-	assert src_file.function_exists(f1)
+	assert src_file.function_exists(f1.name)
 	
