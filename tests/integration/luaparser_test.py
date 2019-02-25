@@ -58,3 +58,10 @@ def test_extract_functions():
 	for func in functions:
 		assert file_functions[func]
 
+	luafile = os.path.join(os.path.dirname(__file__), 'data', 'CellularSpace1.lua')
+	src = open(luafile).read()
+	parser = LuaParser()
+	parser.parser(src)
+	functions = parser.extract_functions()
+	assert len(functions) == 1	
+	assert functions[0] == 'CellularSpace'

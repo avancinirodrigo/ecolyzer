@@ -1,7 +1,7 @@
 from luaparser import ast
 from luaparser import astnodes
 
-class LuaParser(object):
+class LuaParser:
 	def parser(self, src):
 		self.tree = ast.parse(src)
 
@@ -11,7 +11,9 @@ class LuaParser(object):
 		return visitor.functions
 
 class FunctionVisitor(ast.ASTVisitor):
-	functions = []
+	def __init__(self):
+		self.functions = []
+		
 	def visit_Function(self, node):
 		if isinstance(node.name, astnodes.Name):
 			self.functions.append(node.name.id)
