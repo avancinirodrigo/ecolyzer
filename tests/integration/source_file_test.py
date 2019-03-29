@@ -1,5 +1,5 @@
 from ecolyzer.repository import Repository
-from ecolyzer.system import File, SourceFile, Function
+from ecolyzer.system import File, SourceFile, Operation
 from ecolyzer.dataaccess import SQLAlchemyEngine
 
 def test_source_file_crud():
@@ -11,8 +11,8 @@ def test_source_file_crud():
 	filepath = 'some/path/file.src'
 	file = File(filepath)
 	src_file = SourceFile(file)
-	f1 = Function('get', src_file)
-	f2 = Function('add', src_file)	
+	f1 = Operation('get', src_file)
+	f2 = Operation('add', src_file)	
 
 	session = db.create_session()
 	session.add(file)
@@ -35,7 +35,7 @@ def test_source_file_crud():
 	session.commit()
 	src_filedb = session.query(SourceFile).get(1)
 	filedb = session.query(File).get(1)
-	funcsdb = session.query(Function).all()
+	funcsdb = session.query(Operation).all()
 	assert src_filedb == None
 	assert filedb.name == 'file'
 	assert len(funcsdb) == 0
@@ -66,7 +66,7 @@ def test_one_to_one_relation():
 	session.close()
 	db.drop_all()
 
-def test_add_function():
+def test_add_operation():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/src_file_one_to_one'	
 	db = SQLAlchemyEngine(db_url)
 	db.create_all(True)
@@ -75,14 +75,14 @@ def test_add_function():
 	file = File(filepath)
 	src_file = SourceFile(file)
 
-	f1 = Function('get')
-	src_file.add_function(f1)
+	f1 = Operation('get')
+	src_file.add_operation(f1)
 
 	session = db.create_session()
 	session.add(src_file)
 	session.commit()	
 
-	f1db = session.query(Function).get(1)
+	f1db = session.query(Operation).get(1)
 	assert f1db.name == 'get'
 	assert f1db.source_file_id == 1
 

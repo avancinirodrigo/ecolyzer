@@ -1,6 +1,6 @@
 import os
 from ecolyzer.repository import RepositoryMiner, Repository, CommitInfo, Commit, Author, Modification
-from ecolyzer.system import System, File, SourceFile, Function
+from ecolyzer.system import System, File, SourceFile, Operation
 from ecolyzer.dataaccess import SQLAlchemyEngine
 	
 def test_get_commit():
@@ -158,15 +158,14 @@ def test_get_commit_source_file():
 
 	moddb = session.query(Modification).filter_by(file_id = afile.id).first()
 	asrc_file = SourceFile(afile)
-	assert len(asrc_file.functions) == 0
+	assert len(asrc_file.operations) == 0
 
 	miner.extract_functions(asrc_file, moddb)
-	assert len(asrc_file.functions) == 1
-	assert asrc_file.function_exists('CellularSpace')
+	assert len(asrc_file.operations) == 1
+	assert asrc_file.operation_exists('CellularSpace')
 
-	functions = session.query(Function).filter_by(source_file_id = srcfiledb.id).all()	
-	assert asrc_file.function_exists(functions[0].name)
+	functions = session.query(Operation).filter_by(source_file_id = srcfiledb.id).all()	
+	assert asrc_file.operation_exists(functions[0].name)
 
 	session.close()
 	db.drop_all()
-

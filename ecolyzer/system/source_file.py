@@ -14,17 +14,17 @@ class SourceFile(Base):
 	def __init__(self, file):
 		self.file = file
 		self.ext = file.ext
-		self.functions = {}
+		self.operations = {}
 
-	def add_function(self, function):
-		if function.name not in self.functions: 
-			function.source_file = self
-			self.functions[function.name] = function
+	def add_operation(self, operation):
+		if operation.name not in self.operations: 
+			operation.source_file = self
+			self.operations[operation.name] = operation
 		else:
-			raise ValueError('Function \'{0}\' is already present'.format(function.name))
+			raise ValueError('Operation \'{0}\' is already present'.format(operation.name))
 
-	def function_exists(self, name):
-		return name in self.functions
+	def operation_exists(self, name):
+		return name in self.operations
 
-	def get_function(self, name):
-		return self.functions[name]	
+	def get_operation(self, name):
+		return self.operations[name]	

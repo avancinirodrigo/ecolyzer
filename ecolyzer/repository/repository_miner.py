@@ -1,7 +1,7 @@
 from enum import Enum
 from pydriller import RepositoryMining, GitRepository
 from pydriller.domain.commit import ModificationType
-from ecolyzer.system import File, SourceFile, Function
+from ecolyzer.system import File, SourceFile, Operation
 from ecolyzer.parser import LuaParser
 from .commit import CommitInfo, Commit
 from .modification import ModificationInfo, Modification
@@ -42,7 +42,7 @@ class RepositoryMiner:
 					session.add(srcfile)
 					functions = self._extract_functions(srcfile, mod.source_code)
 					for func in functions:
-						function = Function(func, srcfile)
+						function = Operation(func, srcfile)
 						session.add(function)
 				session.add(mod)
 			session.commit()
@@ -95,6 +95,6 @@ class RepositoryMiner:
 	def extract_functions(self, source_file, modification):
 		function_names = self._extract_functions(source_file, modification.source_code)
 		for name in function_names:
-			if not source_file.function_exists(name):
-				source_file.add_function(Function(name))
+			if not source_file.operation_exists(name):
+				source_file.add_operation(Operation(name))
 				
