@@ -47,11 +47,21 @@ class LocalFunctionVisitor(ast.ASTVisitor):
 
 class TableVisitor(ast.ASTVisitor):
 	def visit_Table(self, node):
-		#('---', node.__dict__)
+		#print('---', node.__dict__)
 		for field in node.fields:
-			print(field.__dict__)
-		#	if isinstance(field.key, astnodes.Name):
-		#		print(field.key.id)
+			#print(field.__dict__)
+			if (isinstance(field.key, astnodes.Name) and
+					isinstance(field.value, astnodes.AnonymousFunction)):
+				#print(field.key.id)
+				print('key----', field.key.id)
+				print('value---', field.value.__dict__)
+				pass
+			elif isinstance(field.value, astnodes.Call):
+				#print(field.value.func.__dict__)
+				pass
+			else:
+				#print(field.value.__dict__)
+				pass
 				
 class AssignVisitor(ast.ASTVisitor):
 	def visit_Assign(self, node):
@@ -141,7 +151,13 @@ class InvokeVisitor(ast.ASTVisitor):
 		# 		print('Source.Call.Function', node.source.func.id) # __dict__)
 		# 	else:
 		# 		print('-----', node.source)	
-						
+
+class AnonymousFunctionVisitor(ast.ASTVisitor):
+	def visit_AnonymousFunction(self, node):
+		#print(node.__dict__)	
+		for arg in node.args:
+			print(arg.__dict__)
+
 tree = ast.parse(src)
 
 # for node in ast.walk(tree):
@@ -200,10 +216,11 @@ tree = ast.parse(src)
 
 #NumberVisitor().visit(tree)
 #FunctionVisitor().visit(tree)
-#TableVisitor().visit(tree)
+TableVisitor().visit(tree)
 #AssignVisitor().visit(tree)
 #LabelVisitor().visit(tree)
 #MethodVisitor().visit(tree)
 #CallVisitor().visit(tree)
 #InvokeVisitor().visit(tree)
-LocalFunctionVisitor().visit(tree)
+#LocalFunctionVisitor().visit(tree)
+#AnonymousFunctionVisitor().visit(tree)

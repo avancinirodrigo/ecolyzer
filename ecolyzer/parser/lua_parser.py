@@ -39,6 +39,11 @@ class LuaParser:
 		visitor.visit(self.tree)
 		return visitor.functions				
 
+	def extract_table_functions(self):
+		visitor = TableVisitor()
+		visitor.visit(self.tree)
+		return visitor.functions
+
 class FunctionVisitor(ast.ASTVisitor):
 	def __init__(self):
 		self.functions = []
@@ -70,3 +75,12 @@ class LocalFunctionVisitor(ast.ASTVisitor):
 	def visit_LocalFunction(self, node):
 		self.functions.append(node.name.id)
 		
+class TableVisitor(ast.ASTVisitor):
+	def __init__(self):
+		self.functions = []
+
+	def visit_Table(self, node):
+		for field in node.fields:
+			if (isinstance(field.key, astnodes.Name) and
+					isinstance(field.value, astnodes.AnonymousFunction)):
+				self.functions.append(field.key.id)

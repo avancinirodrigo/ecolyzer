@@ -164,10 +164,6 @@ def test_extract_calls():
 
 	for call in calls:
 		assert file_calls[call]	
-		
-	# 	ccs[call] = call
-	# for call in ccs:
-	# 	print('\'' + call + '\'' + ' : True,')
 
 def test_extract_globals():
 	file_globals = {
@@ -202,3 +198,37 @@ def test_extract_local_functions():
 
 	for func in functions:
 		assert file_local_functions[func]
+
+def test_extract_table_functions():
+	file_table_functions = {
+		'add' : True,
+		'createNeighborhood' : True,
+		'getCell' : True,
+		'get' : True,
+		'getCells' : True,
+		'getCellByID' : True,
+		'load' : True,
+		'loadShape' : True,
+		'loadNeighborhood' : True,
+		'notify' : True,
+		'sample' : True,
+		'save' : True,
+		'saveShape' : True,
+		'size' : True,
+		'split' : True,
+		'synchronize' : True,
+		'moore' : True,
+		'mxn' : True,
+		'vonneumann' : True,
+		'coord' : True,
+		'__len' : True
+	}
+
+	luafile = os.path.join(os.path.dirname(__file__), 'data', 'CellularSpace1.lua')
+	src = open(luafile).read()
+	parser = LuaParser()
+	parser.parser(src)
+	functions = parser.extract_table_functions()	
+
+	for func in functions:
+		assert file_table_functions[func]
