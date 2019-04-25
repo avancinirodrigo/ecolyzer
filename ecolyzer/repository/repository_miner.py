@@ -2,7 +2,7 @@ from enum import Enum
 from pydriller import RepositoryMining, GitRepository
 from pydriller.domain.commit import ModificationType
 from ecolyzer.system import File, SourceFile, Operation
-from ecolyzer.parser import LuaParser
+from ecolyzer.parser import StaticAnalyzer
 from .commit import CommitInfo, Commit
 from .modification import ModificationInfo, Modification
 from .author import Author
@@ -36,15 +36,15 @@ class RepositoryMiner:
 			session.add(commit)
 			for mod_info in commit_info.modifications:
 				file = File(mod_info.new_path)
-				mod = Modification(mod_info, file, commit)
 				if self._is_source_file_ext(file.ext):
+					mod = Modification(mod_info, file, commit)
 					srcfile = SourceFile(file)
 					session.add(srcfile)
-					functions = self._extract_functions(srcfile, mod.source_code)
-					for func in functions:
-						function = Operation(func, srcfile)
-						session.add(function)
-				session.add(mod)
+					code_elements = self._extract_code_elements(srcfile, mod.source_code)
+					for element in code_elements:
+						element.modification = mod
+						session.add(element)
+					session.add(mod)
 			session.commit()
 
 	def _is_source_file_ext(self, ext):
@@ -82,19 +82,20 @@ class RepositoryMiner:
 			files_modification.append(file_mod)
 		return files_modification
 
-	def _extract_functions(self, source_file, source_code):
+	def _extract_code_elements(self, source_file, source_code):
 		if source_file.ext == 'lua':
-			parser = LuaParser()
-			parser.parser(source_code)
-			return parser.extract_functions()
+			analyzer = StaticAnalyzer()
+			return analyzer.lua_reverse_engineering(source_file, source_code)
 		return []
 
 	def is_source_file(self, file):
 		return self._is_source_file_ext(file.ext)
 
-	def extract_functions(self, source_file, modification):
-		function_names = self._extract_functions(source_file, modification.source_code)
-		for name in function_names:
-			if not source_file.operation_exists(name):
-				source_file.add_operation(Operation(name))
+	def extract_code_elements(self, source_file, modification):
+		#function_names = self._extract_code_elements(source_file, modification.source_code)
+		#for name in function_names:
+		#	if not source_file.operation_exists(name):
+		#		source_file.add_operation(Operation(name))
+		# return function_names
+		return self._extract_code_elements(source_file, modification.source_code)
 				

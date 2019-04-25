@@ -1,6 +1,4 @@
 from sqlalchemy import Column, Integer, ForeignKey
-#from sqlalchemy.orm import relationship, backref
-#from ecolyzer.dataaccess import Base
 from .code_element import CodeElement
 
 class Operation(CodeElement):

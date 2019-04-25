@@ -1,5 +1,6 @@
 import os
 from ecolyzer.repository import Repository #TODO: why?
+from ecolyzer.system import File, SourceFile
 from ecolyzer.parser import StaticAnalyzer
 
 def test_lua_reverse_engineering():
@@ -93,10 +94,14 @@ def test_lua_reverse_engineering():
 	}
 
 	luafile = os.path.join(os.path.dirname(__file__), 'data', 'CellularSpace1.lua')
+	file = File(luafile)
+	src_file = SourceFile(file)
 	src = open(luafile).read()
 	analyzer = StaticAnalyzer()
-	code_elements = analyzer.lua_reverse_engineering(src)
+	code_elements = analyzer.lua_reverse_engineering(src_file, src)
 
+	assert len(code_elements) == len(operations) + len(calls)
+	
 	for element in code_elements:
 		if element.type == 'call':
 			assert calls[element.name]
