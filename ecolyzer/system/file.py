@@ -1,6 +1,7 @@
 import os
 from sqlalchemy import Column, String, Integer, ForeignKey
 from sqlalchemy.orm import relationship, backref
+from sqlalchemy.ext.hybrid import hybrid_property
 from ecolyzer.dataaccess import Base
 
 class File(Base):
@@ -45,9 +46,9 @@ class File(Base):
 		self._ext = ext	
 		self.fullpath = self._make_fullpath()
 
-	@property # TODO: how to handle fullpath if change it?
+	@hybrid_property # TODO: how to handle fullpath if change it?
 	def fullpath(self):
-		return self._fullpath	
+		return self._fullpath
 		
 	@fullpath.setter
 	def fullpath(self, fullpath):
