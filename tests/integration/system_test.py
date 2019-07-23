@@ -1,4 +1,4 @@
-from ecolyzer.system import System, File
+from ecolyzer.system import System, File, SourceFile
 from ecolyzer.repository import Repository
 from ecolyzer.dataaccess import SQLAlchemyEngine
 
@@ -10,6 +10,7 @@ def test_system_crud():
 	#create
 	repo = Repository('repo/terrame')
 	sys = System('terrame', repo)
+
 	session = db.create_session()	
 	session.add(repo)
 	session.add(sys)
@@ -44,6 +45,7 @@ def test_add_file():
 
 	repo = Repository('repo/terrame')
 	sys = System('terrame', repo)
+
 	session = db.create_session()	
 	session.add(repo)
 	session.add(sys)
@@ -53,8 +55,35 @@ def test_add_file():
 
 	session.commit()
 
-	file1db = session.query(File).get(1)	
-	assert file1db.system_id == sys.id
+	sysdb = session.query(System).get(1)
+	file1db = sysdb.get_file(file1.fullpath)
+	assert file1db.fullpath == file1.fullpath 
 
 	session.close()
 	db.drop_all()
+
+def test_add_source_file():
+	db_url = 'postgresql://postgres:postgres@localhost:5432/sys_add_src_file'
+	db = SQLAlchemyEngine(db_url)
+	db.create_all(True)
+
+	repo = Repository('repo/terrame')
+	sys = System('terrame', repo)
+
+	session = db.create_session()	
+	session.add(repo)
+	session.add(sys)
+
+	file1 = File('path/file1.ext')
+	src1 = SourceFile(file1)
+	sys.add_source_file(src1)
+
+	session.commit()
+
+	sysdb = session.query(System).get(1)
+	src1db = sysdb.get_source_file(file1.fullpath)
+	assert src1db.file.fullpath == src1.file.fullpath 
+	assert src1db.ext() == src1.file.ext
+
+	session.close()
+	db.drop_all()	

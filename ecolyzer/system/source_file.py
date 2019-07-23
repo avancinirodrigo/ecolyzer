@@ -1,30 +1,40 @@
-from sqlalchemy import Column, String, Integer, ForeignKey
+from sqlalchemy import Column, String, Integer, ForeignKey, PrimaryKeyConstraint
 from sqlalchemy.orm import relationship, backref
 from ecolyzer.dataaccess import Base
+from .code_element import CodeElement
 
 class SourceFile(Base):
 	"""SourceFile"""
 	__tablename__ = 'source_file'
 
 	id = Column(Integer, primary_key=True)
-	ext = Column(String)
-	file_id = Column(Integer, ForeignKey('file.id'))
+	file_id = Column(Integer, ForeignKey('file.id'), unique=True)
 	file = relationship('File', backref=backref('source_file', uselist=False))
+	system_id = Column(Integer, ForeignKey('system.id'))	
+	_elements = relationship(CodeElement)	
 
 	def __init__(self, file):
 		self.file = file
-		self.ext = file.ext
-		self.operations = {}
 
-	def add_operation(self, operation):
-		if operation.name not in self.operations: 
-			operation.source_file = self
-			self.operations[operation.name] = operation
+	def add_code_element(self, element):
+		if element not in self._elements: 
+	 		element.source_file = self
+	 		self._elements.append(element)
 		else:
-			raise ValueError('Operation \'{0}\' is already present'.format(operation.name))
+	 		raise ValueError('Code element \'{0}\' of type \'{1}\' is already present'
+	 						.format(element.name, type(element).__name__))
 
-	def operation_exists(self, name):
-		return name in self.operations
+	def code_element_exists(self, element):
+		return element in self._elements
 
-	def get_operation(self, name):
-		return self.operations[name]	
+	#def get_code_element_by_name(self, name):
+	# 	return self._elements[name]	
+
+	def code_element_at(self, idx):
+		return self._elements[idx]
+
+	def code_elements_len(self):
+		return len(self._elements)
+
+	def ext(self):
+		return self.file.ext
