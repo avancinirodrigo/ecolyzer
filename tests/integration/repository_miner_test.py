@@ -9,7 +9,7 @@ def test_get_commit():
 	db.create_all(True)
 	repo = Repository('repo/terrame')
 	sys = System('terrame', repo)
-	miner = RepositoryMiner(repo)
+	miner = RepositoryMiner(repo, sys)
 	commit_info = miner.get_commit_info('80a562be869dbb984229f608ae9a04d05c5e1689')
 
 	assert commit_info.msg == 'Initial commit'
@@ -23,7 +23,7 @@ def test_get_commit():
 	assert commit_info.modifications[0].new_path == 'LICENSE'
 	assert commit_info.modifications[0].added == 674
 	assert commit_info.modifications[0].removed == 0
-	assert commit_info.modifications[0].type == 'ADD'
+	assert commit_info.modifications[0].status == 'ADD'
 
 	author = Author(commit_info.author_name, commit_info.author_email)
 	commit = Commit(commit_info, author, repo)
@@ -53,7 +53,7 @@ def test_get_commit():
 	assert filemoddb.new_path == 'LICENSE'
 	assert filemoddb.added == 674
 	assert filemoddb.removed == 0
-	assert filemoddb.type == 'ADD'
+	assert filemoddb.status == 'ADD'
 
 	commit_info = miner.get_commit_info('ffb8347b2de44eb05f6c5eba3b3cb8b7716acebb')
 
@@ -68,7 +68,7 @@ def test_get_commit():
 	assert commit_info.modifications[0].new_path == None
 	assert commit_info.modifications[0].added == 0
 	assert commit_info.modifications[0].removed == 674	
-	assert commit_info.modifications[0].type == 'DELETE'
+	assert commit_info.modifications[0].status == 'DELETE'
 
 	commit = Commit(commit_info, author, repo)
 	fmodinfo = commit_info.modifications[0]
@@ -92,7 +92,7 @@ def test_get_commit():
 	assert filemoddb2.new_path == None
 	assert filemoddb2.added == 0
 	assert filemoddb2.removed == 674
-	assert filemoddb2.type == 'DELETE'	
+	assert filemoddb2.status == 'DELETE'	
 
 	filemoddb1 = session.query(Modification).get(1)
 	commitdb1 = filemoddb1.commit
@@ -109,7 +109,7 @@ def test_get_commit():
 	assert filemoddb1.new_path == 'LICENSE'
 	assert filemoddb1.added == 674
 	assert filemoddb1.removed == 0
-	assert filemoddb1.type == 'ADD'	
+	assert filemoddb1.status == 'ADD'	
 
 	session.close()
 	db.drop_all()
@@ -124,9 +124,9 @@ def test_extract():
 	session.add(repo)
 	session.add(sys)
 	session.commit()
-	miner = RepositoryMiner(repo)
+	miner = RepositoryMiner(repo, sys)
 	miner.extract(session, '082dff5e822ea1b4491911b7bf434a7f47a4be26')
-	filedb = session.query(File).filter_by(_fullpath = 'base/lua/CellularSpace.lua').first()
+	filedb = session.query(File).filter_by(fullpath = 'base/lua/CellularSpace.lua').first()
 	srcfiledb = session.query(SourceFile).filter_by(file_id = filedb.id).first()
 	commitdb = session.query(Commit).filter(Commit.hash == '082dff5e822ea1b4491911b7bf434a7f47a4be26').one()
 	assert commitdb.msg == ('* New structure for directories.\n'
@@ -314,7 +314,7 @@ def test_get_commit_source_file():
 	db.create_all(True)
 	repo = Repository('repo/terrame')
 	sys = System('terrame', repo)
-	miner = RepositoryMiner(repo)
+	miner = RepositoryMiner(repo, sys)
 	commit_info = miner.get_commit_info('082dff5e822ea1b4491911b7bf434a7f47a4be26')
 	author = Author(commit_info.author_name, commit_info.author_email)
 	commit = Commit(commit_info, author, repo)
@@ -328,19 +328,20 @@ def test_get_commit_source_file():
 			code_elements = miner.extract_code_elements(srcfile, mod)
 			for element in code_elements:
 			 	element.modification = mod
-			 	session.add(element)			
+			 	session.add(element)		
 			session.add(mod)			
 
 	session.commit()
 	afile = sys.get_file('base/lua/CellularSpace.lua')
 	srcfiledb = session.query(SourceFile).filter_by(file_id = afile.id).first()
-	assert srcfiledb.ext == 'lua'
+	assert srcfiledb.file.ext == 'lua'
+	assert srcfiledb.file.name == 'CellularSpace'
 	#TODO: how to load all functions together?
 	#assert len(srcfiledb.functions) == 1
 
 	moddb = session.query(Modification).filter_by(file_id = afile.id).first()
 	asrc_file = SourceFile(afile)
-	assert len(asrc_file.operations) == 0
+	assert asrc_file.code_elements_len() == 0
 
 	#miner.extract_code_elements(asrc_file, moddb)
 	#assert len(asrc_file.operations) == 1
@@ -351,4 +352,120 @@ def test_get_commit_source_file():
 	assert functions[0].name == 'CellularSpace'
 
 	session.close()
+	db.drop_all()
+
+def test_extract_tag_interval():
+	db_url = 'postgresql://postgres:postgres@localhost:5432/miner_tag_interval'
+	db = SQLAlchemyEngine(db_url)
+	db.create_all(True)
+	repo = Repository('repo/terrame')
+	sys = System('terrame', repo)
+	session = db.create_session()
+	session.add(repo)
+	session.add(sys)
+	session.commit()
+	miner = RepositoryMiner(repo, sys)
+	#miner.commit_interval('80a562be869dbb984229f608ae9a04d05c5e1689', 
+	#					'082dff5e822ea1b4491911b7bf434a7f47a4be26') TODO: not working
+	miner.tag_interval('2.0-RC-6', '2.0-RC-7')
+	miner.extract(session)
+
+	commits = session.query(Commit).all()
+
+	assert len(commits) == 95
+
+	session.close()
+	db.drop_all()	
+
+def test_extract_deleted_files():
+	db_url = 'postgresql://postgres:postgres@localhost:5432/miner_del_files'
+	db = SQLAlchemyEngine(db_url)
+	db.create_all(True)
+	repo = Repository('repo/terrame')
+	sys = System('terrame', repo)
+	session = db.create_session()
+	session.add(repo)
+	session.add(sys)
+	session.commit()
+	miner = RepositoryMiner(repo, sys)
+
+	miner.extract(session, '082dff5e822ea1b4491911b7bf434a7f47a4be26')
+	file = session.query(File).filter_by(fullpath = 'src/lua/terrame.lua').one()
+	mod = session.query(Modification).filter_by(file_id = file.id).first()
+
+	assert mod.new_path == 'src/lua/terrame.lua'
+	assert mod.old_path == None
+	assert mod.status == 'ADD'
+	assert sys.file_exists('src/lua/terrame.lua')
+
+	miner.extract(session, 'f2e117598feee9db8cabbd1c300e143199e12d92')	
+	file = session.query(File).filter_by(fullpath = 'src/lua/terrame.lua').one()
+	mod = session.query(Modification).filter_by(file_id = file.id).filter_by(status = 'DELETE').first()
+	
+	assert mod.new_path == None
+	assert mod.old_path == 'src/lua/terrame.lua'	
+	assert mod.status == 'DELETE'
+	assert sys.file_exists('src/lua/terrame.lua')
+
+	session.close()
+	db.drop_all()
+
+def test_extract_renamed_files():
+	db_url = 'postgresql://postgres:postgres@localhost:5432/miner_rename_file'
+	db = SQLAlchemyEngine(db_url)
+	db.create_all(True)
+	repo = Repository('repo/terrame')
+	sys = System('terrame', repo)
+	session = db.create_session()
+	session.add(repo)
+	session.add(sys)
+	session.commit()
+	miner = RepositoryMiner(repo, sys)
+	
+	miner.extract(session, '082dff5e822ea1b4491911b7bf434a7f47a4be26')
+	file = session.query(File).filter_by(fullpath = 'base/lua/Observer.lua').one()
+	mod = session.query(Modification).filter_by(file_id = file.id).first()
+
+	assert mod.new_path == 'base/lua/Observer.lua'
+	assert mod.old_path == None
+	assert mod.status == 'ADD'
+	assert sys.file_exists('base/lua/Observer.lua')
+
+	miner.extract(session, 'c57b6d69461abf10ba5950e0577dff3c982f3ea4')	
+	file = session.query(File).filter_by(fullpath = 'src/lua/observer.lua').one()
+	mod = session.query(Modification).filter_by(file_id = file.id).filter_by(status = 'RENAME').first()
+	
+	assert mod.new_path == 'src/lua/observer.lua'
+	assert mod.old_path == 'base/lua/Observer.lua'
+	assert mod.status == 'RENAME'
+	assert sys.file_exists('src/lua/observer.lua')
+	assert sys.file_exists('base/lua/Observer.lua')
+
+	session.close()	
+	db.drop_all()
+
+def test_extract_same_commit():
+	db_url = 'postgresql://postgres:postgres@localhost:5432/miner_rename_file'
+	db = SQLAlchemyEngine(db_url)
+	db.create_all(True)
+	repo = Repository('repo/terrame')
+	sys = System('terrame', repo)
+	session = db.create_session()
+	session.add(repo)
+	session.add(sys)
+	session.commit()
+	miner = RepositoryMiner(repo, sys)
+	
+	miner.extract(session, '082dff5e822ea1b4491911b7bf434a7f47a4be26')
+	file_count = session.query(File).count()	
+	srcfile_count = session.query(SourceFile).count()
+	mod_count = session.query(Modification).count()	
+
+	#TODO(#41) miner.extract(session, '082dff5e822ea1b4491911b7bf434a7f47a4be26')
+
+	assert file_count == session.query(File).count()
+	assert srcfile_count == session.query(SourceFile).count()
+	assert mod_count == session.query(Modification).count()
+
+	session.close()	
 	db.drop_all()

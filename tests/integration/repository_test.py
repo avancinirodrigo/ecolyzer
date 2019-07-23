@@ -1,12 +1,12 @@
-from ecolyzer.repository import Repository
+from ecolyzer.repository import Repository, Author
 from ecolyzer.system import System
 from ecolyzer.dataaccess import SQLAlchemyEngine
 
-db_url = 'postgresql://postgres:postgres@localhost:5432/repo_test'
-db = SQLAlchemyEngine(db_url)
-db.create_all(True)
-
 def test_repository_crud():
+	db_url = 'postgresql://postgres:postgres@localhost:5432/repo_crud'
+	db = SQLAlchemyEngine(db_url)
+	db.create_all(True)
+
 	#create
 	repo = Repository('repo/terrame')
 	sys = System('terrame', repo)
@@ -41,3 +41,51 @@ def test_repository_crud():
 	session.close()
 	db.drop_all()
 	
+def test_two_repos():
+	db_url = 'postgresql://postgres:postgres@localhost:5432/repo_two_repos'
+	db = SQLAlchemyEngine(db_url)
+	db.create_all(True)
+
+	repo1 = Repository('repo/terrame')
+	sys1 = System('terrame', repo1)
+
+	repo2 = Repository('repo/ca')
+	sys2 = System('ca', repo2)
+
+	session = db.create_session()	
+	session.add(sys1)
+	session.add(sys2)
+	session.commit()
+
+	sys1db = session.query(System).filter_by(name = sys1.name).one()
+	sys2db = session.query(System).filter_by(name = sys2.name).one()
+
+	assert sys1db.name == sys1.name
+	assert sys1db.repository.path == repo1.path 
+	assert sys2db.name == sys2.name
+	assert sys2db.repository.path == repo2.path
+	assert sys1db.name != sys2db.name
+
+	session.close()
+	db.drop_all()
+
+def test_developers():
+	db_url = 'postgresql://postgres:postgres@localhost:5432/repo_devs'
+	db = SQLAlchemyEngine(db_url)
+	db.create_all(True)
+
+	repo = Repository('repo/terrame')
+	sys = System('terrame', repo)
+	dev1 = Author('dev1', 'dev1@mail.com')
+	repo.add_developer(dev1)
+	
+	assert repo.developer_exists(dev1.email)
+
+	session = db.create_session()
+	session.add(repo)
+	repodb = session.query(Repository).get(1)
+
+	assert repodb.developer_exists(dev1.email)
+
+	session.close()
+	db.drop_all()		

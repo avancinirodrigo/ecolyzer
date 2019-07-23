@@ -23,7 +23,7 @@ def test_modification_crud():
 	modinfo.new_path = 'some/path/file.ext'
 	modinfo.added = 10
 	modinfo.removed = 0
-	modinfo.type = 'ADD'
+	modinfo.status = 'ADD'
 	file = File(modinfo.filename)
 	mod = Modification(modinfo, file, commit)
 	
@@ -37,15 +37,15 @@ def test_modification_crud():
 	assert moddb.old_path == ''
 	assert moddb.added == 10
 	assert moddb.removed == 0
-	assert moddb.type == 'ADD'
+	assert moddb.status == 'ADD'
 	assert moddb.commit_id == 1
 	assert moddb.file_id == 1
 
 	#update
-	mod.type = 'DELETED'
+	mod.status = 'DELETED'
 	session.commit()	
 	moddb = session.query(Modification).get(1)
-	assert moddb.type == 'DELETED'
+	assert moddb.status == 'DELETED'
 
 	#delete
 	session.delete(mod)
