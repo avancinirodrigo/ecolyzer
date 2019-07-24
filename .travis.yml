@@ -3,8 +3,6 @@ language: python
 python:
   - "3.6"
 
-dist: trusty
-
 addons:
   postgresql: "10"
   apt:
@@ -14,6 +12,8 @@ addons:
 
 env:
   - PYTHONPATH=$PYTHONPATH:$(pwd)
+  global:
+  - PGPORT=5433  
 
 install:
   - pip install -r requirements.txt
