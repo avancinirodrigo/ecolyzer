@@ -6,21 +6,10 @@ python:
 sudo: true
 
 addons:
-  postgresql: "10"
-  apt:
-    packages:
-    - postgresql-10
-    - postgresql-client-10  
-
-env:
-  global:
-    - PGPORT=5433
+  postgresql: "9.6"
 
 env:
   - PYTHONPATH=$PYTHONPATH:$(pwd)
-
-before_install:
-  - sudo psql -c "ALTER USER postgres WITH PASSWORD 'postgres'" -U postgres;
 
 install:
   - pip install -r requirements.txt
@@ -34,6 +23,7 @@ before_script:
   - mkdir repo
   - git clone https://github.com/TerraME/terrame.git repo/terrame
   - git clone https://github.com/TerraME/ca.git repo/ca
+  - psql -c "ALTER USER postgres WITH PASSWORD 'postgres'" -U postgres;
 
 script:
   - pytest -v --cov=../ecolyzer
