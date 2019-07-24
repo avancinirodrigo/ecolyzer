@@ -20,6 +20,7 @@ before_script:
   - cd tests
   - mkdir repo
   - git clone https://github.com/TerraME/terrame.git repo/terrame
+  - git clone https://github.com/TerraME/ca.git repo/ca
   - psql -c "ALTER USER postgres WITH PASSWORD 'postgres'" -U postgres;
 
 script:
