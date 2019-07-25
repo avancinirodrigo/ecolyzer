@@ -1,8 +1,8 @@
 pydriller==1.7
-psycopg2-binary==2.7
-pytest==3.9
-pytest-cov==2.6
-codecov==2.0
+psycopg2-binary==2.7.6.1
+pytest==3.9.3
+pytest-cov==2.6.1
+codecov==2.0.15
 git+https://github.com/boolangery/py-lua-parser.git
-sqlalchemy==1.2
-sqlalchemy-utils==0.33
+sqlalchemy==1.2.17
+sqlalchemy-utils==0.33.11
