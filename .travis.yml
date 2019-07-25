@@ -1,12 +1,12 @@
+dist: bionic
+
 language: python
 
 python:
   - "3.6"
 
-sudo: true
-
 addons:
-  postgresql: "9.6"
+  postgresql: "10"
 
 env:
   - PYTHONPATH=$PYTHONPATH:$(pwd)
