@@ -99,14 +99,14 @@ class RepositoryMiner:
 		self.system.add_file(new_file)
 
 	def _check_author(self, name, email):
-		if self.repo.developer_exists(email):
-			author = self.repo.get_developer(email)
+		if self.repo.author_exists(email):
+			author = self.repo.get_author(email)
 			if name != author.name:
 				author.name = name 
 			return author
 		else:
 			author = Author(name, email)					
-			self.repo.add_developer(author)
+			self.repo.add_author(author)
 			return author
 
 	def _is_source_file_ext(self, ext):
@@ -163,4 +163,3 @@ class RepositoryMiner:
 		except:
 			return False
 		return True
-

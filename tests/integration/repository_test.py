@@ -69,23 +69,23 @@ def test_two_repos():
 	session.close()
 	db.drop_all()
 
-def test_developers():
-	db_url = 'postgresql://postgres:postgres@localhost:5432/repo_devs'
+def test_authors():
+	db_url = 'postgresql://postgres:postgres@localhost:5432/repo_authors'
 	db = SQLAlchemyEngine(db_url)
 	db.create_all(True)
 
 	repo = Repository('repo/terrame')
 	sys = System('terrame', repo)
 	dev1 = Author('dev1', 'dev1@mail.com')
-	repo.add_developer(dev1)
+	repo.add_author(dev1)
 	
-	assert repo.developer_exists(dev1.email)
+	assert repo.author_exists(dev1.email)
 
 	session = db.create_session()
 	session.add(repo)
 	repodb = session.query(Repository).get(1)
 
-	assert repodb.developer_exists(dev1.email)
+	assert repodb.author_exists(dev1.email)
 
 	session.close()
 	db.drop_all()		
