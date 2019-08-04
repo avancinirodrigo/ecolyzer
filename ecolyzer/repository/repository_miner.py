@@ -5,6 +5,7 @@ from ecolyzer.system import File, SourceFile, Operation
 from ecolyzer.parser import StaticAnalyzer
 from .commit import CommitInfo, Commit
 from .modification import ModificationInfo, Modification
+from .person import Person
 from .author import Author
 
 class RepositoryMiner:
@@ -105,7 +106,8 @@ class RepositoryMiner:
 				author.name = name 
 			return author
 		else:
-			author = Author(name, email)					
+			person = Person(name, email)
+			author = Author(person)					
 			self.repo.add_author(author)
 			return author
 

@@ -1,5 +1,5 @@
 import os
-from ecolyzer.repository import RepositoryMiner, Repository, CommitInfo, Commit, Author, Modification
+from ecolyzer.repository import RepositoryMiner, Repository, CommitInfo, Commit, Author, Person, Modification
 from ecolyzer.system import System, File, SourceFile, Operation, Call
 from ecolyzer.dataaccess import SQLAlchemyEngine
 	
@@ -25,7 +25,7 @@ def test_get_commit():
 	assert commit_info.modifications[0].removed == 0
 	assert commit_info.modifications[0].status == 'ADD'
 
-	author = Author(commit_info.author_name, commit_info.author_email)
+	author = Author(Person(commit_info.author_name, commit_info.author_email))
 	commit = Commit(commit_info, author, repo)
 	fmodinfo = commit_info.modifications[0]
 	file = File(fmodinfo.filename)
@@ -316,7 +316,7 @@ def test_get_commit_source_file():
 	sys = System('terrame', repo)
 	miner = RepositoryMiner(repo, sys)
 	commit_info = miner.get_commit_info('082dff5e822ea1b4491911b7bf434a7f47a4be26')
-	author = Author(commit_info.author_name, commit_info.author_email)
+	author = Author(Person(commit_info.author_name, commit_info.author_email))
 	commit = Commit(commit_info, author, repo)
 	session = db.create_session()
 	for mod_info in commit_info.modifications:

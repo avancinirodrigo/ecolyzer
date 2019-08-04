@@ -23,8 +23,9 @@ class Repository(Base):
 	def add_author(self, author):
 		if author not in self._authors: 
 			self._authors[author.email] = author
+			author.repository = self
 		else:
-			raise ValueError('author \'{0}\' is already present'.format(author.name))
+			raise ValueError('Author \'{0}\' is already present'.format(author.name))
 
 	def author_exists(self, email):
 		return email in self._authors

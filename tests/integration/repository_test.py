@@ -1,4 +1,4 @@
-from ecolyzer.repository import Repository, Author
+from ecolyzer.repository import Repository, Author, Person
 from ecolyzer.system import System
 from ecolyzer.dataaccess import SQLAlchemyEngine
 
@@ -76,16 +76,55 @@ def test_authors():
 
 	repo = Repository('repo/terrame')
 	sys = System('terrame', repo)
-	dev1 = Author('dev1', 'dev1@mail.com')
+	dev1 = Author(Person('dev1', 'dev1@mail.com'))
 	repo.add_author(dev1)
 	
 	assert repo.author_exists(dev1.email)
 
 	session = db.create_session()
 	session.add(repo)
+	session.commit()
 	repodb = session.query(Repository).get(1)
 
 	assert repodb.author_exists(dev1.email)
 
 	session.close()
 	db.drop_all()		
+
+def test_same_author_in_two_repo():
+	db_url = 'postgresql://postgres:postgres@localhost:5432/repo_author_intwo'
+	db = SQLAlchemyEngine(db_url)
+	db.create_all(True)
+
+	repo1 = Repository('repo/terrame')
+	sys1 = System('terrame', repo1)
+	person = Person('dev1', 'dev1@mail.com') 
+	dev1 = Author(person)
+	repo1.add_author(dev1)
+
+	session = db.create_session()
+	session.add(repo1)	
+	session.commit()
+
+	repo2 = Repository('repo/ca')
+	sys2 = System('ca', repo2)
+	
+	persondb = session.query(Person).get(1)
+
+	assert persondb.email == dev1.email
+
+	repo2.add_author(Author(persondb))
+
+	session.add(repo2)
+	session.commit()	
+
+	authorsdb = session.query(Author).all()
+
+	assert len(authorsdb) == 2
+	assert authorsdb[0].email == authorsdb[1].email 
+	assert authorsdb[0].repository != authorsdb[1].repository
+	assert authorsdb[0].repository_id == repo1.id 
+	assert authorsdb[1].repository_id == repo2.id 
+
+	session.close()
+	db.drop_all()

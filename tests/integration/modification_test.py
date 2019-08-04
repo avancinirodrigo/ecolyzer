@@ -1,13 +1,13 @@
 import datetime
 from ecolyzer.system import File, System
-from ecolyzer.repository import Repository, Commit, CommitInfo, Author, Modification, ModificationInfo
+from ecolyzer.repository import Repository, Commit, CommitInfo, Person, Author, Modification, ModificationInfo
 from ecolyzer.dataaccess import SQLAlchemyEngine
 
 db_url = 'postgresql://postgres:postgres@localhost:5432/modific_test'
 db = SQLAlchemyEngine(db_url)
 db.create_all(True)
 
-def test_modification_crud():
+def test_crud():
 	#create
 	repo = Repository('repo/terrame')
 	sys = System('terrame', repo)
@@ -16,7 +16,7 @@ def test_modification_crud():
 	commit_info.msg = 'commit message'
 	commit_info.author_name = 'author'
 	commit_info.author_email = 'author@email.com'	
-	author = Author(commit_info.author_name, commit_info.author_email)
+	author = Author(Person(commit_info.author_name, commit_info.author_email))
 	commit = Commit(commit_info, author, repo)
 	modinfo = ModificationInfo('some/path/file.ext')
 	modinfo.old_path = ''
