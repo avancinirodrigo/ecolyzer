@@ -1,10 +1,10 @@
 from ecolyzer.repository import Repository
 from ecolyzer.system import File, SourceFile, Operation, Call
-from ecolyzer.dataaccess import SQLAlchemyEngine
+from ecolyzer.dataaccess import SQLAlchemyORM
 
 def test_source_file_crud():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/src_file_crud'
-	db = SQLAlchemyEngine(db_url)
+	db = SQLAlchemyORM(db_url)
 	db.create_all(True)
 
 	#create
@@ -55,7 +55,7 @@ def test_source_file_crud():
 
 def test_one_to_one_relation():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/src_file_one_to_one'	
-	db = SQLAlchemyEngine(db_url)
+	db = SQLAlchemyORM(db_url)
 	db.create_all(True)
 	
 	filepath = 'some/path/file.src'
@@ -78,7 +78,7 @@ def test_one_to_one_relation():
 
 def test_add_operation():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/src_file_one_to_one'	
-	db = SQLAlchemyEngine(db_url)
+	db = SQLAlchemyORM(db_url)
 	db.create_all(True)
 
 	filepath = 'some/path/file.src'

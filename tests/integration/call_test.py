@@ -1,10 +1,10 @@
 from ecolyzer.repository import Repository
 from ecolyzer.system import File, SourceFile, Call
-from ecolyzer.dataaccess import SQLAlchemyEngine
+from ecolyzer.dataaccess import SQLAlchemyORM
 
 def test_call_crud():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/call_crud'
-	db = SQLAlchemyEngine(db_url)
+	db = SQLAlchemyORM(db_url)
 	db.create_all(True)
 
 	#create

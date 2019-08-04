@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import engine
 from sqlalchemy_utils import database_exists, create_database, drop_database
 
-class SQLAlchemyEngine:
+class SQLAlchemyORM:
 	def  __init__(self, url):
 		self.url = url
 

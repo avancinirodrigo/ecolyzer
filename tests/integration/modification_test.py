@@ -1,10 +1,10 @@
 import datetime
 from ecolyzer.system import File, System
 from ecolyzer.repository import Repository, Commit, CommitInfo, Person, Author, Modification, ModificationInfo
-from ecolyzer.dataaccess import SQLAlchemyEngine
+from ecolyzer.dataaccess import SQLAlchemyORM
 
 db_url = 'postgresql://postgres:postgres@localhost:5432/modific_test'
-db = SQLAlchemyEngine(db_url)
+db = SQLAlchemyORM(db_url)
 db.create_all(True)
 
 def test_crud():

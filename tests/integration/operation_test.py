@@ -1,10 +1,10 @@
 from ecolyzer.repository import Repository
 from ecolyzer.system import File, SourceFile, Operation
-from ecolyzer.dataaccess import SQLAlchemyEngine
+from ecolyzer.dataaccess import SQLAlchemyORM
 
 def test_operation_crud():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/operation_crud'
-	db = SQLAlchemyEngine(db_url)
+	db = SQLAlchemyORM(db_url)
 	db.create_all(True)
 
 	#create
@@ -48,7 +48,7 @@ def test_operation_crud():
 	
 def test_add_operation_same_name():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/function_same_name'
-	db = SQLAlchemyEngine(db_url)
+	db = SQLAlchemyORM(db_url)
 	db.create_all(True)
  
 	file1 = File('some/path/file1.src')

@@ -1,11 +1,11 @@
 import os
 from ecolyzer.repository import RepositoryMiner, Repository, CommitInfo, Commit, Author, Person, Modification
 from ecolyzer.system import System, File, SourceFile, Operation, Call
-from ecolyzer.dataaccess import SQLAlchemyEngine
+from ecolyzer.dataaccess import SQLAlchemyORM
 	
 def test_get_commit():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/miner_get_commit'
-	db = SQLAlchemyEngine(db_url)
+	db = SQLAlchemyORM(db_url)
 	db.create_all(True)
 	repo = Repository('repo/terrame')
 	sys = System('terrame', repo)
@@ -116,7 +116,7 @@ def test_get_commit():
 	
 def test_extract():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/miner_extract'
-	db = SQLAlchemyEngine(db_url)
+	db = SQLAlchemyORM(db_url)
 	db.create_all(True)
 	repo = Repository('repo/terrame')
 	sys = System('terrame', repo)
@@ -310,7 +310,7 @@ def test_extract():
 
 def test_get_commit_source_file():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/miner_sources'
-	db = SQLAlchemyEngine(db_url)
+	db = SQLAlchemyORM(db_url)
 	db.create_all(True)
 	repo = Repository('repo/terrame')
 	sys = System('terrame', repo)
@@ -356,7 +356,7 @@ def test_get_commit_source_file():
 
 def test_extract_tag_interval():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/miner_tag_interval'
-	db = SQLAlchemyEngine(db_url)
+	db = SQLAlchemyORM(db_url)
 	db.create_all(True)
 	repo = Repository('repo/terrame')
 	sys = System('terrame', repo)
@@ -379,7 +379,7 @@ def test_extract_tag_interval():
 
 def test_extract_deleted_files():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/miner_del_files'
-	db = SQLAlchemyEngine(db_url)
+	db = SQLAlchemyORM(db_url)
 	db.create_all(True)
 	repo = Repository('repo/terrame')
 	sys = System('terrame', repo)
@@ -412,7 +412,7 @@ def test_extract_deleted_files():
 
 def test_extract_renamed_files():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/miner_rename_file'
-	db = SQLAlchemyEngine(db_url)
+	db = SQLAlchemyORM(db_url)
 	db.create_all(True)
 	repo = Repository('repo/terrame')
 	sys = System('terrame', repo)
@@ -446,7 +446,7 @@ def test_extract_renamed_files():
 
 def test_extract_same_commit():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/miner_rename_file'
-	db = SQLAlchemyEngine(db_url)
+	db = SQLAlchemyORM(db_url)
 	db.create_all(True)
 	repo = Repository('repo/terrame')
 	sys = System('terrame', repo)

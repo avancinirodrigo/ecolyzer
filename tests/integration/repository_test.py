@@ -1,10 +1,10 @@
 from ecolyzer.repository import Repository, Author, Person
 from ecolyzer.system import System
-from ecolyzer.dataaccess import SQLAlchemyEngine
+from ecolyzer.dataaccess import SQLAlchemyORM
 
 def test_repository_crud():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/repo_crud'
-	db = SQLAlchemyEngine(db_url)
+	db = SQLAlchemyORM(db_url)
 	db.create_all(True)
 
 	#create
@@ -43,7 +43,7 @@ def test_repository_crud():
 	
 def test_two_repos():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/repo_two_repos'
-	db = SQLAlchemyEngine(db_url)
+	db = SQLAlchemyORM(db_url)
 	db.create_all(True)
 
 	repo1 = Repository('repo/terrame')
@@ -71,7 +71,7 @@ def test_two_repos():
 
 def test_authors():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/repo_authors'
-	db = SQLAlchemyEngine(db_url)
+	db = SQLAlchemyORM(db_url)
 	db.create_all(True)
 
 	repo = Repository('repo/terrame')
@@ -93,7 +93,7 @@ def test_authors():
 
 def test_same_author_in_two_repo():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/repo_author_intwo'
-	db = SQLAlchemyEngine(db_url)
+	db = SQLAlchemyORM(db_url)
 	db.create_all(True)
 
 	repo1 = Repository('repo/terrame')

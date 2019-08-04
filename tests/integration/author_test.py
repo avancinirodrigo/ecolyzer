@@ -1,9 +1,9 @@
 from ecolyzer.repository import Repository, Author, Person
-from ecolyzer.dataaccess import SQLAlchemyEngine
+from ecolyzer.dataaccess import SQLAlchemyORM
 
 def test_crud():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/author_crud'
-	db = SQLAlchemyEngine(db_url)
+	db = SQLAlchemyORM(db_url)
 	db.create_all(True)
 
 	#create
@@ -24,7 +24,7 @@ def test_crud():
 
 def test_same_person_in_two_repos():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/author_two_repos'
-	db = SQLAlchemyEngine(db_url)
+	db = SQLAlchemyORM(db_url)
 	db.create_all(True)
 
 	repo1 = Repository('repo/terrame')
@@ -49,7 +49,7 @@ def test_same_person_in_two_repos():
 
 def test_delete_cascade():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/author_del_cascade'
-	db = SQLAlchemyEngine(db_url)
+	db = SQLAlchemyORM(db_url)
 	db.create_all(True)
 
 	repo1 = Repository('repo/terrame')

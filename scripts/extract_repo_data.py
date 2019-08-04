@@ -1,9 +1,9 @@
 from ecolyzer.repository import RepositoryMiner, Repository
 from ecolyzer.system import System
-from ecolyzer.dataaccess import SQLAlchemyEngine
+from ecolyzer.dataaccess import SQLAlchemyORM
 
 db_url = 'postgresql://postgres:postgres@localhost:5432/extract_repo_data'
-db = SQLAlchemyEngine(db_url)
+db = SQLAlchemyORM(db_url)
 db.create_all(True)
 session = db.create_session()
 
