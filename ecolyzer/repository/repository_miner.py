@@ -15,15 +15,7 @@ class RepositoryMiner:
 		self.system = system
 		self.source_file_extensions = [
 			#'c', 'cc', 'cpp', 'h', 'hpp', 'hxx',
-			#'ui', 'qrc',
 			'lua',
-			#'cmake', 'in',
-			#'photo',
-			#'sh',
-			#'bat',
-			#'rc',
-			# 'log', # verificar
-			#'lp', 'css',
 		]
 		self.from_commit = None
 		self.to_commit = None
@@ -35,7 +27,7 @@ class RepositoryMiner:
 		self.from_commit = from_commit
 		self.to_commit = to_commit
 
-	def tag_interval(self, from_tag, to_tag): #, limited_by):
+	def tag_interval(self, from_tag, to_tag):
 		self.from_tag = from_tag
 		self.to_tag = to_tag
 
@@ -48,7 +40,7 @@ class RepositoryMiner:
 							#filepath='CellularSpace.lua',
 							only_in_branch=['master'],
 							only_no_merge=self.only_no_merge).traverse_commits():
-			#session = db.create_session()
+
 			commit_info = self._get_commit_info(commit_driller)
 			author = self._check_author(commit_info.author_name, commit_info.author_email)
 			commit = Commit(commit_info, author, self.repo)

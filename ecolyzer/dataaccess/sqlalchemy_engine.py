@@ -15,7 +15,7 @@ class SQLAlchemyEngine:
 	def create_all_tables(self):
 		Base.metadata.create_all(self.engine)
 
-	def create_all(self, overwrite):
+	def create_all(self, overwrite=False):
 		self.createdb(overwrite)
 		self.create_engine()
 		self.create_all_tables()		
@@ -23,7 +23,7 @@ class SQLAlchemyEngine:
 	def create_session(self):
 		return self.session()
 
-	def createdb(self, overwrite):
+	def createdb(self, overwrite=False):
 		if database_exists(self.url):
 			if overwrite:
 				drop_database(self.url)

@@ -18,3 +18,12 @@ def test_createdb_dbexists():
 	assert (('Database \'createdb\' already exists.')
 			in str(e.value))
 	db.dropdb()
+
+def test_overwrite():
+	url = 'postgresql://postgres:postgres@localhost:5432/overwritedb'
+	db = SQLAlchemyEngine(url)
+	db.createdb()
+	assert db.existsdb()
+	db.createdb(True)
+	assert db.existsdb()
+	db.dropdb()	
