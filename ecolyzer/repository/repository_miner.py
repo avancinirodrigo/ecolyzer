@@ -87,10 +87,6 @@ class RepositoryMiner:
 		self.system.add_file(file)
 		return file			
 
-	def _update_file(self, old_path, new_file):
-		self.system.remove_file(old_path)
-		self.system.add_file(new_file)
-
 	def _check_author(self, name, email):
 		if self.repo.author_exists(email):
 			author = self.repo.get_author(email)
