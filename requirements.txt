@@ -1,5 +1,5 @@
 pydriller==1.7
-psycopg2-binary==2.7.6.1
+psycopg2-binary
 pytest
 pytest-cov
 codecov
