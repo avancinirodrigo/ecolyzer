@@ -1,4 +1,4 @@
-pydriller==1.8
+pydriller==1.7
 psycopg2-binary==2.7.6.1
 pytest==3.9.3
 pytest-cov==2.6.1
