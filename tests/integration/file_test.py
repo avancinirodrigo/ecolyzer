@@ -1,10 +1,10 @@
 from ecolyzer.repository import Repository #TODO: why import module?
 from ecolyzer.system import File
-from ecolyzer.dataaccess import SQLAlchemyEngine
+from ecolyzer.dataaccess import SQLAlchemyORM
 
 def test_file_crud():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/file_crud'
-	db = SQLAlchemyEngine(db_url)
+	db = SQLAlchemyORM(db_url)
 	db.create_all(True)
 
 	#create

@@ -1,10 +1,12 @@
+dist: bionic
+
 language: python
 
 python:
   - "3.6"
 
-services:
-  - postgresql
+addons:
+  postgresql: "10"
 
 env:
   - PYTHONPATH=$PYTHONPATH:$(pwd)
@@ -20,6 +22,7 @@ before_script:
   - cd tests
   - mkdir repo
   - git clone https://github.com/TerraME/terrame.git repo/terrame
+  - git clone https://github.com/TerraME/ca.git repo/ca
   - psql -c "ALTER USER postgres WITH PASSWORD 'postgres'" -U postgres;
 
 script:

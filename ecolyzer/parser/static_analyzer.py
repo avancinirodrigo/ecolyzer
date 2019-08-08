@@ -1,5 +1,5 @@
 from ecolyzer.system import Operation, Call
-from .lua_parser import LuaParser
+from .lua_parser import LuaParser, SyntaxException, ChunkException
 
 class StaticAnalyzer:
 	def __init__(self):
@@ -8,19 +8,24 @@ class StaticAnalyzer:
 	def lua_reverse_engineering(self, src_file, src):
 		code_elements = []
 		parser = LuaParser()
-		parser.parser(src)
-		functions = (parser.extract_functions() 
-					+ parser.extract_local_functions()
-					+ parser.extract_table_functions())
-		self._remove_duplicated(functions)
-		for func in functions:
-			code_elements.append(Operation(func, src_file))
+		try:
+			parser.parser(src)
+			functions = (parser.extract_functions() 
+						+ parser.extract_local_functions()
+						+ parser.extract_table_functions())
+			self._remove_duplicated(functions)
+			for func in functions:
+				code_elements.append(Operation(func, src_file))
 
-		calls = parser.extract_calls() + parser.extract_global_calls()
-		self._remove_inner_calls(calls, functions)
-		self._remove_duplicated(calls)
-		for call in calls:
-			code_elements.append(Call(call, src_file))
+			calls = parser.extract_calls() + parser.extract_global_calls()
+			self._remove_inner_calls(calls, functions)
+			self._remove_duplicated(calls)
+			for call in calls:
+				code_elements.append(Call(call, src_file))
+		except SyntaxException:
+			pass
+		except ChunkException:
+			pass
 
 		return code_elements
 

@@ -7,11 +7,11 @@ class Modification(Base):
 	__tablename__ = 'modification'
 
 	id = Column(Integer, primary_key=True)
-	old_path = Column(String, unique=True)
-	new_path = Column(String, unique=True)
+	old_path = Column(String)
+	new_path = Column(String)
 	added = Column(Integer)
 	removed = Column(Integer)
-	type = Column(String, nullable=False)
+	status = Column(String, nullable=False)
 	source_code = Column(String)
 	commit_id = Column(Integer, ForeignKey('commit.id'))
 	commit = relationship('Commit', backref=backref('modification', cascade='all,delete'))
@@ -23,7 +23,7 @@ class Modification(Base):
 		self.new_path = mod_info.new_path
 		self.added = mod_info.added
 		self.removed = mod_info.removed
-		self.type = mod_info.type
+		self.status = mod_info.status
 		self.source_code = mod_info.source_code		
 		self.commit = commit
 		self.file = file
@@ -35,5 +35,5 @@ class ModificationInfo:
 		self.new_path = ''
 		self.added = 0
 		self.removed = 0
-		self.type = ''
+		self.status = ''
 		self.source_code = None

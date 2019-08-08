@@ -4,27 +4,26 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import engine
 from sqlalchemy_utils import database_exists, create_database, drop_database
 
-class SQLAlchemyEngine:
+class SQLAlchemyORM:
 	def  __init__(self, url):
 		self.url = url
 
-	def create_engine(self, url):
-		self.url = url
-		self.engine = create_engine(url)
+	def create_engine(self):
+		self.engine = create_engine(self.url)
 		self.session = sessionmaker(bind=self.engine)
 		
 	def create_all_tables(self):
 		Base.metadata.create_all(self.engine)
 
-	def create_all(self, overwrite):
+	def create_all(self, overwrite=False):
 		self.createdb(overwrite)
-		self.create_engine(self.url)
+		self.create_engine()
 		self.create_all_tables()		
 		
 	def create_session(self):
 		return self.session()
 
-	def createdb(self, overwrite):
+	def createdb(self, overwrite=False):
 		if database_exists(self.url):
 			if overwrite:
 				drop_database(self.url)

@@ -1,9 +1,20 @@
 from luaparser import ast
 from luaparser import astnodes
+from luaparser import builder
 
 class LuaParser:
 	def parser(self, src):
-		self.tree = ast.parse(src)
+		try:
+			self.tree = ast.parse(src)
+		except builder.SyntaxException:
+			raise SyntaxException('SyntaxException')
+		except Exception as e:
+			if str(e) == 'Expecting a chunk':
+				print("TODO: ChunkException: {0}".format(e))
+				raise ChunkException(e)
+			else:
+				raise e
+
 
 	def extract_functions(self):
 		visitor = FunctionVisitor()
@@ -17,7 +28,7 @@ class LuaParser:
 		 			and not isinstance(node, astnodes.LocalAssign)):	
 		 		for target in node.targets:
 		 			if isinstance(target, astnodes.Index):
-		 				globals.append(target.value.id)
+		 				globals.append(target.value.id + '.' + target.idx.s)
 		 			elif isinstance(target, astnodes.Name):
 		 				globals.append(target.id)
 		 			else:
@@ -84,3 +95,9 @@ class TableVisitor(ast.ASTVisitor):
 			if (isinstance(field.key, astnodes.Name) and
 					isinstance(field.value, astnodes.AnonymousFunction)):
 				self.functions.append(field.key.id)
+
+class SyntaxException(Exception):
+	pass
+
+class ChunkException(Exception):
+	pass

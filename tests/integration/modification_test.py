@@ -1,13 +1,13 @@
 import datetime
 from ecolyzer.system import File, System
-from ecolyzer.repository import Repository, Commit, CommitInfo, Author, Modification, ModificationInfo
-from ecolyzer.dataaccess import SQLAlchemyEngine
+from ecolyzer.repository import Repository, Commit, CommitInfo, Person, Author, Modification, ModificationInfo
+from ecolyzer.dataaccess import SQLAlchemyORM
 
 db_url = 'postgresql://postgres:postgres@localhost:5432/modific_test'
-db = SQLAlchemyEngine(db_url)
+db = SQLAlchemyORM(db_url)
 db.create_all(True)
 
-def test_modification_crud():
+def test_crud():
 	#create
 	repo = Repository('repo/terrame')
 	sys = System('terrame', repo)
@@ -16,14 +16,14 @@ def test_modification_crud():
 	commit_info.msg = 'commit message'
 	commit_info.author_name = 'author'
 	commit_info.author_email = 'author@email.com'	
-	author = Author(commit_info.author_name, commit_info.author_email)
+	author = Author(Person(commit_info.author_name, commit_info.author_email))
 	commit = Commit(commit_info, author, repo)
 	modinfo = ModificationInfo('some/path/file.ext')
 	modinfo.old_path = ''
 	modinfo.new_path = 'some/path/file.ext'
 	modinfo.added = 10
 	modinfo.removed = 0
-	modinfo.type = 'ADD'
+	modinfo.status = 'ADD'
 	file = File(modinfo.filename)
 	mod = Modification(modinfo, file, commit)
 	
@@ -37,15 +37,15 @@ def test_modification_crud():
 	assert moddb.old_path == ''
 	assert moddb.added == 10
 	assert moddb.removed == 0
-	assert moddb.type == 'ADD'
+	assert moddb.status == 'ADD'
 	assert moddb.commit_id == 1
 	assert moddb.file_id == 1
 
 	#update
-	mod.type = 'DELETED'
+	mod.status = 'DELETED'
 	session.commit()	
 	moddb = session.query(Modification).get(1)
-	assert moddb.type == 'DELETED'
+	assert moddb.status == 'DELETED'
 
 	#delete
 	session.delete(mod)

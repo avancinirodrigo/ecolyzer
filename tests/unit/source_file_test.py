@@ -8,11 +8,11 @@ def test_add_operation_same_name():
 	src_file = SourceFile(file)
 
 	f1 = Operation('get')
-	src_file.add_operation(f1)
+	src_file.add_code_element(f1)
 
 	with pytest.raises(Exception) as e:
-		src_file.add_operation(f1)
-	assert (('Operation \'get\' is already present')
+		src_file.add_code_element(f1)
+	assert (('Code element \'get\' of type \'Operation\' is already present')
 			in str(e.value))		
 
 def test_operation_exists():
@@ -21,7 +21,7 @@ def test_operation_exists():
 	src_file = SourceFile(file)
 
 	f1 = Operation('get')
-	src_file.add_operation(f1)	
+	src_file.add_code_element(f1)	
 
-	assert src_file.operation_exists(f1.name)
+	assert src_file.code_element_exists(f1)
 	
