@@ -1,6 +1,7 @@
 pydriller==1.7
 psycopg2-binary
 pytest
+pytest-mock
 pytest-cov
 codecov
 git+https://github.com/boolangery/py-lua-parser.git

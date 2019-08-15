@@ -1,9 +1,10 @@
+import pytest
 from ecolyzer.ecosystem import EcosystemAnalyzer
 from ecolyzer.system import System, File, SourceFile, Operation, Call
-from ecolyzer.repository import Repository
+from ecolyzer.repository import Repository, Person, Author
 from ecolyzer.ecosystem import Ecosystem
 
-def test_make_relations():
+def test_make_relations(mocker):
 	repo1 = Repository('repo/terrame')
 	sys1 = System('terrame', repo1)
 	f1 = File('Cell.lua')
@@ -32,6 +33,13 @@ def test_make_relations():
 
 	ecosystem = Ecosystem()
 
+	tme_author = Author(Person('TerraMe Dev', 'tme.dev@terrame.com'))
+	ca_author = Author(Person('CA Dev', 'ca.dev@ca.com'))
+	mocker.patch.object(op1, 'author', return_value=tme_author, autospec=True)
+	mocker.patch.object(op2, 'author', return_value=tme_author, autospec=True)
+	mocker.patch.object(c1, 'author', return_value=ca_author, autospec=True)
+	mocker.patch.object(c2, 'author', return_value=ca_author, autospec=True)	
+
 	ecolyzer = EcosystemAnalyzer(ecosystem)
 	ecolyzer.make_relations(sys1, sys2)
 
@@ -42,6 +50,18 @@ def test_make_relations():
 	rel1 = relationships[0]
 	rel2 = relationships[1]
 
-	#print(rel1.__dict__)
 	assert rel1.from_system.name == 'ca'
+	assert rel1.from_author.name == 'CA Dev'
+	assert rel1.from_author.email == 'ca.dev@ca.com'
 	assert rel1.to_system.name == 'terrame'
+	assert rel1.to_author.name == 'TerraMe Dev'	
+	assert rel1.to_author.email == 'tme.dev@terrame.com'	
+	assert rel1.from_code_element.name == rel1.to_code_element.name == 'Cell'
+	
+	assert rel2.from_system.name == 'ca'
+	assert rel2.from_author.name == 'CA Dev'
+	assert rel2.from_author.email == 'ca.dev@ca.com'	
+	assert rel2.to_system.name == 'terrame'
+	assert rel2.to_author.name == 'TerraMe Dev'	
+	assert rel2.to_author.email == 'tme.dev@terrame.com'	
+	assert rel2.from_code_element.name == rel2.to_code_element.name == 'CellularSpace'	
