@@ -23,5 +23,5 @@ def test_operation_exists():
 	f1 = Operation('get')
 	src_file.add_code_element(f1)	
 
-	assert src_file.code_element_exists(f1)
+	assert src_file.code_element_exists(f1.name)
 	

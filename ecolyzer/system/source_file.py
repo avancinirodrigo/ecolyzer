@@ -35,11 +35,8 @@ class SourceFile(Base):
 	def code_elements(self):
 		return self._elements	
 
-#	def code_element_at(self, idx):
-#		return self._elements[idx]
-
-#	def code_elements_len(self):
-#		return len(self._elements)
+	def code_elements_len(self):
+		return len(self._elements)
 
 	def ext(self):
 		return self.file.ext

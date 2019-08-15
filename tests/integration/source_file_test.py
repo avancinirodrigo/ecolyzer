@@ -26,9 +26,9 @@ def test_source_file_crud():
 	src_filedb = session.query(SourceFile).get(1)
 	assert src_filedb.file_id == file.id
 	assert src_filedb.file.ext == file.ext
-	assert src_filedb.code_element_at(0).name == f1.name
-	assert src_filedb.code_element_at(1).name == f2.name
-	assert src_filedb.code_element_at(2).name == c1.name
+	assert src_filedb.code_element_by_name(f1.name)
+	assert src_filedb.code_element_by_name(f2.name)
+	assert src_filedb.code_element_by_name(c1.name)
 
 	#update
 	file.ext = 'crs'
