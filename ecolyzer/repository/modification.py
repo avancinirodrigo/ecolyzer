@@ -27,6 +27,9 @@ class Modification(Base):
 		self.source_code = mod_info.source_code		
 		self.commit = commit
 		self.file = file
+
+	def author():
+		return self.commit.author
 	
 class ModificationInfo:
 	def __init__(self, filename):

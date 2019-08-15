@@ -28,11 +28,11 @@ class Relationship(Base):
 	def __init__(self, from_info, to_info):
 		self.from_system = from_info.system
 		self.from_source_file = from_info.source_file
-		#self.from_author = from_info.author
 		self.from_code_element = from_info.code_element
+		self.from_author = from_info.author
 		self.to_system = to_info.system
 		self.to_source_file = to_info.source_file
-		#self.to_author = to_info.author
+		self.to_author = to_info.author
 		self.to_code_element = to_info.code_element		
 
 class RelationInfo():

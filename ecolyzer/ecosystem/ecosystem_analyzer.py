@@ -23,10 +23,12 @@ class EcosystemAnalyzer():
 								from_info.system = sys_from
 								from_info.source_file = from_src_file
 								from_info.code_element = from_code_element
+								from_info.author = from_code_element.author()
 								to_info = RelationInfo()
 								to_info.system = sys_to
 								to_info.source_file = to_src_file
 								to_info.code_element = to_code_element
+								to_info.author = to_code_element.author()
 								rel = Relationship(from_info, to_info)
 								#print(rel.__dict__)
 								self.ecosystem.add_relationship(rel)
