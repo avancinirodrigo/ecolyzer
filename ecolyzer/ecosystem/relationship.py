@@ -15,6 +15,8 @@ class Relationship(Base):
 	from_source_file = relationship('SourceFile', foreign_keys=[from_source_file_id])
 	from_code_element_id = Column(Integer, ForeignKey('code_element.id'))
 	from_code_element = relationship('CodeElement', foreign_keys=[from_code_element_id])
+	from_author_id = Column(Integer, ForeignKey('author.id'))
+	from_author = relationship('Author', foreign_keys=[from_author_id]) 
 
 	to_system_id = Column(Integer, ForeignKey('system.id'))
 	to_system = relationship('System', foreign_keys=[to_system_id])
@@ -22,6 +24,8 @@ class Relationship(Base):
 	to_source_file = relationship('SourceFile', foreign_keys=[to_source_file_id])
 	to_code_element_id = Column(Integer, ForeignKey('code_element.id'))
 	to_code_element = relationship('CodeElement', foreign_keys=[to_code_element_id])		
+	to_author_id = Column(Integer, ForeignKey('author.id'))
+	to_author = relationship('Author', foreign_keys=[to_author_id]) 
 
 	ecosystem_id = Column(Integer, ForeignKey('ecosystem.id'))
 	
@@ -37,10 +41,10 @@ class Relationship(Base):
 
 class RelationInfo():
 	"""RelationInfo"""
-	def __init__(self):
-		self.system = None
-		self.source_file = None
-		self.author = None
-		self.code_element = None		
+	def __init__(self, system, source_file, code_element):
+		self.system = system
+		self.source_file = source_file
+		self.code_element = code_element
+		self.author = code_element.author()				
 
 

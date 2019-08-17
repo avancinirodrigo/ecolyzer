@@ -1,5 +1,4 @@
 from .central_system import CentralSystem
-from .relatable import Relatable
-from .relationship import Relationship
+from .relationship import Relationship, RelationInfo
 from .ecosystem_analyzer import EcosystemAnalyzer
 from .ecosystem import Ecosystem

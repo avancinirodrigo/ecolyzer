@@ -18,19 +18,8 @@ class EcosystemAnalyzer():
 						if to_src_file.code_element_exists(from_name):	
 							to_code_element = to_src_file.code_element_by_name(from_name) 
 							if to_code_element and isinstance(to_code_element, Operation):
-								#print('@', from_fullpath, from_code_element.name, to_fullpath, to_code_element.name, '\n')
-								from_info = RelationInfo()
-								from_info.system = sys_from
-								from_info.source_file = from_src_file
-								from_info.code_element = from_code_element
-								from_info.author = from_code_element.author()
-								to_info = RelationInfo()
-								to_info.system = sys_to
-								to_info.source_file = to_src_file
-								to_info.code_element = to_code_element
-								to_info.author = to_code_element.author()
+								from_info = RelationInfo(sys_from, from_src_file, from_code_element)
+								to_info = RelationInfo(sys_to, to_src_file, to_code_element)
 								rel = Relationship(from_info, to_info)
-								#print(rel.__dict__)
 								self.ecosystem.add_relationship(rel)
-
-	#def _get_calls()
+								

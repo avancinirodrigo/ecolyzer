@@ -1,11 +1,11 @@
-import pytest
 from ecolyzer.ecosystem import EcosystemAnalyzer
 from ecolyzer.system import System, File, SourceFile, Operation, Call
-from ecolyzer.repository import Repository, Person, Author
+from ecolyzer.repository import Repository, Person, Author, RepositoryMiner
 from ecolyzer.ecosystem import Ecosystem
 
 def test_make_relations(mocker):
-	repo1 = Repository('repo/terrame')
+	mocker.patch.object(RepositoryMiner, 'IsGitRepo', return_value=True)
+	repo1 = Repository('some/path/terrame')
 	sys1 = System('terrame', repo1)
 	f1 = File('Cell.lua')
 	src1 = SourceFile(f1)
@@ -20,7 +20,7 @@ def test_make_relations(mocker):
 	sys1.add_source_file(src1)
 	sys1.add_source_file(src2)
 
-	repo2 = Repository('repo/ca')
+	repo2 = Repository('some/path/ca')
 	sys2 = System('ca', repo2)
 	f3 = File('Anneal.lua')
 	src3 = SourceFile(f3)
