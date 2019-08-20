@@ -41,7 +41,7 @@ def test_make_relations(mocker):
 	mocker.patch.object(c2, 'author', return_value=ca_author, autospec=True)	
 
 	ecolyzer = EcosystemAnalyzer(ecosystem)
-	ecolyzer.make_relations(sys1, sys2)
+	ecolyzer.make_relations(sys2, sys1)
 
 	relationships = ecosystem.relationships()
 

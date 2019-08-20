@@ -8,7 +8,7 @@ class EcosystemAnalyzer():
 	def __init__(self, ecosystem):
 		self.ecosystem = ecosystem
 
-	def make_relations(self, sys_from, sys_to, session=NullSession):
+	def make_relations(self, sys_from, sys_to, session=NullSession()):
 		from_source_files = sys_from.source_files
 		to_source_files = sys_to.source_files
 		for from_fullpath, from_src_file in from_source_files.items(): 
@@ -24,4 +24,4 @@ class EcosystemAnalyzer():
 								rel = Relationship(from_info, to_info)
 								self.ecosystem.add_relationship(rel)
 								session.add(rel)
-								session.commit()
+		session.commit()
