@@ -45,3 +45,11 @@ class SQLAlchemyORM:
 		self.dropdb() 
 
 Base = declarative_base()
+
+class NullSession:
+	"""NullSession"""
+	def add(self, arg):
+		pass
+		
+	def commit(self):
+		pass

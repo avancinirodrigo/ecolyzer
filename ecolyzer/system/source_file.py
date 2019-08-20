@@ -42,5 +42,8 @@ class SourceFile(Base):
 		return self.file.ext
 
 	def name(self):
-		return self.file.name
+		return self.file.name		
+
+	def system(self, system):
+		self.file.system = system
 		

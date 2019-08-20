@@ -46,5 +46,3 @@ class RelationInfo():
 		self.source_file = source_file
 		self.code_element = code_element
 		self.author = code_element.author()				
-
-

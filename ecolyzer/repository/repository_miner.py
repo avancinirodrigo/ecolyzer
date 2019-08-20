@@ -1,3 +1,4 @@
+from sqlalchemy.orm.exc import NoResultFound
 from pydriller import RepositoryMining, GitRepository
 from pydriller.domain.commit import ModificationType
 from git import Repo
@@ -42,7 +43,7 @@ class RepositoryMiner:
 							only_no_merge=self.only_no_merge).traverse_commits():
 
 			commit_info = self._get_commit_info(commit_driller)
-			author = self._check_author(commit_info.author_name, commit_info.author_email)
+			author = self._check_author(session, commit_info.author_name, commit_info.author_email)
 			commit = Commit(commit_info, author, self.repo)
 			session.add(commit)
 			for mod_info in commit_info.modifications:
@@ -87,17 +88,27 @@ class RepositoryMiner:
 		self.system.add_file(file)
 		return file			
 
-	def _check_author(self, name, email):
+	def _check_author(self, session, name, email):
 		if self.repo.author_exists(email):
 			author = self.repo.get_author(email)
 			if name != author.name:
 				author.name = name 
 			return author
 		else:
-			person = Person(name, email)
-			author = Author(person)					
-			self.repo.add_author(author)
-			return author
+			author = None
+			try:
+				author = session.query(Author).\
+							filter(Person.id == Author.person_id).\
+							filter(Person.email == email).one()
+			except NoResultFound:
+				pass
+			if author:
+				return author
+			else:
+				person = Person(name, email)
+				author = Author(person)					
+				self.repo.add_author(author)
+				return author
 
 	def _is_source_file_ext(self, ext):
 		return ext in self.source_file_extensions
@@ -153,3 +164,7 @@ class RepositoryMiner:
 		except:
 			return False
 		return True
+
+	@staticmethod
+	def HashHeadCommit(path):
+		return Repo(path).head.commit.hexsha	

@@ -1,4 +1,5 @@
 from ecolyzer.system import System, Call, Operation
+from ecolyzer.dataaccess import NullSession
 from .relationship import Relationship, RelationInfo
 
 class EcosystemAnalyzer():
@@ -7,7 +8,7 @@ class EcosystemAnalyzer():
 	def __init__(self, ecosystem):
 		self.ecosystem = ecosystem
 
-	def make_relations(self, sys_to, sys_from, session=None):
+	def make_relations(self, sys_from, sys_to, session=NullSession):
 		from_source_files = sys_from.source_files
 		to_source_files = sys_to.source_files
 		for from_fullpath, from_src_file in from_source_files.items(): 
@@ -22,4 +23,5 @@ class EcosystemAnalyzer():
 								to_info = RelationInfo(sys_to, to_src_file, to_code_element)
 								rel = Relationship(from_info, to_info)
 								self.ecosystem.add_relationship(rel)
-								
+								session.add(rel)
+								session.commit()

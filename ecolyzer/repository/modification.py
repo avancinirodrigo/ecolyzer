@@ -28,7 +28,7 @@ class Modification(Base):
 		self.commit = commit
 		self.file = file
 
-	def author():
+	def author(self):
 		return self.commit.author
 	
 class ModificationInfo:
