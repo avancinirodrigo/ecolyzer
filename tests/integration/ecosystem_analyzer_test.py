@@ -38,32 +38,26 @@ def test_make_relations():
 
 	relationships = ecosystem.relationships()
 
-	for rel in relationships:
-		assert rel.from_code_element.name == rel.to_code_element.name
-		print(rel.from_code_element.name)
-		print(rel.from_system.name, rel.from_code_element.source_file.name())
-		print(rel.to_system.name, rel.to_code_element.source_file.name())
-		print("")
+	assert len(relationships) == 296
 
-	# assert len(relationships) == 2
+	rel1 = relationships[0]
+	rel2 = relationships[295]
 
-	# rel1 = relationships[0]
-	# rel2 = relationships[1]
-
-	# assert rel1.from_system.name == 'ca'
-	# assert rel1.from_author.name == 'CA Dev'
-	# assert rel1.from_author.email == 'ca.dev@ca.com'
-	# assert rel1.to_system.name == 'terrame'
-	# assert rel1.to_author.name == 'TerraMe Dev'	
-	# assert rel1.to_author.email == 'tme.dev@terrame.com'	
-	# assert rel1.from_code_element.name == rel1.to_code_element.name == 'Cell'
+	assert rel1.from_system.name == 'ca'
+	assert rel1.from_author.name == 'Pedro Andrade'
+	assert rel1.from_author.email == 'pedro.andrade@inpe.br'
+	assert rel1.to_system.name == 'terrame'
+	assert rel1.to_author.name == 'rvmaretto'	
+	assert rel1.to_author.email == 'rvmaretto@gmail.com'	
+	assert rel1.from_code_element.name == rel1.to_code_element.name == 'createNeighborhood'
 	
-	# assert rel2.from_system.name == 'ca'
-	# assert rel2.from_author.name == 'CA Dev'
-	# assert rel2.from_author.email == 'ca.dev@ca.com'	
-	# assert rel2.to_system.name == 'terrame'
-	# assert rel2.to_author.name == 'TerraMe Dev'	
-	# assert rel2.to_author.email == 'tme.dev@terrame.com'	
-	# assert rel2.from_code_element.name == rel2.to_code_element.name == 'CellularSpace'	
+	assert rel2.from_system.name == 'ca'
+	assert rel2.from_author.name == 'Pedro Andrade'
+	assert rel2.from_author.email == 'pedro.andrade@inpe.br'	
+	assert rel2.to_system.name == 'terrame'
+	assert rel2.to_author.name == 'rvmaretto'	
+	assert rel2.to_author.email == 'rvmaretto@gmail.com'	
+	assert rel2.from_code_element.name == rel2.to_code_element.name == 'type'	
 	
 	session.close()
+	db.drop_all()
