@@ -7,7 +7,7 @@ def test_add_operation_same_name():
 	file = File(filepath)
 	src_file = SourceFile(file)
 
-	f1 = Operation('get')
+	f1 = Operation('get', src_file)
 	src_file.add_code_element(f1)
 
 	with pytest.raises(Exception) as e:
@@ -20,8 +20,8 @@ def test_operation_exists():
 	file = File(filepath)
 	src_file = SourceFile(file)
 
-	f1 = Operation('get')
+	f1 = Operation('get', src_file)
 	src_file.add_code_element(f1)	
 
-	assert src_file.code_element_exists(f1.name)
+	assert src_file.code_element_exists(f1)
 	

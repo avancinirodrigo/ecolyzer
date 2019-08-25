@@ -37,6 +37,7 @@ def test_call_crud():
 	funcsdb = session.query(Call).all()
 	assert len(funcsdb) == 1
 	session.delete(f2)
+	session.commit()
 	funcsdb = session.query(Call).all()
 	assert len(funcsdb) == 0
 	filedb = session.query(File).get(1)

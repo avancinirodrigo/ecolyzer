@@ -9,12 +9,12 @@ def test_make_relations(mocker):
 	sys1 = System('terrame', repo1)
 	f1 = File('Cell.lua')
 	src1 = SourceFile(f1)
-	op1 = Operation('Cell')
+	op1 = Operation('Cell', src1)
 	src1.add_code_element(op1)
 
 	f2 = File('CellularSpace.lua')	
 	src2 = SourceFile(f2)
-	op2 = Operation('CellularSpace')
+	op2 = Operation('CellularSpace', src2)
 	src2.add_code_element(op2)	
 
 	sys1.add_source_file(src1)
@@ -24,9 +24,9 @@ def test_make_relations(mocker):
 	sys2 = System('ca', repo2)
 	f3 = File('Anneal.lua')
 	src3 = SourceFile(f3)
-	c1 = Call('Cell')
+	c1 = Call('Cell', src3)
 	src3.add_code_element(c1)
-	c2 = Call('CellularSpace')
+	c2 = Call('CellularSpace', src3)
 	src3.add_code_element(c2)
 
 	sys2.add_source_file(src3)	

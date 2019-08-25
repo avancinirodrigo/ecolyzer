@@ -55,10 +55,17 @@ class RepositoryMiner:
 						srcfile = self._check_source_file(file)
 						code_elements = self._extract_code_elements(srcfile, mod.source_code)
 						for element in code_elements:
-							element.modification = mod
-							session.add(element)
+							code_element = self._check_code_element(session, srcfile, element, mod)
 					session.add(mod)
 			session.commit()
+
+	def _check_code_element(self, session, source_file, element, modification):
+		if not source_file.code_element_exists(element):
+			source_file.add_code_element(element)
+			element.modification = modification
+		else:
+			session.expunge(element)
+		return source_file.code_element_by_key(element.key)	
 
 	def _check_source_file(self, file):
 		if self.system.source_file_exists(file.fullpath):

@@ -1,3 +1,4 @@
+import pytest
 from ecolyzer.repository import Repository
 from ecolyzer.system import File, SourceFile, Operation, Call
 from ecolyzer.dataaccess import SQLAlchemyORM
@@ -26,9 +27,9 @@ def test_source_file_crud():
 	src_filedb = session.query(SourceFile).get(1)
 	assert src_filedb.file_id == file.id
 	assert src_filedb.file.ext == file.ext
-	assert src_filedb.code_element_by_name(f1.name)
-	assert src_filedb.code_element_by_name(f2.name)
-	assert src_filedb.code_element_by_name(c1.name)
+	assert src_filedb.code_element_by_key(f1.key)
+	assert src_filedb.code_element_by_key(f2.key)
+	assert src_filedb.code_element_by_key(c1.key)
 
 	#update
 	file.ext = 'crs'
@@ -98,3 +99,29 @@ def test_add_operation():
 
 	session.close()
 	db.drop_all()	 
+
+def test_add_same_code_element():
+	db_url = 'postgresql://postgres:postgres@localhost:5432/src_add_same'	
+	db = SQLAlchemyORM(db_url)
+	db.create_all(True)
+
+	filepath = 'some/path/file.src'
+	file = File(filepath)
+	src_file = SourceFile(file)
+
+	f1 = Operation('get', src_file)
+	src_file.add_code_element(f1)
+
+	session = db.create_session()
+	session.add(src_file)
+	session.commit()	
+
+	src_filedb = session.query(SourceFile).one()
+	f2 = Operation('get', src_filedb)
+
+	with pytest.raises(Exception) as e:
+		src_filedb.add_code_element(f2)
+	assert (('Code element \'get\' of type \'Operation\' is already present')
+			in str(e.value))
+	session.close()
+	db.drop_all()	 	

@@ -36,6 +36,7 @@ def test_operation_crud():
 	funcsdb = session.query(Operation).all()
 	assert len(funcsdb) == 1
 	session.delete(f2)
+	session.commit()
 	funcsdb = session.query(Operation).all()
 	assert len(funcsdb) == 0
 	filedb = session.query(File).get(1)
