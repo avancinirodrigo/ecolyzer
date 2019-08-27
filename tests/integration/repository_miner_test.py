@@ -368,11 +368,11 @@ def test_extract_tag_interval():
 	#miner.commit_interval('80a562be869dbb984229f608ae9a04d05c5e1689', 
 	#					'082dff5e822ea1b4491911b7bf434a7f47a4be26') TODO: not working
 	miner.tag_interval('2.0-RC-6', '2.0-RC-7')
-	miner.extract(session)
+	miner.extract(session, max_count=20)
 
 	commits = session.query(Commit).all()
 
-	assert len(commits) == 95
+	assert len(commits) == 20
 
 	session.close()
 	db.drop_all()	

@@ -1,3 +1,4 @@
+import sys
 from sqlalchemy.orm.exc import NoResultFound
 from pydriller import RepositoryMining, GitRepository
 from pydriller.domain.commit import ModificationType
@@ -32,7 +33,8 @@ class RepositoryMiner:
 		self.from_tag = from_tag
 		self.to_tag = to_tag
 
-	def extract(self, session, hash=None):
+	def extract(self, session, hash=None, max_count=sys.maxsize):
+		count = 0
 		for commit_driller in RepositoryMining(self.repo.path,
 							only_modifications_with_file_types=self.source_file_extensions,
 							single=hash,
@@ -57,6 +59,10 @@ class RepositoryMiner:
 						for element in code_elements:
 							code_element = self._check_code_element(session, srcfile, element, mod)
 					session.add(mod)
+			count += 1
+			if count == max_count:
+				session.commit()
+				return	
 			session.commit()
 
 	def _check_code_element(self, session, source_file, element, modification):
