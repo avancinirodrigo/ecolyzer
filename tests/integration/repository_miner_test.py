@@ -334,21 +334,12 @@ def test_get_commit_source_file():
 	session.commit()
 	afile = sys.get_file('base/lua/CellularSpace.lua')
 	srcfiledb = session.query(SourceFile).filter_by(file_id = afile.id).first()
-	assert srcfiledb.file.ext == 'lua'
-	assert srcfiledb.file.name == 'CellularSpace'
-	#TODO: how to load all functions together?
-	#assert len(srcfiledb.functions) == 1
-
-	moddb = session.query(Modification).filter_by(file_id = afile.id).first()
-	asrc_file = SourceFile(afile)
-	assert asrc_file.code_elements_len() == 0
-
-	#miner.extract_code_elements(asrc_file, moddb)
-	#assert len(asrc_file.operations) == 1
-	#assert asrc_file.operation_exists('CellularSpace')
+	assert srcfiledb.ext() == 'lua'
+	assert srcfiledb.name() == 'CellularSpace'
+	assert srcfiledb.code_elements_len() == 83
 
 	functions = session.query(Operation).filter_by(source_file_id = srcfiledb.id).all()	
-	#assert asrc_file.operation_exists(functions[0].name)
+	assert srcfiledb.code_element_exists(functions[0])
 	assert functions[0].name == 'CellularSpace'
 
 	session.close()
