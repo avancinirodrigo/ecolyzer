@@ -12,9 +12,9 @@ class System(Base):
 	repo_id = Column(Integer, ForeignKey('repository.id'))
 	repository = relationship('Repository', backref=backref('system', 
 					uselist=False, cascade='all,delete'))
-	source_files = relationship("SourceFile",
+	source_files = relationship('SourceFile',
 					collection_class=attribute_mapped_collection('file.fullpath'))
-	files = relationship("File",
+	files = relationship('File',
 					collection_class=attribute_mapped_collection('fullpath'))
 
 	def __init__(self, name, repository):
@@ -25,6 +25,7 @@ class System(Base):
 		if file.fullpath not in self.files: 
 			file.system = self
 			self.files[file.fullpath] = file
+			file.system = self
 		else:
 			raise ValueError('File \'{0}\' is already present'.format(file.fullpath))
 
@@ -44,6 +45,7 @@ class System(Base):
 		file = source_file.file
 		if file.fullpath not in self.source_files: 
 			self.source_files[file.fullpath] = source_file
+			source_file.system(self)
 		else:
 			raise ValueError('Source file \'{0}\' is already present'.format(file.fullpath))
 

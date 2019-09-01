@@ -10,7 +10,7 @@ class SQLAlchemyORM:
 
 	def create_engine(self):
 		self.engine = create_engine(self.url)
-		self.session = sessionmaker(bind=self.engine)
+		self.session = sessionmaker(bind=self.engine, autoflush=False)
 		
 	def create_all_tables(self):
 		Base.metadata.create_all(self.engine)
@@ -45,3 +45,14 @@ class SQLAlchemyORM:
 		self.dropdb() 
 
 Base = declarative_base()
+
+class NullSession:
+	"""NullSession"""
+	def add(self, arg):
+		pass
+		
+	def commit(self):
+		pass
+
+	def expunge(self, arg):
+		pass

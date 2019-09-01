@@ -1,3 +1,5 @@
+import sys
+from sqlalchemy.orm.exc import NoResultFound
 from pydriller import RepositoryMining, GitRepository
 from pydriller.domain.commit import ModificationType
 from git import Repo
@@ -31,7 +33,8 @@ class RepositoryMiner:
 		self.from_tag = from_tag
 		self.to_tag = to_tag
 
-	def extract(self, session, hash=None):
+	def extract(self, session, hash=None, max_count=sys.maxsize):
+		count = 0
 		for commit_driller in RepositoryMining(self.repo.path,
 							only_modifications_with_file_types=self.source_file_extensions,
 							single=hash,
@@ -42,7 +45,7 @@ class RepositoryMiner:
 							only_no_merge=self.only_no_merge).traverse_commits():
 
 			commit_info = self._get_commit_info(commit_driller)
-			author = self._check_author(commit_info.author_name, commit_info.author_email)
+			author = self._check_author(session, commit_info.author_name, commit_info.author_email)
 			commit = Commit(commit_info, author, self.repo)
 			session.add(commit)
 			for mod_info in commit_info.modifications:
@@ -54,10 +57,21 @@ class RepositoryMiner:
 						srcfile = self._check_source_file(file)
 						code_elements = self._extract_code_elements(srcfile, mod.source_code)
 						for element in code_elements:
-							element.modification = mod
-							session.add(element)
+							code_element = self._check_code_element(session, srcfile, element, mod)
 					session.add(mod)
+			count += 1
+			if count == max_count:
+				session.commit()
+				return	
 			session.commit()
+
+	def _check_code_element(self, session, source_file, element, modification):
+		if not source_file.code_element_exists(element):
+			source_file.add_code_element(element)
+			element.modification = modification
+		else:
+			session.expunge(element)
+		return source_file.code_element_by_key(element.key)	
 
 	def _check_source_file(self, file):
 		if self.system.source_file_exists(file.fullpath):
@@ -87,17 +101,27 @@ class RepositoryMiner:
 		self.system.add_file(file)
 		return file			
 
-	def _check_author(self, name, email):
+	def _check_author(self, session, name, email):
 		if self.repo.author_exists(email):
 			author = self.repo.get_author(email)
 			if name != author.name:
 				author.name = name 
 			return author
 		else:
-			person = Person(name, email)
-			author = Author(person)					
-			self.repo.add_author(author)
-			return author
+			author = None
+			try:
+				author = session.query(Author).\
+							filter(Person.id == Author.person_id).\
+							filter(Person.email == email).one()
+			except NoResultFound:
+				pass
+			if author:
+				return author
+			else:
+				person = Person(name, email)
+				author = Author(person)					
+				self.repo.add_author(author)
+				return author
 
 	def _is_source_file_ext(self, ext):
 		return ext in self.source_file_extensions
@@ -145,11 +169,7 @@ class RepositoryMiner:
 
 	def extract_code_elements(self, source_file, modification):
 		return self._extract_code_elements(source_file, modification.source_code)
-	
-	@staticmethod			
-	def IsGitRepo(path):
-		try:
-			Repo(path).git_dir
-		except:
-			return False
-		return True
+
+	@staticmethod
+	def HashHeadCommit(path):
+		return Repo(path).head.commit.hexsha	

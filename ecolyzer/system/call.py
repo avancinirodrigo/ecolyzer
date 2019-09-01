@@ -7,5 +7,4 @@ class Call(CodeElement):
 	__mapper_args__ = {'polymorphic_identity':'call'}
 
 	id = Column(None, ForeignKey('code_element.id'), primary_key=True)
-	# caller = Column(String)
 	
