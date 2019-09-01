@@ -18,7 +18,7 @@ class Git:
 			return (commit.hexsha for commit in commits)
 		
 	@staticmethod
-	def IsGitRepo(self, path):
+	def IsGitRepo(path):
 		try:
 			Repo(path).git_dir
 		except:

@@ -169,14 +169,6 @@ class RepositoryMiner:
 
 	def extract_code_elements(self, source_file, modification):
 		return self._extract_code_elements(source_file, modification.source_code)
-	
-	@staticmethod			
-	def IsGitRepo(path):
-		try:
-			Repo(path).git_dir
-		except:
-			return False
-		return True
 
 	@staticmethod
 	def HashHeadCommit(path):

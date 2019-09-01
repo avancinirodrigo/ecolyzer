@@ -3,7 +3,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.orm.collections import attribute_mapped_collection
 from ecolyzer.dataaccess import Base
 from .author import Author
-from .repository_miner import RepositoryMiner
+from .git import Git
 
 class Repository(Base):
 	"""Repository"""
@@ -15,7 +15,7 @@ class Repository(Base):
 					collection_class=attribute_mapped_collection('email'))
 
 	def __init__(self, path):
-		if RepositoryMiner.IsGitRepo(path):
+		if Git.IsGitRepo(path):
 			self.path = path
 		else:
 			raise Exception('Invalid repository path \'{0}\''.format(path))
