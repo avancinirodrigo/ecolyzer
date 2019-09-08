@@ -1,6 +1,6 @@
 from ecolyzer.ecosystem import EcosystemAnalyzer
 from ecolyzer.system import System
-from ecolyzer.repository import Repository, Person, Author, RepositoryMiner, Git
+from ecolyzer.repository import Repository, Person, Author, RepositoryMiner, GitPython
 from ecolyzer.dataaccess import SQLAlchemyORM
 from ecolyzer.ecosystem import Ecosystem
 
@@ -17,7 +17,7 @@ def test_make_relations():
 	session.add(sys1)
 
 	miner = RepositoryMiner(repo1, sys1)
-	git = Git(repo1.path)
+	git = GitPython(repo1.path)
 	hashs1 = git.commit_hashs_reverse(10)
 	for hash in hashs1:
 		miner.extract(session, hash)
@@ -26,7 +26,7 @@ def test_make_relations():
 	sys2 = System('ca', repo2)
 
 	miner = RepositoryMiner(repo2, sys2)
-	git = Git(repo2.path)
+	git = GitPython(repo2.path)
 	hashs2 = git.commit_hashs_reverse(10)
 	for hash in hashs2:
 		miner.extract(session, hash)
