@@ -66,11 +66,11 @@ class RepositoryMiner:
 						code_element = self._check_code_element(session, srcfile, element, mod)
 				session.add(mod)
 
-	def extract_last_commits(self, session=NullSession()):
+	def extract_last_commits(self, session=NullSession(), rev=None):
 		repo = Repo(self.repo.path)
 		blobs = self._repo_file_blobs(repo)
 		for blob in blobs:
-			commit = self._last_commit_from_path(blob.path, repo)		
+			commit = self._last_commit_from_path(blob.path, repo, rev)		
 			commit_info = self._get_commit_info_from_gitpython(commit)
 			author = self._check_author(session, commit_info.author_name, commit_info.author_email)
 			commit = self._check_commit(commit_info, author)
@@ -103,8 +103,8 @@ class RepositoryMiner:
 		file_mod.source_code = self._get_blob_source_code(blob)
 		return file_mod			
 
-	def _last_commit_from_path(self, fullpath, repo):
-		return list(repo.iter_commits(paths=fullpath, max_count=1))[0]
+	def _last_commit_from_path(self, fullpath, repo, rev):
+		return list(repo.iter_commits(rev=rev, paths=fullpath, max_count=1))[0]
 
 	def extract_current_files(self, session=NullSession()):
 		repo = Repo(self.repo.path)
