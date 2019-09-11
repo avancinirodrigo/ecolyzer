@@ -1,7 +1,7 @@
 from git import Repo
 
-class Git:
-	"""Git"""
+class GitPython:
+	"""GitPython"""
 	def __init__(self, path):
 		self.repo = Repo(path)
 		self.git_dir = self.repo.git_dir

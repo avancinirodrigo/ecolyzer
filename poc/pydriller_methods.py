@@ -1,5 +1,5 @@
 import os
-from pydriller import RepositoryMining
+from pydriller import RepositoryMining, GitRepository
 
 def show_modification(repo_path):
 	for commit in RepositoryMining(repo_path, only_in_branch=['master'],
@@ -27,4 +27,11 @@ def show_modification(repo_path):
 						return
 						
 repo_path = 'repo/terrame'
-show_modification(repo_path)
+#show_modification(repo_path)
+
+repo = GitRepository(repo_path)
+files = repo.files()
+
+for f in files:
+	if f.endswith('.lua'):
+		print(f, type(f))

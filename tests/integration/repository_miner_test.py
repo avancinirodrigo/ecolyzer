@@ -460,3 +460,87 @@ def test_extract_same_commit():
 
 	session.close()	
 	db.drop_all()
+
+def test_extract_current_files():
+	db_url = 'postgresql://postgres:postgres@localhost:5432/miner_curr_files'
+	db = SQLAlchemyORM(db_url)
+	db.create_all(True)	
+	repo = Repository('repo/terrame')
+	sys = System('terrame', repo)
+	miner = RepositoryMiner(repo, sys)
+	miner.add_ignore_dir_with('test')
+	miner.add_ignore_dir_with('example')
+
+	session = db.create_session()		
+	miner.extract_current_files(session)
+
+	session.close()
+	db.drop_all()
+
+def test_extract_last_commits():
+	db_url = 'postgresql://postgres:postgres@localhost:5432/miner_last_commits'
+	db = SQLAlchemyORM(db_url)
+	db.create_all(True)
+	repo = Repository('repo/terrame')
+	sys = System('terrame', repo)
+	miner = RepositoryMiner(repo, sys)
+	miner.add_ignore_dir_with('test')
+	miner.add_ignore_dir_with('example')
+
+	session = db.create_session()		
+	miner.extract_last_commits(session)
+
+	srcfile = session.query(SourceFile).join(SourceFile.file)\
+				.filter_by(fullpath = 'packages/base/lua/Cell.lua').one()
+
+	code_elements = {
+		'Cell' : True,
+		'addNeighborhood' : True,
+		'distance' : True,
+		'getAgent' : True,
+		'getAgents' : True,
+		'getId' : True,
+		'getNeighborhood' : True,
+		'init' : True,
+		'isEmpty' : True,
+		'notify' : True,
+		'on_synchronize' : True,
+		'sample' : True,
+		'setId' : True,
+		'synchronize' : True,
+		'area' : True,
+		'__len' : True,
+		'getID' : True,
+		'getTime' : True,
+		'setID' : True,
+		'setReference' : True,
+		'setIndex' : True,
+		'getPackage' : True,
+		'incompatibleTypeError' : True,
+		'type' : True,
+		'mandatoryArgumentError' : True,
+		'mandatoryArgument' : True,
+		'customError' : True,
+		's' : True,
+		'optionalArgument' : True,
+		'positiveArgument' : True,
+		'forEachElement' : True,
+		'Random' : True,
+		'pairs' : True,
+		'getn' : True,
+		'verifyNamedTable' : True,
+		'optionalTableArgument' : True,
+		'TeCell' : True,
+		'setmetatable' : True,
+		'mandatoryTableArgument' : True,
+		'integerTableArgument' : True
+	}
+
+	src_code_elements = srcfile.code_elements()
+
+	for k in src_code_elements:
+		assert code_elements[srcfile.code_element_by_key(k).name]
+	assert srcfile.code_elements_len() == 40
+
+	session.close()
+	db.drop_all()
