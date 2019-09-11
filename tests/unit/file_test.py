@@ -64,3 +64,13 @@ def test_without_ext():
 
 	file2 = File('noextfile')
 	assert file2.fullpath == 'noextfile'
+
+def test_extension():
+	assert File.Extension('some/path/file.ext') == 'ext'
+	assert File.Extension('file') == ''
+
+def test_split():
+	path, name, ext = File.Split('some/path/file.ext')
+	assert path == 'some/path'
+	assert name == 'file'
+	assert ext == 'ext'
