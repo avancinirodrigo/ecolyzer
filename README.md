@@ -6,3 +6,9 @@
 
 ## Style Guide for Python Code
 https://www.python.org/dev/peps/pep-0008/
+
+## Third Party Systems
+* [PyDriller MSR](https://pydriller.readthedocs.io/en/latest)
+* [GitPython](https://gitpython.readthedocs.io/en/stable/index.html)
+* [SQLAlchemy ORM](https://www.sqlalchemy.org)
+* [PyLuaParser](https://github.com/boolangery/py-lua-parser)
