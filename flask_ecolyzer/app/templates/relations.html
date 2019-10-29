@@ -1,0 +1,54 @@
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>D3 Test</title>
+        <script type="text/javascript" src="{{ url_for('static', filename='d3/d3.v3.js') }}"></script>
+        <style type="text/css">
+			div.bar {
+			    display: inline-block;
+			    width: 20px;
+			    height: 75px;   /* We'll override this later */
+			    background-color: teal;
+			    margin-right: 2px;
+			}
+		</style>        
+    </head>
+    <body>
+<!-- 		{% for file, rels in relations.items() %}
+			<p> {{ file }} : {{ rels|length }} </p>
+		{% endfor %} --> 	
+    </body>
+</html> 
+
+{% block scripts %}
+	<script type="text/javascript">		
+    	//function d3_show() {
+     	var dataset = [ 5, 10, 15, 20, 25 ];
+		// d3.select("body").selectAll("p")
+		//     .data(dataset)
+		//     .enter()
+		//     .append("p")
+		//     .text(function(d) { 
+		//     	return "I can count up to " + d; 
+		//     })
+		//     .style("color", function(d) {
+		// 	    if (d > 15) {   //Threshold of 15
+		// 	        return "red";
+		// 	    } else {
+		// 	        return "black";
+		// 	    }
+		// 	});
+    	//}
+		d3.select("body").selectAll("div")
+		    .data(dataset)
+		    .enter()
+		    .append("div")
+		    .attr("class", "bar")
+		    .style("height", function(d) {
+			    var barHeight = d * 5;  //Scale up by factor of 5
+			    return barHeight + "px";
+			});  	
+	</script>
+{% endblock %}
