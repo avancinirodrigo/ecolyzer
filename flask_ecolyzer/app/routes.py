@@ -15,8 +15,8 @@ def authors():
 	#return resp
 	return render_template('authors.html', authors=authors)
 
-@app.route('/relations')
-def relations():
+@app.route('/relationships', methods=['GET'])
+def relationships():
 	#ecos = Ecosystem()
 	relations = db.session.query(Relationship).all() #ecos.relationships()
 	file_relations = {}
@@ -28,8 +28,20 @@ def relations():
 		#print(to_code_element.name, to_code_element.source_file.fullpath())
 		if to_code_element.source_file.fullpath() not in file_relations:
 			file_relations[to_code_element.source_file.fullpath()] = []			
-		file_relations[to_code_element.source_file.fullpath()].append(rel)
+		file_relations[to_code_element.source_file.fullpath()].append(row_to_dict(rel))
 	
 	#return json.dumps(file_relations)
-	return render_template('relations.html', relations=file_relations)
+	#return render_template('relations.html', relations=file_relations)
+	return jsonify(file_relations)
 
+@app.route('/relationships/<int:id>', methods=['GET'])
+def get_relationship(id):
+	rel = db.session.query(Relationship).get(id)
+	print(row_to_dict(rel))
+	return jsonify(row_to_dict(rel))
+
+def row_to_dict(row):
+	d = {}
+	for column in row.__table__.columns:
+		d[column.name] = str(getattr(row, column.name))
+	return d
