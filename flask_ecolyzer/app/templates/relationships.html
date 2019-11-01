@@ -5,7 +5,7 @@
         <meta charset="utf-8">
         <title>D3 Test</title>
         <script type="text/javascript" src="{{ url_for('static', filename='d3/d3.v3.js') }}"></script>
-        <style type="text/css">
+<!--         <style type="text/css">
 			div.bar {
 			    display: inline-block;
 			    width: 20px;
@@ -13,7 +13,7 @@
 			    background-color: teal;
 			    margin-right: 2px;
 			}
-		</style>        
+		</style>  -->       
     </head>
     <body>
 <!-- 		{% for file, rels in relations.items() %}
@@ -22,10 +22,23 @@
     </body>
 </html> 
 
-{% block scripts %}
-	<script type="text/javascript">		
+<!-- {% block scripts %} -->
+	<script type="text/javascript">	
+		var relations = {{ relations|tojson }}
+		// {% for file, rels in relations.items() %}
+		// 	relations[{{ file }}] = {{ rels|length }} ;
+		// {% endfor %}
+
     	//function d3_show() {
-     	var dataset = [ 5, 10, 15, 20, 25 ];
+
+     	for(var k in relations) { 
+     		document.write("<br> - " + k + ": " + relations[k].length);
+     		// console.log(key);
+     	}
+
+		// relations.forEach(function(d){
+		//     console.log(d);
+		// });     	
 		// d3.select("body").selectAll("p")
 		//     .data(dataset)
 		//     .enter()
@@ -41,14 +54,14 @@
 		// 	    }
 		// 	});
     	//}
-		d3.select("body").selectAll("div")
-		    .data(dataset)
-		    .enter()
-		    .append("div")
-		    .attr("class", "bar")
-		    .style("height", function(d) {
-			    var barHeight = d * 5;  //Scale up by factor of 5
-			    return barHeight + "px";
-			});  	
+		// d3.select("body").selectAll("div")
+		//     .data(dataset)
+		//     .enter()
+		//     .append("div")
+		//     .attr("class", "bar")
+		//     .style("height", function(d) {
+		// 	    var barHeight = d * 5;  //Scale up by factor of 5
+		// 	    return barHeight + "px";
+		// 	});  	
 	</script>
-{% endblock %}
+<!-- {% endblock %} -->

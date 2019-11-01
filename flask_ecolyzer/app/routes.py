@@ -29,10 +29,11 @@ def relationships():
 		if to_code_element.source_file.fullpath() not in file_relations:
 			file_relations[to_code_element.source_file.fullpath()] = []			
 		file_relations[to_code_element.source_file.fullpath()].append(row_to_dict(rel))
-	
+		#file_relations[to_code_element.source_file.fullpath()].append(rel)
+
 	#return json.dumps(file_relations)
-	#return render_template('relations.html', relations=file_relations)
-	return jsonify(file_relations)
+	return render_template('relationships.html', relations=file_relations)
+	#return jsonify(relations=file_relations)
 
 @app.route('/relationships/<int:id>', methods=['GET'])
 def get_relationship(id):
