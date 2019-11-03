@@ -26,9 +26,21 @@ def relationships():
 		#to_system = rel.to_system.name
 		#from_code_element = rel.from_code_element
 		#print(to_code_element.name, to_code_element.source_file.fullpath())
-		if to_code_element.source_file.fullpath() not in file_relations:
-			file_relations[to_code_element.source_file.fullpath()] = []			
-		file_relations[to_code_element.source_file.fullpath()].append(row_to_dict(rel))
+		#key = to_code_element.source_file.fullpath()
+		key = to_code_element.source_file.id 
+		if key not in file_relations:
+			file_relations[key] = {}
+			file_relations[key]['id'] = rel.id
+			file_relations[key]['source'] = to_code_element.source_file.name()	
+			file_relations[key]['path'] = to_code_element.source_file.path()	
+			file_relations[key]['count'] = 0		
+		#rel_dict = row_to_dict(rel)
+		#rel_dict = {}
+		#rel_dict.source = str(to_code_element.source_file.name())
+		#rel_dict.id = rel.id
+		
+		#file_relations[to_code_element.source_file.fullpath()].append(rel_dict)
+		file_relations[key]['count'] = file_relations[key]['count'] + 1
 		#file_relations[to_code_element.source_file.fullpath()].append(rel)
 
 	#return json.dumps(file_relations)

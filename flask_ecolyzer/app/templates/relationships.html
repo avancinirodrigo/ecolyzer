@@ -4,64 +4,130 @@
     <head>
         <meta charset="utf-8">
         <title>D3 Test</title>
-        <script type="text/javascript" src="{{ url_for('static', filename='d3/d3.v3.js') }}"></script>
-<!--         <style type="text/css">
-			div.bar {
-			    display: inline-block;
-			    width: 20px;
-			    height: 75px;   /* We'll override this later */
-			    background-color: teal;
-			    margin-right: 2px;
-			}
-		</style>  -->       
+        <script type="text/javascript" src="{{ url_for('static', filename='d3/d3.v4.js') }}"></script>
     </head>
     <body>
-<!-- 		{% for file, rels in relations.items() %}
-			<p> {{ file }} : {{ rels|length }} </p>
-		{% endfor %} --> 	
+		<div id="my_dataviz"></div>
     </body>
 </html> 
 
 <!-- {% block scripts %} -->
 	<script type="text/javascript">	
-		var relations = {{ relations|tojson }}
-		// {% for file, rels in relations.items() %}
-		// 	relations[{{ file }}] = {{ rels|length }} ;
-		// {% endfor %}
+		function getWidth() {
+		  return Math.max(
+		    document.body.scrollWidth,
+		    document.documentElement.scrollWidth,
+		    document.body.offsetWidth,
+		    document.documentElement.offsetWidth,
+		    document.documentElement.clientWidth
+		  );
+		}
 
-    	//function d3_show() {
+		function getHeight() {
+		  return Math.max(
+		    document.body.scrollHeight,
+		    document.documentElement.scrollHeight,
+		    document.body.offsetHeight,
+		    document.documentElement.offsetHeight,
+		    document.documentElement.clientHeight
+		  );
+		}
+
+		var relations = {{ relations|tojson }}
+    	
+    	var relationsCount = []
+    	relationsCount.push(["root", 0, "", ""])
+
+		// var roots = []
+		// for(var k in relations) { 
+  //    		//relationsCount.push([relations[k].path, 0, "", "root"]);
+  //    		roots[relations[k].path] = true 
+  //    	}
+
+  //    	for(k in roots) {
+  //    		relationsCount.push([k, 0, "", "root"]);
+  //    	} 
 
      	for(var k in relations) { 
-     		document.write("<br> - " + k + ": " + relations[k].length);
-     		// console.log(key);
+     		relationsCount.push([k, relations[k].count, relations[k].source, "root"]);
      	}
 
-		// relations.forEach(function(d){
-		//     console.log(d);
-		// });     	
-		// d3.select("body").selectAll("p")
-		//     .data(dataset)
-		//     .enter()
-		//     .append("p")
-		//     .text(function(d) { 
-		//     	return "I can count up to " + d; 
-		//     })
-		//     .style("color", function(d) {
-		// 	    if (d > 15) {   //Threshold of 15
-		// 	        return "red";
-		// 	    } else {
-		// 	        return "black";
-		// 	    }
-		// 	});
-    	//}
-		// d3.select("body").selectAll("div")
-		//     .data(dataset)
-		//     .enter()
-		//     .append("div")
-		//     .attr("class", "bar")
-		//     .style("height", function(d) {
-		// 	    var barHeight = d * 5;  //Scale up by factor of 5
-		// 	    return barHeight + "px";
-		// 	});  	
+     	//for(var i = 0; i < relationsCount.length; i++) { 
+     	//	document.write("<br> - " + relationsCount[i][0] + ": " + relationsCount[i][1]);
+     		// console.log(key);
+     		// relationsCount[k] = relations[k].length;
+     	//}
+		
+		// set the dimensions and margins of the graph
+		var margin = {top: 10, right: 10, bottom: 10, left: 10},
+	 	width = getWidth() - margin.left - margin.right - 20,
+	  	height = getHeight() - margin.top - margin.bottom - 20;
+
+		// append the svg object to the body of the page
+		var svg = d3.select("#my_dataviz")
+					.append("svg")
+		  			.attr("width", width + margin.left + margin.right)
+		  			.attr("height", height + margin.top + margin.bottom)
+					.append("g")
+		  			.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+		// Give the data to this cluster layout:
+ 		//var root = d3.hierarchy(relationsCount)
+ 		//				.sum(function(d){return d[1]}) // Here the size of each leave is given in the 'value' field in input data
+
+		// stratify the data: reformatting for d3.js
+	  	var root = d3.stratify()
+    				.id(function(d) { return d[0]; })   // Name of the entity (column name is name in csv)
+				    .parentId(function(d) { return d[3]; })   // Name of the parent (column name is parent in csv)
+				    (relationsCount);
+		
+		root.sum(function(d) { return d[1] })   // Compute the numeric value for each entity
+
+
+  		// Then d3.treemap computes the position of each element of the hierarchy
+  		// The coordinates are added to the root object above
+  		d3.treemap()
+    		.size([width, height])
+		    // .paddingTop(28)
+		    // .paddingRight(7)
+		    // .paddingInner(3)      // Padding between each rectangle    		
+    		.padding(2)
+    		(root)
+
+		console.log(root.leaves())
+
+  		// use this information to add rectangles:
+  		svg.selectAll("rect")
+    		.data(root.leaves())
+    		.enter()
+    		.append("rect")
+      		.attr('x', function (d) { return d.x0; })
+      		.attr('y', function (d) { return d.y0; })
+      		.attr('width', function (d) { return d.x1 - d.x0; })
+      		.attr('height', function (d) { return d.y1 - d.y0; })
+      		.style("stroke", "black")
+      		.style("fill", function(d) {
+      			if(d.value > 25) {
+      				return "rgb(" + (d.value * 3) + ", 0, 0)";
+      			}
+      			else if(d.value > 10) {
+      				return "rgb(0, " + (d.value * 7) + ", 0)";	
+      			}
+      			else {
+      				return "rgb(0, 0," + (d.value * 12) + ")";
+      			}
+      		});
+
+  		// and to add the text labels
+  		svg.selectAll("text")
+    		.data(root.leaves())
+    		.enter()
+    		.append("text")
+      		.attr("x", function(d){ return d.x0+10})    // +10 to adjust position (more right)
+      		.attr("y", function(d){ return d.y0+12})    // +20 to adjust position (lower)
+      		.text(function(d){ return d.data[2] + ": " + d.value})
+      		.attr("font-size", "15px")
+      		.attr("fill", "white")
+
 	</script>
 <!-- {% endblock %} -->

@@ -43,6 +43,9 @@ class SourceFile(Base):
 	def name(self):
 		return self.file.name
 
+	def path(self):
+		return self.file.path
+
 	def fullpath(self):
 		return self.file.fullpath		
 
