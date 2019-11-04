@@ -1,4 +1,4 @@
-from flask import jsonify, render_template
+from flask import jsonify, render_template, url_for
 import json
 from app import app, db
 from ecolyzer.repository import Author #Repository, Author, Person.
@@ -34,6 +34,7 @@ def relationships():
 			file_relations[key]['source'] = to_code_element.source_file.name()	
 			file_relations[key]['path'] = to_code_element.source_file.path()	
 			file_relations[key]['count'] = 0		
+			file_relations[key]['url'] = url_for('relationships', id=key)		
 		#rel_dict = row_to_dict(rel)
 		#rel_dict = {}
 		#rel_dict.source = str(to_code_element.source_file.name())

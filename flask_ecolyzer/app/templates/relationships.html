@@ -49,7 +49,8 @@
   //    	} 
 
      	for(var k in relations) { 
-     		relationsCount.push([k, relations[k].count, relations[k].source, "root"]);
+     		relationsCount.push([k, relations[k].count, relations[k].source, "root",
+     							relations[k].url]);
      	}
 
      	//for(var i = 0; i < relationsCount.length; i++) { 
@@ -98,6 +99,8 @@
 
   		// use this information to add rectangles:
   		svg.selectAll("rect")
+  			.attr("xlink:href", function(d) {
+  				return "http://127.0.0.1:5000/" + d.data[4];})  		
     		.data(root.leaves())
     		.enter()
     		.append("rect")
@@ -116,7 +119,9 @@
       			else {
       				return "rgb(0, 0," + (d.value * 12) + ")";
       			}
-      		});
+      		})
+      		.append("title")
+  			.text(function(d) { return d.value; });
 
   		// and to add the text labels
   		svg.selectAll("text")
