@@ -17,8 +17,7 @@ def authors():
 
 @app.route('/relationships', methods=['GET'])
 def relationships():
-	#ecos = Ecosystem()
-	relations = db.session.query(Relationship).all() #ecos.relationships()
+	relations = db.session.query(Relationship).all()
 	to_system = relations[0].to_system.name
 	file_relations = {}
 	for rel in relations:
@@ -50,17 +49,28 @@ def relationships():
 def get_relationship(id):
 	relations = db.session.query(Relationship).filter_by(to_source_file_id = id).all()
 	source_file = relations[0].to_source_file #db.session.query(SourceFile).get(id)
-	#print(relations)
 	source_relations = []
+	from_source_pos = {}
+	from_systems = {}
 	for rel in relations:
-		#print(row_to_dict(rel)
-		info = {
-			'from': rel.from_source_file.name(),
-			'code': rel.from_code_element.name + '()'
-		}
-		source_relations.append(info)
+		from_source_id = rel.from_source_file_id
+		if from_source_id in from_source_pos:
+			pos = from_source_pos[from_source_id]
+			source_relations[pos]['count'] = source_relations[pos]['count'] + 1
+		else:
+			from_source_pos[from_source_id] = len(source_relations)
+			from_systems[rel.from_system_id] = rel.from_system.name
+			info = {
+				'id': rel.from_source_file_id,
+				'from': rel.from_source_file.name(),
+				'code': rel.from_code_element.name + '()',
+				'count': 1,
+				'system': rel.from_system.name
+			}
+			source_relations.append(info)
+
 	return render_template('source_relations.html', relations=source_relations,
-						source_file=source_file.name()) #jsonify(row_to_dict(rel))
+						source_file=source_file.name(), from_systems=from_systems) #jsonify(row_to_dict(rel))
 
 def row_to_dict(row):
 	d = {}
