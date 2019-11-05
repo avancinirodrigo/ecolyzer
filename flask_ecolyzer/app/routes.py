@@ -19,13 +19,10 @@ def authors():
 def relationships():
 	#ecos = Ecosystem()
 	relations = db.session.query(Relationship).all() #ecos.relationships()
+	to_system = relations[0].to_system.name
 	file_relations = {}
 	for rel in relations:
 		to_code_element = rel.to_code_element
-		#to_source_file = to_code_element.fullpath()
-		#to_system = rel.to_system.name
-		#from_code_element = rel.from_code_element
-		#print(to_code_element.name, to_code_element.source_file.fullpath())
 		#key = to_code_element.source_file.fullpath()
 		key = to_code_element.source_file.id 
 		if key not in file_relations:
@@ -45,14 +42,25 @@ def relationships():
 		#file_relations[to_code_element.source_file.fullpath()].append(rel)
 
 	#return json.dumps(file_relations)
-	return render_template('relationships.html', relations=file_relations)
+	return render_template('relationships.html', relations=file_relations,
+						system=to_system)
 	#return jsonify(relations=file_relations)
 
 @app.route('/relationships/<int:id>', methods=['GET'])
 def get_relationship(id):
-	rel = db.session.query(Relationship).get(id)
-	print(row_to_dict(rel))
-	return jsonify(row_to_dict(rel))
+	relations = db.session.query(Relationship).filter_by(to_source_file_id = id).all()
+	source_file = relations[0].to_source_file #db.session.query(SourceFile).get(id)
+	#print(relations)
+	source_relations = []
+	for rel in relations:
+		#print(row_to_dict(rel)
+		info = {
+			'from': rel.from_source_file.name(),
+			'code': rel.from_code_element.name + '()'
+		}
+		source_relations.append(info)
+	return render_template('source_relations.html', relations=source_relations,
+						source_file=source_file.name()) #jsonify(row_to_dict(rel))
 
 def row_to_dict(row):
 	d = {}

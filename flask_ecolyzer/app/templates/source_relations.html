@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>{{ source_file }}</title>
+        <script type="text/javascript" src="{{ url_for('static', filename='d3/d3.v4.js') }}"></script>
+    </head>
+    <body>
+		<div id="my_dataviz"></div>
+    </body>
+</html>
+
+<script type="text/javascript">
+	var relations = {{relations|safe}};
+	var source_file = "{{source_file}}"
+	console.log(relations)
+
+ 	for(var i = 0; i < relations.length; i++) { 
+ 		document.write("<br> - " + relations[i].from + " -----> " 
+ 						+ source_file + ":" + relations[i].code);
+ 	}	
+</script>
