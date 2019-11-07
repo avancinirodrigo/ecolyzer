@@ -3,44 +3,20 @@
     <head>
         <meta charset="utf-8">
         <title>{{ source_file }}</title>
-        <script type="text/javascript" src="{{ url_for('static', filename='d3/d3.v4.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/3rdparty/d3.v4.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/utils.js') }}"></script>
     </head>
     <body>
-		<div id="my_dataviz"></div>
+		<div id="treemap"></div>
     </body>
 </html>
 
 <script type="text/javascript">
-    function getWidth() {
-      return Math.max(
-        document.body.scrollWidth,
-        document.documentElement.scrollWidth,
-        document.body.offsetWidth,
-        document.documentElement.offsetWidth,
-        document.documentElement.clientWidth
-      );
-    }
-
-    function getHeight() {
-      return Math.max(
-        document.body.scrollHeight,
-        document.documentElement.scrollHeight,
-        document.body.offsetHeight,
-        document.documentElement.offsetHeight,
-        document.documentElement.clientHeight
-      );
-    }
-
-	var relations = {{relations|safe}};
-	var source_file = "{{source_file}}"
-    var from_systems = {{from_systems|safe}}
+	var relations = {{ relations|safe }};
+	var source_file = "{{ source_file }}"
+    var from_systems = {{ from_systems|safe }}
     console.log(relations)
 	console.log(from_systems)
-
- 	// for(var i = 0; i < relations.length; i++) { 
- 	// 	document.write("<br> - " + relations[i].from + " -----> " 
- 	// 					+ source_file + ":" + relations[i].code);
- 	// }	
 
     // set the dimensions and margins of the graph
     var margin = {top: 10, right: 10, bottom: 10, left: 10},
@@ -48,16 +24,12 @@
     height = getHeight() - margin.top - margin.bottom - 20;
 
     // append the svg object to the body of the page
-    var svg = d3.select("#my_dataviz")
+    var svg = d3.select("#treemap")
                 .append("svg")
                 .attr("width", width + margin.left + margin.right)
                 .attr("height", height + margin.top + margin.bottom)
                 .append("g")
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-    // Give the data to this cluster layout:
-        //var root = d3.hierarchy(relationsCount)
-        //              .sum(function(d){return d[1]}) // Here the size of each leave is given in the 'value' field in input data
 
     for(var k in from_systems) { 
         var info = {
@@ -89,8 +61,7 @@
     .size([width, height])
     .paddingTop(28)
     .paddingRight(7)
-    .paddingInner(3)      // Padding between each rectangle          
-    .padding(2)
+    .paddingInner(2)      // Padding between each rectangle          
     (root)
 
     console.log(root.leaves())
@@ -99,9 +70,6 @@
     svg.selectAll("rect")
     .data(root.leaves())
     .enter()
-    //.append("a")
-    //    .attr("xlink:href", function(d) {
-    //        return "http://127.0.0.1:5000/relationships/" + d.data[0]; })
     .append("rect")
         .attr('x', function (d) { return d.x0; })
         .attr('y', function (d) { return d.y0; })
@@ -120,7 +88,7 @@
             }
         })
         .append("title")
-        .text(function(d) { return d.value; });
+        .text(function(d) { return d.data.from; });
 
     // and to add the text labels
     svg.selectAll("text")
@@ -133,15 +101,23 @@
         .attr("font-size", "15px")
         .attr("fill", "black")    
 
-     // Add title for the 3 groups
+     // Add title for groups
       svg.selectAll("titles")
-        .data(root.descendants().filter(function(d){return d.depth==2}))
+        .data(root.descendants().filter(function(d){return d.depth==1}))
         .enter()
         .append("text")
           .attr("x", function(d){ return d.x0})
           .attr("y", function(d){ return d.y0+21})
-          .text(function(d){ return d.data.system })
+          .text(function(d){ return d.data.id })
           .attr("font-size", "19px")
-          .attr("fill", "black"); //function(d){ return color(d.data.name)} )
+          .attr("fill", "black");
 
+      // Add title for the 3 groups
+      svg.append("text")
+          .attr("x", 0)
+          .attr("y", 14)    // +20 to adjust position (lower)
+          .text("{{ source_file }}")
+          .attr("font-size", "20px")
+          .attr("fill", "black")
+          .style("font-weight", "bold")           
 </script>

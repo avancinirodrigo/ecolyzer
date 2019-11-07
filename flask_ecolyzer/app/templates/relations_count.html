@@ -1,0 +1,98 @@
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>{{ system }} Ecosystem</title>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/3rdparty/d3.v4.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/utils.js') }}"></script>
+    </head>
+    <body>
+		<div id="treemap"></div>
+    </body>
+</html> 
+<script type="text/javascript">	
+	var relations = {{ relations|safe }}
+	console.log(relations)
+	
+	// set the dimensions and margins of the graph
+	var margin = {top: 10, right: 10, bottom: 10, left: 10},
+ 	width = getWidth() - margin.left - margin.right - 20,
+  	height = getHeight() - margin.top - margin.bottom - 20;
+
+	// append the svg object to the body of the page
+	var svg = d3.select("#treemap")
+				.append("svg")
+	  			.attr("width", width + margin.left + margin.right)
+	  			.attr("height", height + margin.top + margin.bottom)
+				.append("g")
+	  			.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+	relations.unshift({"id":"{{ system }}", "source":"",
+                    	"url":"", "count":0, "system":""}) 
+
+	// stratify the data: reformatting for d3.js
+  	var root = d3.stratify()
+				.id(function(d) { return d.id; })   // Name of the entity (column name is name in csv)
+			    .parentId(function(d) { return d.system; })   // Name of the parent (column name is parent in csv)
+			    (relations);
+	
+	root.sum(function(d) { return d.count })   // Compute the numeric value for each entity
+
+	// Then d3.treemap computes the position of each element of the hierarchy
+	// The coordinates are added to the root object above
+	d3.treemap()
+	.size([width, height])
+    .paddingTop(28)
+    .paddingRight(2)
+    .paddingInner(2)      // Padding between each rectangle    		
+	(root)
+
+	console.log(root.leaves())
+
+	// use this information to add rectangles:
+	svg.selectAll("rect")
+	.data(root.leaves())
+	.enter()
+	.append("a")
+		.attr("xlink:href", function(d) {
+			return "http://127.0.0.1:5000/relationships/" + d.data.id; })
+	.append("rect")
+		.attr('x', function (d) { return d.x0; })
+		.attr('y', function (d) { return d.y0; })
+		.attr('width', function (d) { return d.x1 - d.x0; })
+		.attr('height', function (d) { return d.y1 - d.y0; })
+		.style("stroke", "black")
+		.style("fill", function(d) {
+			if(d.value > 25) {
+				return "rgb(" + (d.value * 3) + ", 0, 0)";
+			}
+			else if(d.value > 10) {
+				return "rgb(0, " + (d.value * 7) + ", 0)";	
+			}
+			else {
+				return "rgb(0, 0," + (d.value * 12) + ")";
+			}
+		})
+		.append("title")
+		.text(function(d) { return d.data.source; });
+
+	// and to add the text labels
+	svg.selectAll("text")
+	.data(root.leaves())
+	.enter()
+	.append("text")
+		.attr("x", function(d){ return d.x0+10})    // +10 to adjust position (more right)
+		.attr("y", function(d){ return d.y0+12})    // +20 to adjust position (lower)
+		.text(function(d){ return d.data.source + ": " + d.value})
+		.attr("font-size", "15px")
+		.attr("fill", "white")
+
+      svg.append("text")
+          .attr("x", 0)
+          .attr("y", 14)    // +20 to adjust position (lower)
+          .text("{{ system }}")
+          .attr("font-size", "24px")
+          .attr("fill", "black")
+          .style("font-weight", "bold")     		
+</script>
