@@ -35,11 +35,35 @@ sys4 = System('logo', repo4)
 miner = RepositoryMiner(repo4, sys4)	
 miner.extract_last_commits(session)
 
+repo5 = Repository('repo/rstats')
+sys5 = System('rstats', repo5)
+miner = RepositoryMiner(repo5, sys5)	
+miner.extract_last_commits(session)
+
+repo6 = Repository('repo/gpm')
+sys6 = System('gpm', repo6)
+miner = RepositoryMiner(repo6, sys6)	
+miner.extract_last_commits(session)
+
+repo7 = Repository('repo/publish')
+sys7 = System('publish', repo7)
+miner = RepositoryMiner(repo7, sys7)	
+miner.extract_last_commits(session)
+
+repo8 = Repository('repo/sci')
+sys8 = System('sci', repo8)
+miner = RepositoryMiner(repo8, sys8)	
+miner.extract_last_commits(session)
+
 ecosystem = Ecosystem()
 
 ecolyzer = EcosystemAnalyzer(ecosystem)
 ecolyzer.make_relations(sys2, sys1, session)
 ecolyzer.make_relations(sys3, sys1, session)
 ecolyzer.make_relations(sys4, sys1, session)
+ecolyzer.make_relations(sys5, sys1, session)
+ecolyzer.make_relations(sys6, sys1, session)
+ecolyzer.make_relations(sys7, sys1, session)
+ecolyzer.make_relations(sys8, sys1, session)
 
 session.close()
