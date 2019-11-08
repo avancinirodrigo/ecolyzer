@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, ForeignKey, PrimaryKeyConstraint
+from sqlalchemy import Column, String, Integer, ForeignKey
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.orm.collections import attribute_mapped_collection
 from ecolyzer.dataaccess import Base
