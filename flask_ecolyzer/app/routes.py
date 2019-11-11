@@ -60,3 +60,7 @@ def get_relationship(id):
 
 	return render_template('source_relations.html', relations=source_relations,
 						source_file=source_file.name(), from_systems=from_systems)
+
+@app.route('/blame', methods=['GET'])
+def blame():
+	return render_template('sources_blame.html')
