@@ -56,7 +56,7 @@
 	.enter()
 	.append("a")
 		.attr("xlink:href", function(d) {
-			return "http://127.0.0.1:5000/relationships/" + d.data.id; })
+			return "http://127.0.0.1:5000/" + d.data.url; })
 	.append("rect")
 		.attr('x', function (d) { return d.x0; })
 		.attr('y', function (d) { return d.y0; })

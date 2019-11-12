@@ -38,7 +38,6 @@
             "code": "",
             "count": 0,
             "system": "root"
-
         };
         relations.unshift(info)   
     }
@@ -53,7 +52,6 @@
                 (relations);
     
     root.sum(function(d) { return d.count })   // Compute the numeric value for each entity
-
 
     // Then d3.treemap computes the position of each element of the hierarchy
     // The coordinates are added to the root object above
@@ -70,6 +68,9 @@
     svg.selectAll("rect")
     .data(root.leaves())
     .enter()
+    .append("a")
+        .attr("xlink:href", function(d) {
+            return "http://127.0.0.1:5000" + d.data.url; })    
     .append("rect")
         .attr('x', function (d) { return d.x0; })
         .attr('y', function (d) { return d.y0; })

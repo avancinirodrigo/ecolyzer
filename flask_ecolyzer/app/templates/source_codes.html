@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    	<meta charset="utf-8">
+        <title>Souce Codes</title>
+        <style type="text/css">
+			.wrapper {
+			    width:100%;
+			    margin: 0 auto;
+			}
+
+			#to_source {
+			    float:left;
+			    width: 49%;
+			    background-color: #EEE8AA;
+			}
+
+			#from_source
+			{
+			    float:right;
+			    width: 49%;
+			    background-color: #EEE8AA;
+			    /*margin: 10% 10%;*/
+			    /*padding: 20px;*/
+			    /*width: 180px;*/
+			}
+
+			mark {
+			  background: red;
+			  color: black;
+			}					      	
+        </style>
+		<script src="https://code.jquery.com/jquery-latest.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/mark.js/8.6.0/jquery.mark.min.js"></script>
+    </head>
+    <body>
+		<div class="wrapper">
+			<div id="to_source"></div>
+			<div id="from_source"></div>
+		</div>		                                    
+    </body>
+</html>
+<script type="text/javascript">
+	var to_source = {{ to_source|tojson }}
+	to_source = to_source.replace(/(\t)/g,'&nbsp;&nbsp;&nbsp;&nbsp;')
+	to_source = to_source.replace(/(\n)/g, '<br>')
+	
+	var from_source = {{ from_source|tojson }}
+	from_source = from_source.replace(/(\t)/g,'&nbsp;&nbsp;&nbsp;&nbsp;')
+	from_source = from_source.replace(/(\n)/g, '<br>')	
+	
+	$("#to_source").html(to_source);
+	$("#from_source").html(from_source);	
+
+	var code_elements = {{ code_elements|safe }}
+
+	for(var i = 0; i < code_elements.length; i++) {
+		var from_regex = new RegExp("[:| ]" + code_elements[i] + "[(|{]");
+		$("#from_source").markRegExp(from_regex);
+
+		// var to_regex = new RegExp("[function " + code_elements[i] + "|" + code_elements[i] + "]");
+		// $("#to_source").markRegExp(to_regex);			
+	}	
+</script>
