@@ -25,6 +25,7 @@ def relationships():
 			info = {
 				'id': rel.to_source_file_id,
 				'source': rel.to_source_file.name(),
+				'fullpath': rel.to_source_file.fullpath(),
 				'url': 'relationships/' + str(source_id),
 				'system': rel.to_system.name,
 				'count': 1
@@ -52,6 +53,7 @@ def get_relationship(id):
 			info = {
 				'id': from_source_id,
 				'from': rel.from_source_file.name(),
+				'fullpath': rel.from_source_file.fullpath(),
 				'code': rel.from_code_element.name + '()',
 				'count': 1,
 				'system': rel.from_system.name,
@@ -62,20 +64,25 @@ def get_relationship(id):
 	return render_template('source_relations.html', relations=source_relations,
 						source_file=source_file.name(), from_systems=from_systems)
 
-
 @app.route('/relationships/<int:from_id>/<int:to_id>', methods=['GET'])
 def source_codes(from_id, to_id):
-	from_source = db.session.query(Modification.source_code).filter_by(file_id = from_id).one()
-	to_source = db.session.query(Modification.source_code).filter_by(file_id = to_id).one()
 	relations = db.session.query(Relationship)\
 					.filter_by(to_source_file_id = to_id,\
 					from_source_file_id = from_id).all()
+	from_file = relations[0].from_source_file.file
+	to_file = relations[0].to_source_file.file
+	# print(from_file, to_file)
+	from_source = db.session.query(Modification.source_code).\
+					filter_by(file_id = from_file.id).one()
+	to_source = db.session.query(Modification.source_code).\
+					filter_by(file_id = to_file.id).one()					
 	code_elements = []
 	for rel in relations:
-		print(rel.to_code_element.name)
+		# print(rel.to_code_element.name)
 		code_elements.append(rel.to_code_element.name)
 	return render_template('source_codes.html', from_source=from_source[0], 
-						to_source=to_source[0], code_elements=code_elements)
+						to_source=to_source[0], code_elements=code_elements,
+						from_fullpath=from_file.fullpath, to_fullpath=to_file.fullpath)
 
 @app.route('/blame', methods=['GET'])
 def blame():

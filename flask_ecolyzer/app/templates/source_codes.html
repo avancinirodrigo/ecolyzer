@@ -35,22 +35,31 @@
     </head>
     <body>
 		<div class="wrapper">
-			<div id="to_source"></div>
-			<div id="from_source"></div>
+
+			<div id="to_source">
+				<h2><span>{{ to_fullpath }}</span></h2>
+				<p></p>
+			</div>
+			<div id="from_source">
+				<h2><span>{{ from_fullpath }}</span></h2>
+				<p></p>
+			</div>
 		</div>		                                    
     </body>
 </html>
 <script type="text/javascript">
 	var to_source = {{ to_source|tojson }}
-	to_source = to_source.replace(/(\t)/g,'&nbsp;&nbsp;&nbsp;&nbsp;')
-	to_source = to_source.replace(/(\n)/g, '<br>')
+	to_source = to_source.replace(/(\t)/g, "&nbsp;&nbsp;&nbsp;&nbsp;")
+	to_source = to_source.replace(/ /g, "&nbsp;")
+	to_source = to_source.replace(/(\n)/g, "<br>")
 	
 	var from_source = {{ from_source|tojson }}
-	from_source = from_source.replace(/(\t)/g,'&nbsp;&nbsp;&nbsp;&nbsp;')
-	from_source = from_source.replace(/(\n)/g, '<br>')	
+	from_source = from_source.replace(/(\t)/g, "&nbsp;&nbsp;&nbsp;&nbsp;")
+	from_source = from_source.replace(/ /g, "&nbsp;")
+	from_source = from_source.replace(/(\n)/g, "<br>")	
 	
-	$("#to_source").html(to_source);
-	$("#from_source").html(from_source);	
+	$("#to_source").find("p").html(to_source);
+	$("#from_source").find("p").html(from_source);	
 
 	var code_elements = {{ code_elements|safe }}
 
@@ -58,7 +67,9 @@
 		var from_regex = new RegExp("[:| ]" + code_elements[i] + "[(|{]");
 		$("#from_source").markRegExp(from_regex);
 
-		// var to_regex = new RegExp("[function " + code_elements[i] + "|" + code_elements[i] + "]");
-		// $("#to_source").markRegExp(to_regex);			
+		var to_regex1 = new RegExp(code_elements[i] + " = function");
+		var to_regex2 = new RegExp("function " + code_elements[i]);
+		$("#to_source").markRegExp(to_regex1);			
+		$("#to_source").markRegExp(to_regex2);			
 	}	
 </script>
