@@ -11,14 +11,14 @@ class StaticAnalyzer:
 		try:
 			parser.parser(src)
 			functions = (parser.extract_functions() 
-						+ parser.extract_local_functions()
 						+ parser.extract_table_functions())
 			self._remove_duplicated(functions)
 			for func in functions:
 				code_elements.append(Operation(func, src_file))
 
 			calls = parser.extract_calls() + parser.extract_global_calls()
-			self._remove_inner_calls(calls, functions)
+			local_functions = parser.extract_local_functions()
+			self._remove_inner_calls(calls, local_functions)
 			self._remove_duplicated(calls)
 			for call in calls:
 				code_elements.append(Call(call, src_file))

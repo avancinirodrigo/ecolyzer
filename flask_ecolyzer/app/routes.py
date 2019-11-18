@@ -3,6 +3,7 @@ import json
 from app import app, db
 from ecolyzer.repository import Author, Modification
 from ecolyzer.ecosystem import Relationship
+from ecolyzer.system import Operation
 
 @app.route('/authors')
 def authors():
@@ -22,12 +23,16 @@ def relationships():
 			relations_count[pos]['count'] = relations_count[pos]['count'] + 1
 		else:
 			source_pos[source_id] = len(relations_count)
+			operations = db.session.query(Operation).\
+						filter_by(source_file_id=source_id).count()
+						
 			info = {
 				'id': rel.to_source_file_id,
 				'source': rel.to_source_file.name(),
 				'fullpath': rel.to_source_file.fullpath(),
 				'url': 'relationships/' + str(source_id),
 				'system': rel.to_system.name,
+				'operations': operations,
 				'count': 1
 			}
 			relations_count.append(info)
