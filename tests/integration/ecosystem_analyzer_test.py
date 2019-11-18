@@ -38,10 +38,10 @@ def test_make_relations():
 
 	relationships = ecosystem.relationships()
 
-	assert len(relationships) == 296
+	assert len(relationships) == 292
 
 	rel1 = relationships[0]
-	rel2 = relationships[295]
+	rel2 = relationships[291]
 
 	assert rel1.from_system.name == 'ca'
 	assert rel1.from_author.name == 'Pedro Andrade'
@@ -92,10 +92,10 @@ def test_make_relations_last_commits():
 
 	relationships = ecosystem.relationships()
 
-	assert len(relationships) == 575
+	assert len(relationships) == 531
 
 	rel1 = relationships[0]
-	rel2 = relationships[574]
+	rel2 = relationships[530]
 
 	assert rel1.from_system.name == 'ca'
 	assert rel1.from_author.name == 'Pedro Andrade'

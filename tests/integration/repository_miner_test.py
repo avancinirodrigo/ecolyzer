@@ -210,12 +210,7 @@ def test_extract():
 
 	operations = {
 		'CellularSpace' : True,
-		'coordCoupling' : True,
-		'createMooreNeighborhood' : True,
-		'createVonNeumannNeighborhood' : True,
 		'createNeighborhood' : True,
-		'createMxNNeighborhood' : True,
-		'spatialCoupling' : True,
 		'add' : True,
 		'getCell' : True,
 		'get' : True,
@@ -238,8 +233,13 @@ def test_extract():
 		'__len' : True	
 	}
 
+	operationsdb_dict = {}
 	for op in operationsdb:
+		operationsdb_dict[op.name] = True
 		assert operations[op.name]
+
+	for k in operations.keys():
+		assert operationsdb_dict[k]
 
 	calls = {
 		'addNeighborhood' : True,
@@ -301,9 +301,13 @@ def test_extract():
 	}
 
 	callsdb = session.query(Call).filter_by(source_file_id = srcfiledb.id).all()	
-	
+	callsdb_dict = {}	
 	for call in callsdb:
+		callsdb_dict[call.name] = True
 		assert calls[call.name]
+
+	for k in calls.keys():
+		assert callsdb_dict[k]
 
 	session.close()
 	db.drop_all()
@@ -336,7 +340,7 @@ def test_get_commit_source_file():
 	srcfiledb = session.query(SourceFile).filter_by(file_id = afile.id).first()
 	assert srcfiledb.ext() == 'lua'
 	assert srcfiledb.name() == 'CellularSpace'
-	assert srcfiledb.code_elements_len() == 83
+	assert srcfiledb.code_elements_len() == 78
 
 	functions = session.query(Operation).filter_by(source_file_id = srcfiledb.id).all()	
 	assert srcfiledb.code_element_exists(functions[0])
