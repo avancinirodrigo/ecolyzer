@@ -16,6 +16,7 @@ def relationships():
 	to_system = relations[0].to_system.name
 	relations_count = []
 	source_pos = {}
+	paths = {}
 	for rel in relations:
 		source_id = rel.to_source_file_id
 		if source_id in source_pos:
@@ -30,15 +31,17 @@ def relationships():
 				'id': rel.to_source_file_id,
 				'source': rel.to_source_file.name(),
 				'fullpath': rel.to_source_file.fullpath(),
+				'path': rel.to_source_file.path(),
 				'url': 'relationships/' + str(source_id),
 				'system': rel.to_system.name,
 				'operations': operations,
 				'count': 1
 			}
 			relations_count.append(info)
+			paths[rel.to_source_file.path()] = 0
 
 	return render_template('relations_count.html', relations=relations_count,
-						system=to_system)
+						system=to_system, paths=paths)
 
 @app.route('/relationships/<int:id>', methods=['GET'])
 def get_relationship(id):

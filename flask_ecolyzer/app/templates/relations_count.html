@@ -28,23 +28,31 @@
 				.append("g")
 	  			.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-	relations.unshift({"id":"{{ system }}", "source":"",
-                    	"url":"", "count":0, "system":""}) 
+	var paths = {{ paths|safe }}
+    for(var k in paths) { 
+        var info = {
+            "id": k,
+            "path": "{{ system }}"
+        };
+        relations.unshift(info)   
+    }	  			
+
+	relations.unshift({"id":"{{ system }}"}) 
 
 	// stratify the data: reformatting for d3.js
   	var root = d3.stratify()
 				.id(function(d) { return d.id; })   // Name of the entity (column name is name in csv)
-			    .parentId(function(d) { return d.system; })   // Name of the parent (column name is parent in csv)
+			    .parentId(function(d) { return d.path; })   // Name of the parent (column name is parent in csv)
 			    (relations);
 	
-	root.sum(function(d) { return d.count })   // Compute the numeric value for each entity
+	root.sum(function(d) { return d.operations })   // Compute the numeric value for each entity
 
 	// Then d3.treemap computes the position of each element of the hierarchy
 	// The coordinates are added to the root object above
 	d3.treemap()
 	.size([width, height])
     .paddingTop(28)
-    .paddingRight(2)
+    .paddingRight(7)
     .paddingInner(2)      // Padding between each rectangle    		
 	(root)
 
@@ -94,5 +102,15 @@
           .text("{{ system }}")
           .attr("font-size", "24px")
           .attr("fill", "black")
-          .style("font-weight", "bold")     		
+          .style("font-weight", "bold") 
+
+      svg.selectAll("titles")
+        .data(root.descendants().filter(function(d){return d.depth==1}))
+        .enter()
+        .append("text")
+          .attr("x", function(d){ return d.x0})
+          .attr("y", function(d){ return d.y0+21})
+          .text(function(d){ return d.data.id })
+          .attr("font-size", "14px")
+          .attr("fill", "black");              		
 </script>
