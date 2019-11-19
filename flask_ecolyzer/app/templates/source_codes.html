@@ -49,13 +49,14 @@
 </html>
 <script type="text/javascript">
 	var to_source = {{ to_source|tojson }}
-	to_source = to_source.replace(/(\t)/g, "&nbsp;&nbsp;&nbsp;&nbsp;")
-	to_source = to_source.replace(/ /g, "&nbsp;")
-	to_source = to_source.replace(/(\n)/g, "<br>")
-	
 	var from_source = {{ from_source|tojson }}
+
+	to_source = to_source.replace(/(\t)/g, "&nbsp;&nbsp;&nbsp;&nbsp;")
+	//to_source = to_source.replace(/ /g, "&nbsp;") // TODO: review
+	to_source = to_source.replace(/(\n)/g, "<br>")		
+
 	from_source = from_source.replace(/(\t)/g, "&nbsp;&nbsp;&nbsp;&nbsp;")
-	from_source = from_source.replace(/ /g, "&nbsp;")
+	//from_source = from_source.replace(/ /g, "&nbsp;")
 	from_source = from_source.replace(/(\n)/g, "<br>")	
 	
 	$("#to_source").find("p").html(to_source);
@@ -65,11 +66,11 @@
 
 	for(var i = 0; i < code_elements.length; i++) {
 		var from_regex = new RegExp("[:| ]" + code_elements[i] + "[(|{]");
-		$("#from_source").markRegExp(from_regex);
+		$("#from_source").find("p").markRegExp(from_regex);
 
 		var to_regex1 = new RegExp(code_elements[i] + " = function");
 		var to_regex2 = new RegExp("function " + code_elements[i]);
-		$("#to_source").markRegExp(to_regex1);			
-		$("#to_source").markRegExp(to_regex2);			
-	}	
+		$("#to_source").find("p").markRegExp(to_regex1);			
+		$("#to_source").find("p").markRegExp(to_regex2);			
+	}
 </script>
