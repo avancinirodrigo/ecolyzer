@@ -15,6 +15,19 @@
 	var relations = {{ relations|safe }}
 	console.log(relations)
 	
+	// min_count = relations[0].count
+	// max_count = relations[0].count
+
+	// for(var i = 1; i < relations.length; i++)
+	// {
+	// 	if(max_count < relations[i].count) {
+	// 		max_count = relations[i].count
+	// 	}
+	// 	else if(min_count > relations[i].count) {
+	// 		min_count = relations[i].count
+	// 	}
+	// }
+
 	// set the dimensions and margins of the graph
 	var margin = {top: 10, right: 10, bottom: 10, left: 10},
  	width = getWidth() - margin.left - margin.right - 20,
@@ -50,13 +63,32 @@
 	// Then d3.treemap computes the position of each element of the hierarchy
 	// The coordinates are added to the root object above
 	d3.treemap()
-	.size([width, height])
-    .paddingTop(28)
-    .paddingRight(7)
-    .paddingInner(2)      // Padding between each rectangle    		
-	(root)
+		.size([width, height])
+	    .paddingTop(28)
+	    .paddingRight(7)
+	    .paddingInner(2)      // Padding between each rectangle    		
+		(root)
 
 	console.log(root.leaves())
+
+	var minCount = d3.min(root.leaves(), function(d) {
+		return d.data.count;
+	});
+
+	var maxCount = d3.max(root.leaves(), function(d) {
+		return d.data.count;
+	});
+
+	// console.log(minCount)
+	// console.log(maxCount)
+
+	// var colors = ["#5E4FA2", "#3288BD", "#66C2A5", "#ABDDA4", "#E6F598", 
+	//     		"#FFFFBF", "#FEE08B", "#FDAE61", "#F46D43", "#D53E4F", "#9E0142"]
+	var colors = ["gray", "blue", "red"]
+	var heatmap = d3.scaleLinear()
+	    .domain([0, minCount, maxCount])
+	    .range(colors);
+	    //.range(["gray", "blue", "red"])
 
 	// use this information to add rectangles:
 	svg.selectAll("rect")
@@ -72,15 +104,17 @@
 		.attr('height', function (d) { return d.y1 - d.y0; })
 		.style("stroke", "black")
 		.style("fill", function(d) {
-			if(d.value > 25) {
-				return "rgb(" + (d.value * 3) + ", 0, 0)";
-			}
-			else if(d.value > 10) {
-				return "rgb(0, " + (d.value * 7) + ", 0)";	
-			}
-			else {
-				return "rgb(0, 0," + (d.value * 12) + ")";
-			}
+			// if(d.value > 25) {
+			// 	return "rgb(" + (d.value * 3) + ", 0, 0)";
+			// }
+			// else if(d.value > 10) {
+			// 	return "rgb(0, " + (d.value * 7) + ", 0)";	
+			// }
+			// else {
+			// 	return "rgb(0, 0," + (d.value * 12) + ")";
+			// }
+			// console.log(d.data.count)
+			return heatmap(d.data.count);
 		})
 		.append("title")
 		.text(function(d) { return d.data.fullpath; });
@@ -92,25 +126,80 @@
 	.append("text")
 		.attr("x", function(d){ return d.x0+10})    // +10 to adjust position (more right)
 		.attr("y", function(d){ return d.y0+12})    // +20 to adjust position (lower)
-		.text(function(d){ return d.data.source + ": " + d.value})
+		.text(function(d){ return d.data.source + ": " + d.data.count})
 		.attr("font-size", "15px")
 		.attr("fill", "white")
 
-      svg.append("text")
-          .attr("x", 0)
-          .attr("y", 14)    // +20 to adjust position (lower)
-          .text("{{ system }}")
-          .attr("font-size", "24px")
-          .attr("fill", "black")
-          .style("font-weight", "bold") 
+	svg.append("text")
+	  .attr("x", 0)
+	  .attr("y", 14)    // +20 to adjust position (lower)
+	  .text("{{ system }}")
+	  .attr("font-size", "24px")
+	  .attr("fill", "black")
+	  .style("font-weight", "bold") 
 
-      svg.selectAll("titles")
-        .data(root.descendants().filter(function(d){return d.depth==1}))
-        .enter()
-        .append("text")
-          .attr("x", function(d){ return d.x0})
-          .attr("y", function(d){ return d.y0+21})
-          .text(function(d){ return d.data.id })
-          .attr("font-size", "14px")
-          .attr("fill", "black");              		
+	svg.selectAll("titles")
+	.data(root.descendants().filter(function(d){return d.depth==1}))
+	.enter()
+	.append("text")
+	  .attr("x", function(d){ return d.x0})
+	  .attr("y", function(d){ return d.y0+21})
+	  .text(function(d){ return d.data.id })
+	  .attr("font-size", "14px")
+	  .attr("fill", "black");   
+
+	var blockWidth = 35;
+	var blockHeight = 20;
+	// var colorQuantiles = heatmap.ticks(10);
+	var legendScale = d3.scaleLinear()
+		.domain([minCount, maxCount])
+		.range(["blue", "red"])
+	// var colorTicks = legendScale.ticks(9);
+	var colorTicks = heatmap.ticks(15);
+	var colorQuantiles = [0, minCount];
+	colorTicks.splice(0, 2);
+	colorQuantiles = colorQuantiles.concat(colorTicks);
+	colorQuantiles.push(maxCount)
+	console.log(colorQuantiles);
+	console.log(colorTicks);
+
+
+	legendTicks = legendScale.ticks(colorQuantiles.length*2);	
+
+	var legend = svg.selectAll(".legend")
+		//each block = color in legend is a g element and shifted to the right using the blockwidth
+		.data(legendTicks)
+		.enter()
+		.append("g")
+		.attr("class", "legend")
+		.attr("font-size", "14px")
+		.attr("font-style", "PT Sans")
+		.attr("transform", function(d, i) {
+			return ("translate(" + i * blockWidth/2 + ", 0)")
+		});	    
+	console.log(legendTicks)
+  	//append to each legend g element a rect element
+  	legend.append("rect")
+  		//.data(legendTicks)
+		.attr("x", width - colorQuantiles.length * blockWidth - margin.right)
+		.attr("y", 3)
+		.attr("width", blockWidth/2)
+		.attr("height", blockHeight)
+		.style("fill", function(d, i) {
+		    return(heatmap(legendTicks[i]));
+		});           
+
+  	legend.append("text")
+  		.data(colorQuantiles)
+        .attr("x", (width - colorQuantiles.length * blockWidth - margin.right + (blockWidth/2)))
+        .attr("y", (margin.bottom/3 + 3) + blockHeight + 15)
+        .text(function(d, i) {
+    //     	if(i == 0 || i == minCount
+    //     			|| i == ((colorQuantiles.length - 1)/2))
+ 			// 	return colorQuantiles[i];
+ 			// else if(i == (colorQuantiles.length - 1))
+ 			// 	return maxCount;
+ 			return colorQuantiles[i];
+        })
+        .style("text-anchor", "middle");		         		
 </script>
