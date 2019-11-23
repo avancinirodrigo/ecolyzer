@@ -3,7 +3,7 @@ import json
 from app import app, db
 from ecolyzer.repository import Author, Modification
 from ecolyzer.ecosystem import Relationship
-from ecolyzer.system import Operation
+from ecolyzer.system import Operation, SourceFile
 
 @app.route('/authors')
 def authors():
@@ -13,10 +13,11 @@ def authors():
 @app.route('/relationships', methods=['GET'])
 def relationships():
 	relations = db.session.query(Relationship).all()
-	to_system = relations[0].to_system.name
+	to_system = relations[0].to_system
 	relations_count = []
 	source_pos = {}
 	paths = {}
+	source_ids = []
 	for rel in relations:
 		source_id = rel.to_source_file_id
 		if source_id in source_pos:
@@ -25,10 +26,9 @@ def relationships():
 		else:
 			source_pos[source_id] = len(relations_count)
 			operations = db.session.query(Operation).\
-						filter_by(source_file_id=source_id).count()
-						
+						filter_by(source_file_id=source_id).count()						
 			info = {
-				'id': rel.to_source_file_id,
+				'id': source_id,
 				'source': rel.to_source_file.name(),
 				'fullpath': rel.to_source_file.fullpath(),
 				'path': rel.to_source_file.path(),
@@ -39,9 +39,33 @@ def relationships():
 			}
 			relations_count.append(info)
 			paths[rel.to_source_file.path()] = 0
+			source_ids.append(source_id)
+
+	sources_without_relation = db.session.query(SourceFile).\
+					filter(SourceFile.id.notin_(source_ids)).\
+					filter_by(system_id=to_system.id).all()
+	sources_without_relation_info = []
+	for src in sources_without_relation:
+		operations = db.session.query(Operation).\
+					filter_by(source_file_id=src.id).count()
+		if operations > 0:		
+			info = {
+				'id': src.id,
+				'source': src.name(),
+				'fullpath': src.fullpath(),
+				'path': src.path(),
+				'url': '',
+				'system': to_system.name,
+				'operations': operations,
+				'count': 0
+			}
+			sources_without_relation_info.append(info)
+			paths[src.path()] = 0
+	
+	relations_count = relations_count + sources_without_relation_info
 
 	return render_template('relations_count.html', relations=relations_count,
-						system=to_system, paths=paths)
+						system=to_system.name, paths=paths)
 
 @app.route('/relationships/<int:id>', methods=['GET'])
 def get_relationship(id):

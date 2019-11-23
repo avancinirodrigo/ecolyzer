@@ -15,22 +15,9 @@
 	var relations = {{ relations|safe }}
 	console.log(relations)
 	
-	// min_count = relations[0].count
-	// max_count = relations[0].count
-
-	// for(var i = 1; i < relations.length; i++)
-	// {
-	// 	if(max_count < relations[i].count) {
-	// 		max_count = relations[i].count
-	// 	}
-	// 	else if(min_count > relations[i].count) {
-	// 		min_count = relations[i].count
-	// 	}
-	// }
-
 	// set the dimensions and margins of the graph
 	var margin = {top: 10, right: 10, bottom: 10, left: 10},
- 	width = getWidth() - margin.left - margin.right - 20,
+ 	width = getWidth() - margin.left - margin.right - 20;
   	height = getHeight() - margin.top - margin.bottom - 20;
 
 	// append the svg object to the body of the page
@@ -42,12 +29,15 @@
 	  			.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 	var paths = {{ paths|safe }}
+	var maxPathStrLength = 0
     for(var k in paths) { 
         var info = {
             "id": k,
             "path": "{{ system }}"
         };
-        relations.unshift(info)   
+        relations.unshift(info) 
+        if(maxPathStrLength < k.length)
+        	maxPathStrLength = k.length; 
     }	  			
 
 	relations.unshift({"id":"{{ system }}"}) 
@@ -57,149 +47,129 @@
 				.id(function(d) { return d.id; })   // Name of the entity (column name is name in csv)
 			    .parentId(function(d) { return d.path; })   // Name of the parent (column name is parent in csv)
 			    (relations);
-	
-	root.sum(function(d) { return d.operations })   // Compute the numeric value for each entity
+
+	console.log(maxPathStrLength)
+
+	root.sum(function(d) { return d.operations + maxPathStrLength; })   // Compute the numeric value for each entity
 
 	// Then d3.treemap computes the position of each element of the hierarchy
 	// The coordinates are added to the root object above
 	d3.treemap()
 		.size([width, height])
 	    .paddingTop(28)
-	    .paddingRight(7)
-	    .paddingInner(2)      // Padding between each rectangle    		
+	    .paddingRight(4)
+	    .paddingInner(1)      // Padding between each rectangle  
+	    //.padding(1)
+	    //.paddingOuter(2)
+	    .round(true)  		
 		(root)
 
 	console.log(root.leaves())
 
 	var minCount = d3.min(root.leaves(), function(d) {
-		return d.data.count;
+		if(d.data.count != 0)
+			return d.data.count;
 	});
 
 	var maxCount = d3.max(root.leaves(), function(d) {
 		return d.data.count;
 	});
 
-	// console.log(minCount)
-	// console.log(maxCount)
-
-	// var colors = ["#5E4FA2", "#3288BD", "#66C2A5", "#ABDDA4", "#E6F598", 
-	//     		"#FFFFBF", "#FEE08B", "#FDAE61", "#F46D43", "#D53E4F", "#9E0142"]
-	var colors = ["gray", "blue", "red"]
 	var heatmap = d3.scaleLinear()
-	    .domain([0, minCount, maxCount])
-	    .range(colors);
-	    //.range(["gray", "blue", "red"])
+		.domain([0, minCount, maxCount])
+		//.nice(11)
+	    .range(["gray", "blue", "red"])
 
 	// use this information to add rectangles:
 	svg.selectAll("rect")
-	.data(root.leaves())
-	.enter()
-	.append("a")
-		.attr("xlink:href", function(d) {
-			return "http://127.0.0.1:5000/" + d.data.url; })
-	.append("rect")
-		.attr('x', function (d) { return d.x0; })
-		.attr('y', function (d) { return d.y0; })
-		.attr('width', function (d) { return d.x1 - d.x0; })
-		.attr('height', function (d) { return d.y1 - d.y0; })
-		.style("stroke", "black")
-		.style("fill", function(d) {
-			// if(d.value > 25) {
-			// 	return "rgb(" + (d.value * 3) + ", 0, 0)";
-			// }
-			// else if(d.value > 10) {
-			// 	return "rgb(0, " + (d.value * 7) + ", 0)";	
-			// }
-			// else {
-			// 	return "rgb(0, 0," + (d.value * 12) + ")";
-			// }
-			// console.log(d.data.count)
-			return heatmap(d.data.count);
-		})
-		.append("title")
-		.text(function(d) { return d.data.fullpath; });
+		.data(root.leaves())
+		.enter()
+		.append("a")
+			.attr("xlink:href", function(d) {
+				if(d.data.url)
+					return "http://127.0.0.1:5000/" + d.data.url; 
+			})
+		.append("rect")
+			.attr('x', function (d) { return d.x0; })
+			.attr('y', function (d) { return d.y0; })
+			.attr('width', function (d) { return d.x1 - d.x0; })
+			.attr('height', function (d) { return d.y1 - d.y0; })
+			//.style("stroke", "black")
+			.style("fill", function(d) {
+				return heatmap(d.data.count);
+			})
+			.append("title")
+			.text(function(d) { return d.data.fullpath; });
 
 	// and to add the text labels
-	svg.selectAll("text")
-	.data(root.leaves())
-	.enter()
-	.append("text")
-		.attr("x", function(d){ return d.x0+10})    // +10 to adjust position (more right)
-		.attr("y", function(d){ return d.y0+12})    // +20 to adjust position (lower)
-		.text(function(d){ return d.data.source + ": " + d.data.count})
-		.attr("font-size", "15px")
-		.attr("fill", "white")
+	// svg.selectAll("text")
+	// 	.data(root.leaves())
+	// 	.enter()
+	// 	.append("text")
+	// 		.attr("x", function(d){ return d.x0+10})    // +10 to adjust position (more right)
+	// 		.attr("y", function(d){ return d.y0+12})    // +20 to adjust position (lower)
+	// 		.text(function(d){ return d.data.source + ": " + d.data.count})
+	// 		.attr("font-size", "15px")
+	// 		.attr("fill", "white")
 
 	svg.append("text")
-	  .attr("x", 0)
-	  .attr("y", 14)    // +20 to adjust position (lower)
-	  .text("{{ system }}")
-	  .attr("font-size", "24px")
-	  .attr("fill", "black")
-	  .style("font-weight", "bold") 
+		  .attr("x", 0)
+		  .attr("y", 14)    // +20 to adjust position (lower)
+		  .text("{{ system }}")
+		  .attr("font-size", "24px")
+		  .attr("fill", "black")
+		  .style("font-weight", "bold") 
 
 	svg.selectAll("titles")
-	.data(root.descendants().filter(function(d){return d.depth==1}))
-	.enter()
-	.append("text")
-	  .attr("x", function(d){ return d.x0})
-	  .attr("y", function(d){ return d.y0+21})
-	  .text(function(d){ return d.data.id })
-	  .attr("font-size", "14px")
-	  .attr("fill", "black");   
+		.data(root.descendants().filter(function(d){return d.depth==1}))
+		.enter()
+		.append("text")
+		  .attr("x", function(d){ return d.x0})
+		  .attr("y", function(d){ return d.y0+21})
+		  .text(function(d){ return d.data.id })
+		  .attr("font-size", "14px")
+		  .attr("fill", "black");   
 
-	var blockWidth = 35;
-	var blockHeight = 20;
-	// var colorQuantiles = heatmap.ticks(10);
-	var legendScale = d3.scaleLinear()
-		.domain([minCount, maxCount])
-		.range(["blue", "red"])
-	// var colorTicks = legendScale.ticks(9);
-	var colorTicks = heatmap.ticks(15);
-	var colorQuantiles = [0, minCount];
-	colorTicks.splice(0, 2);
-	colorQuantiles = colorQuantiles.concat(colorTicks);
-	colorQuantiles.push(maxCount)
-	console.log(colorQuantiles);
+	var blockWidth = 15;
+	var blockHeight = 20;	
+	var colorTicks = heatmap.ticks(); //(6);
 	console.log(colorTicks);
 
+	colorTicks.splice(0, 2);	
+	colorTicks = [0, minCount].concat(colorTicks);
+	colorTicks.push(maxCount);
 
-	legendTicks = legendScale.ticks(colorQuantiles.length*2);	
+	console.log(colorTicks);
 
 	var legend = svg.selectAll(".legend")
-		//each block = color in legend is a g element and shifted to the right using the blockwidth
-		.data(legendTicks)
+		.data(colorTicks)
 		.enter()
 		.append("g")
 		.attr("class", "legend")
 		.attr("font-size", "14px")
 		.attr("font-style", "PT Sans")
 		.attr("transform", function(d, i) {
-			return ("translate(" + i * blockWidth/2 + ", 0)")
+			return ("translate(" + i * blockWidth + ", 0)")
 		});	    
-	console.log(legendTicks)
-  	//append to each legend g element a rect element
+
   	legend.append("rect")
-  		//.data(legendTicks)
-		.attr("x", width - colorQuantiles.length * blockWidth - margin.right)
+		.attr("x", width - colorTicks.length*blockWidth - blockWidth + (blockWidth/4))
 		.attr("y", 3)
-		.attr("width", blockWidth/2)
+		.attr("width", blockWidth)
 		.attr("height", blockHeight)
 		.style("fill", function(d, i) {
-		    return(heatmap(legendTicks[i]));
+		    return(heatmap(colorTicks[i]));
 		});           
 
   	legend.append("text")
-  		.data(colorQuantiles)
-        .attr("x", (width - colorQuantiles.length * blockWidth - margin.right + (blockWidth/2)))
-        .attr("y", (margin.bottom/3 + 3) + blockHeight + 15)
+        .attr("x", (width - colorTicks.length*blockWidth - blockWidth + (blockWidth/2)))
+        .attr("y", (margin.bottom/3 + 3) + blockHeight + 12)
         .text(function(d, i) {
-    //     	if(i == 0 || i == minCount
-    //     			|| i == ((colorQuantiles.length - 1)/2))
- 			// 	return colorQuantiles[i];
- 			// else if(i == (colorQuantiles.length - 1))
- 			// 	return maxCount;
- 			return colorQuantiles[i];
+        	if((i == 0) || (i == minCount)
+        			|| (i == Math.trunc((colorTicks.length)/2))
+        			|| (i == (colorTicks.length - 1)))
+ 				return colorTicks[i];
         })
-        .style("text-anchor", "middle");		         		
+        .style("text-anchor", "middle");
+
 </script>
