@@ -6,6 +6,23 @@
         <title>{{ system }} Ecosystem</title>
         <script type="text/javascript" src="{{ url_for('static', filename='js/3rdparty/d3.v4.min.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='js/utils.js') }}"></script>
+        <style type="text/css">
+		    .tooltip {
+		        position: absolute;
+		        display: none;
+		        width: auto;
+		        height: auto;
+		        background: none repeat scroll 0 0 white;
+		        border: 0 none;
+		        border-radius: 8px 8px 8px 8px;
+		        box-shadow: -3px 3px 15px #888888;
+		        color: black;
+		        font: 12px sans-serif;
+		        padding: 5px;
+		        text-align: left;
+		        opacity: 0.95;
+		    }        	
+        </style>
     </head>
     <body>
 		<div id="treemap"></div>
@@ -44,8 +61,8 @@
 
 	// stratify the data: reformatting for d3.js
   	var root = d3.stratify()
-				.id(function(d) { return d.id; })   // Name of the entity (column name is name in csv)
-			    .parentId(function(d) { return d.path; })   // Name of the parent (column name is parent in csv)
+				.id(function(d) { return d.id; })
+			    .parentId(function(d) { return d.path; })
 			    (relations);
 
 	console.log(maxPathStrLength)
@@ -77,8 +94,11 @@
 
 	var heatmap = d3.scaleLinear()
 		.domain([0, minCount, maxCount])
-		//.nice(11)
 	    .range(["gray", "blue", "red"])
+
+	var tip = d3.select("#treemap")
+		.append("div")
+        .attr("class", "tooltip");
 
 	// use this information to add rectangles:
 	svg.selectAll("rect")
@@ -98,8 +118,19 @@
 			.style("fill", function(d) {
 				return heatmap(d.data.count);
 			})
-			.append("title")
-			.text(function(d) { return d.data.fullpath; });
+			//.append("title")
+			//.text(function(d) { return d.data.fullpath; });
+            .on("mousemove", function (d) {
+                tip.style("left", d3.event.pageX + 10 + "px");
+                tip.style("top", d3.event.pageY - 20 + "px");
+                tip.style("display", "inline-block");
+                tip.html("<center><b>" + d.data.source + "</b></center>"
+                			+ "operations: " + d.value 
+                			+ "<br>relations: " + d.data.count);
+            })
+            .on("mouseout", function (d) {
+                tip.style("display", "none");
+            });		
 
 	// and to add the text labels
 	// svg.selectAll("text")
@@ -115,7 +146,7 @@
 	svg.append("text")
 		  .attr("x", 0)
 		  .attr("y", 14)    // +20 to adjust position (lower)
-		  .text("{{ system }}")
+		  .text("{{ system }} Ecosystem")
 		  .attr("font-size", "24px")
 		  .attr("fill", "black")
 		  .style("font-weight", "bold") 
