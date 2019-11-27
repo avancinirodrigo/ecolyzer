@@ -74,7 +74,7 @@
 	d3.treemap()
 		.size([width, height])
 	    .paddingTop(28)
-	    .paddingRight(4)
+	    .paddingRight(6)
 	    .paddingInner(1)      // Padding between each rectangle  
 	    //.padding(1)
 	    //.paddingOuter(2)
@@ -190,7 +190,9 @@
 		.attr("height", blockHeight)
 		.style("fill", function(d, i) {
 		    return(heatmap(colorTicks[i]));
-		});           
+		})
+		.append("title")
+		.text(function(d, i) { return colorTicks[i]; });		           
 
   	legend.append("text")
         .attr("x", (width - colorTicks.length*blockWidth - blockWidth + (blockWidth/2)))
@@ -202,5 +204,11 @@
  				return colorTicks[i];
         })
         .style("text-anchor", "middle");
+
+  	svg.append("text")
+        .attr("x", width - 2*(colorTicks.length + 2)*blockWidth)
+        .attr("y", 20)
+        .text("Number of relationships:")       
+        .style("font-weight", "bolder"); 
 
 </script>

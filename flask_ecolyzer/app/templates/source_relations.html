@@ -5,6 +5,23 @@
         <title>{{ source_file }}</title>
         <script type="text/javascript" src="{{ url_for('static', filename='js/3rdparty/d3.v4.min.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='js/utils.js') }}"></script>
+        <style type="text/css">
+            .tooltip {
+                position: absolute;
+                display: none;
+                width: auto;
+                height: auto;
+                background: none repeat scroll 0 0 white;
+                border: 0 none;
+                border-radius: 8px 8px 8px 8px;
+                box-shadow: -3px 3px 15px #888888;
+                color: black;
+                font: 12px sans-serif;
+                padding: 5px;
+                text-align: left;
+                opacity: 0.95;
+            }           
+        </style>        
     </head>
     <body>
 		<div id="treemap"></div>
@@ -58,11 +75,28 @@
     d3.treemap()
     .size([width, height])
     .paddingTop(28)
-    .paddingRight(7)
-    .paddingInner(2)      // Padding between each rectangle          
+    .paddingRight(6)
+    .paddingInner(1)      // Padding between each rectangle   
+    .round(true)       
     (root)
 
     console.log(root.leaves())
+
+    var minCount = d3.min(root.leaves(), function(d) {
+        return d.data.count;
+    });
+
+    var maxCount = d3.max(root.leaves(), function(d) {
+        return d.data.count;
+    });
+
+    var heatmap = d3.scaleLinear()
+        .domain([minCount, Math.trunc((minCount + maxCount)/2), maxCount])
+        .range(["blue", "green", "red"])    
+
+    var tip = d3.select("#treemap")
+        .append("div")
+        .attr("class", "tooltip");    
 
     // use this information to add rectangles:
     svg.selectAll("rect")
@@ -76,31 +110,33 @@
         .attr('y', function (d) { return d.y0; })
         .attr('width', function (d) { return d.x1 - d.x0; })
         .attr('height', function (d) { return d.y1 - d.y0; })
-        .style("stroke", "black")
+        // .style("stroke", "black")
         .style("fill", function(d) {
-            if(d.value > 3) {
-                return "rgb(" + (d.value * 40) + ", 0, 0)";
-            }
-            else if(d.value > 1) {
-                return "rgb(0, " + (d.value * 80) + ", 0)";  
-            }
-            else {
-                return "rgb(0, 0," + (d.value * 255) + ")";
-            }
+            return heatmap(d.data.count);
         })
-        .append("title")
-        .text(function(d) { return d.data.fullpath; });
+        // .append("title")
+        // .text(function(d) { return d.data.fullpath; });
+        .on("mousemove", function (d) {
+            tip.style("left", d3.event.pageX + 10 + "px");
+            tip.style("top", d3.event.pageY - 20 + "px");
+            tip.style("display", "inline-block");
+            tip.html("<strong>" + d.data.fullpath + "</strong>"
+                        + "<br>calls: " + d.data.count);
+        })
+        .on("mouseout", function (d) {
+            tip.style("display", "none");
+        });             
 
     // and to add the text labels
-    svg.selectAll("text")
-    .data(root.leaves())
-    .enter()
-    .append("text")
-        .attr("x", function(d){ return d.x0+10})    // +10 to adjust position (more right)
-        .attr("y", function(d){ return d.y0+14})    // +20 to adjust position (lower)
-        .text(function(d){ return d.data.from + ": " + d.value})
-        .attr("font-size", "15px")
-        .attr("fill", "black")    
+    // svg.selectAll("text")
+    // .data(root.leaves())
+    // .enter()
+    // .append("text")
+    //     .attr("x", function(d){ return d.x0+10})    // +10 to adjust position (more right)
+    //     .attr("y", function(d){ return d.y0+14})    // +20 to adjust position (lower)
+    //     .text(function(d){ return d.data.from + ": " + d.value})
+    //     .attr("font-size", "15px")
+    //     .attr("fill", "black")    
 
      // Add title for groups
       svg.selectAll("titles")
@@ -120,5 +156,57 @@
           .text("{{ source_file }}")
           .attr("font-size", "20px")
           .attr("fill", "black")
-          .style("font-weight", "bold")           
+          .style("font-weight", "bold")     
+
+    var blockWidth = 15;
+    var blockHeight = 20;   
+    var colorTicks = heatmap.ticks(); //(6);
+    console.log(colorTicks);
+
+    // colorTicks.splice(0, 2);    
+    // colorTicks = [minCount].concat(colorTicks);
+    // colorTicks.push(maxCount);
+    colorTicks[0] = minCount;
+    colorTicks[colorTicks.length-1] = maxCount
+
+    console.log(colorTicks);
+
+    var legend = svg.selectAll(".legend")
+        .data(colorTicks)
+        .enter()
+        .append("g")
+        .attr("class", "legend")
+        .attr("font-size", "14px")
+        .attr("font-style", "PT Sans")
+        .attr("transform", function(d, i) {
+            return ("translate(" + i * blockWidth + ", 0)")
+        });     
+
+    legend.append("rect")
+        .attr("x", width - colorTicks.length*blockWidth - blockWidth + (blockWidth/4))
+        .attr("y", 3)
+        .attr("width", blockWidth)
+        .attr("height", blockHeight)
+        .style("fill", function(d, i) {
+            return(heatmap(colorTicks[i]));
+        })
+        .append("title")
+        .text(function(d, i) { return colorTicks[i]; });                   
+
+    legend.append("text")
+        .attr("x", (width - colorTicks.length*blockWidth - blockWidth + (blockWidth/4) + (blockWidth/2)))
+        .attr("y", (margin.bottom/3 + 3) + blockHeight + 12)
+        .text(function(d, i) {
+            // if((i == 0) || (i == minCount)
+            //         || (i == Math.trunc((colorTicks.length)/2))
+            //         || (i == (colorTicks.length - 1)))
+                return colorTicks[i];
+        })
+        .style("text-anchor", "middle");
+
+    svg.append("text")
+        .attr("x", width - 2*(colorTicks.length + 2)*blockWidth)
+        .attr("y", 20)
+        .text("Number of relationships:")       
+        .style("font-weight", "bolder");                 
 </script>
