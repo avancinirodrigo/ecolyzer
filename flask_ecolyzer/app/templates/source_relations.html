@@ -90,9 +90,18 @@
         return d.data.count;
     });
 
-    var heatmap = d3.scaleLinear()
-        .domain([minCount, Math.trunc((minCount + maxCount)/2), maxCount])
-        .range(["blue", "green", "red"])    
+    var heatmap;
+
+    if(maxCount - minCount == 1) {
+        heatmap = d3.scaleLinear()
+            .domain([minCount, maxCount])
+            .range(["blue", "red"])
+    }
+    else {
+        heatmap = d3.scaleLinear()
+            .domain([minCount, Math.trunc((minCount + maxCount)/2), maxCount])
+            .range(["blue", "green", "red"])    
+    }
 
     var tip = d3.select("#treemap")
         .append("div")
@@ -160,7 +169,7 @@
 
     var blockWidth = 15;
     var blockHeight = 20;   
-    var colorTicks = heatmap.ticks(); //(6);
+    var colorTicks = heatmap.ticks().filter(tick => Number.isInteger(tick)); //(6);
     console.log(colorTicks);
 
     // colorTicks.splice(0, 2);    
