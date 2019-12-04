@@ -3,6 +3,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from pydriller import RepositoryMining, GitRepository
 from pydriller.domain.commit import ModificationType
 from git import Repo
+import lizard
 from ecolyzer.system import File, SourceFile, Operation
 from ecolyzer.parser import StaticAnalyzer
 from ecolyzer.dataaccess import NullSession
@@ -97,11 +98,17 @@ class RepositoryMiner:
 		file_mod = ModificationInfo(blob.path)
 		#file_mod.old_path = mod.old_path
 		file_mod.new_path = blob.path
-		#file_mod.added = mod.added
-		#file_mod.removed = mod.removed
 		#file_mod.status = mod.change_type.name 
-		file_mod.source_code = self._get_blob_source_code(blob)
-		return file_mod			
+		source_code = self._get_blob_source_code(blob)
+		file_mod.source_code = source_code
+		file_mod.added = self._count_lines_of_code(blob.path, source_code)
+		file_mod.removed = 0
+		return file_mod
+
+	def _count_lines_of_code(self, filepath, source_code):
+		metrics = lizard.analyze_file.analyze_source_code(filepath,
+                                                        source_code)
+		return metrics.nloc
 
 	def _last_commit_from_path(self, fullpath, repo, rev):
 		return list(repo.iter_commits(rev=rev, paths=fullpath, max_count=1))[0]
