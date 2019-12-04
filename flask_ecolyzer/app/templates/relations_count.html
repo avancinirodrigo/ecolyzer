@@ -205,10 +205,14 @@
         })
         .style("text-anchor", "middle");
 
-  	svg.append("text")
-        .attr("x", width - 2*(colorTicks.length + 2)*blockWidth)
+    const RELATIONS_LABEL = "Number of relationships:";
+    const RELATIONS_LABEL_FONT_SIZE = 14;    
+
+    svg.append("text")
+        .attr("x", width - colorTicks.length*blockWidth - RELATIONS_LABEL.length*RELATIONS_LABEL_FONT_SIZE/2)
         .attr("y", 20)
-        .text("Number of relationships:")       
-        .style("font-weight", "bolder"); 
+        .text(RELATIONS_LABEL)       
+        .style("font-weight", "bolder")
+        .attr("font-size", RELATIONS_LABEL_FONT_SIZE + "px");  
 
 </script>

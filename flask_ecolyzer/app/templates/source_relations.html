@@ -90,9 +90,12 @@
         return d.data.count;
     });
 
+    var numOfUniqueValues = d3.map(root.leaves(), function(d) {return d.data.count;}).keys().length 
+    console.log("num of uniques: " + numOfUniqueValues)
+
     var heatmap;
 
-    if(maxCount - minCount == 1) {
+    if(numOfUniqueValues <= 2) {
         heatmap = d3.scaleLinear()
             .domain([minCount, maxCount])
             .range(["blue", "red"])
@@ -206,16 +209,17 @@
         .attr("x", (width - colorTicks.length*blockWidth - blockWidth + (blockWidth/4) + (blockWidth/2)))
         .attr("y", (margin.bottom/3 + 3) + blockHeight + 12)
         .text(function(d, i) {
-            // if((i == 0) || (i == minCount)
-            //         || (i == Math.trunc((colorTicks.length)/2))
-            //         || (i == (colorTicks.length - 1)))
-                return colorTicks[i];
+            return colorTicks[i];
         })
         .style("text-anchor", "middle");
 
+    const RELATIONS_LABEL = "Number of relationships:";
+    const RELATIONS_LABEL_FONT_SIZE = 14;    
+
     svg.append("text")
-        .attr("x", width - 2*(colorTicks.length + 2)*blockWidth)
+        .attr("x", width - colorTicks.length*blockWidth - RELATIONS_LABEL.length*RELATIONS_LABEL_FONT_SIZE/2)
         .attr("y", 20)
-        .text("Number of relationships:")       
-        .style("font-weight", "bolder");                 
+        .text(RELATIONS_LABEL)       
+        .style("font-weight", "bolder")
+        .attr("font-size", RELATIONS_LABEL_FONT_SIZE + "px");                 
 </script>
