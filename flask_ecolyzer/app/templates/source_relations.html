@@ -68,7 +68,9 @@
                 .parentId(function(d) { return d.system; })   // Name of the parent (column name is parent in csv)
                 (relations);
     
-    root.sum(function(d) { return d.count })   // Compute the numeric value for each entity
+    root.sum(function(d) { 
+        return Math.trunc(Math.log(d.nloc)); //TODO
+    });   // Compute the numeric value for each entity
 
     // Then d3.treemap computes the position of each element of the hierarchy
     // The coordinates are added to the root object above
@@ -133,7 +135,8 @@
             tip.style("top", d3.event.pageY - 20 + "px");
             tip.style("display", "inline-block");
             tip.html("<strong>" + d.data.fullpath + "</strong>"
-                        + "<br>calls: " + d.data.count);
+                        + "<br>calls: " + d.data.count
+                        + "<br>nloc: " + d.data.nloc);
         })
         .on("mouseout", function (d) {
             tip.style("display", "none");

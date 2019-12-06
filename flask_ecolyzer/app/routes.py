@@ -79,16 +79,20 @@ def get_relationship(id):
 		if from_source_id in from_source_pos:
 			pos = from_source_pos[from_source_id]
 			source_relations[pos]['count'] = source_relations[pos]['count'] + 1
-		else:
+		else: # enter here just in the first time
 			from_source_pos[from_source_id] = len(source_relations)
 			from_systems[rel.from_system_id] = rel.from_system.name
+			from_source_file = rel.from_source_file
+			file_mod = db.session.query(Modification).\
+						filter_by(file_id = from_source_file.file_id).one()	
 			info = {
 				'id': from_source_id,
-				'from': rel.from_source_file.name(),
-				'fullpath': rel.from_source_file.fullpath(),
+				'from': from_source_file.name(),
+				'fullpath': from_source_file.fullpath(),
 				'code': rel.from_code_element.name + '()',
 				'count': 1,
 				'system': rel.from_system.name,
+				'nloc': file_mod.nloc,
 				'url': url_for('source_codes', from_id=from_source_id, to_id=id)
 			}
 			source_relations.append(info)

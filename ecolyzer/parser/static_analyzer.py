@@ -1,5 +1,6 @@
 from ecolyzer.system import Operation, Call
 from .lua_parser import LuaParser, SyntaxException, ChunkException
+from .lua_metrics import LuaMetrics
 
 class StaticAnalyzer:
 	def __init__(self):
@@ -29,6 +30,9 @@ class StaticAnalyzer:
 			pass
 
 		return code_elements
+
+	def lua_metrics(self, filepah, source_code):
+		return LuaMetrics(filepah, source_code)
 
 	def _remove_inner_calls(self, calls, functions):
 		external_calls = []

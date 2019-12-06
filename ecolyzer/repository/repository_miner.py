@@ -3,7 +3,6 @@ from sqlalchemy.orm.exc import NoResultFound
 from pydriller import RepositoryMining, GitRepository
 from pydriller.domain.commit import ModificationType
 from git import Repo
-import lizard
 from ecolyzer.system import File, SourceFile, Operation
 from ecolyzer.parser import StaticAnalyzer
 from ecolyzer.dataaccess import NullSession
@@ -103,12 +102,13 @@ class RepositoryMiner:
 		file_mod.source_code = source_code
 		file_mod.added = self._count_lines_of_code(blob.path, source_code)
 		file_mod.removed = 0
+		file_mod.nloc = file_mod.added
 		return file_mod
 
 	def _count_lines_of_code(self, filepath, source_code):
-		metrics = lizard.analyze_file.analyze_source_code(filepath,
-                                                        source_code)
-		return metrics.nloc
+		analyzer = StaticAnalyzer()
+		metrics = analyzer.lua_metrics(filepath, source_code)
+		return metrics.nloc()
 
 	def _last_commit_from_path(self, fullpath, repo, rev):
 		return list(repo.iter_commits(rev=rev, paths=fullpath, max_count=1))[0]

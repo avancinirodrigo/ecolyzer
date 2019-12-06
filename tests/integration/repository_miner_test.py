@@ -546,5 +546,10 @@ def test_extract_last_commits():
 		assert code_elements[srcfile.code_element_by_key(k).name]
 	assert srcfile.code_elements_len() == 40
 
+	file_mod = session.query(Modification).\
+					filter_by(file_id = srcfile.file_id).one()	
+
+	assert file_mod.nloc == file_mod.added == 165
+
 	session.close()
 	db.drop_all()
