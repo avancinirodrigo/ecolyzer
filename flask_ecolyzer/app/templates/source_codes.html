@@ -4,25 +4,37 @@
     	<meta charset="utf-8">
         <title>Souce Codes</title>
         <style type="text/css">
+        	body {
+        		overflow-x: hidden;
+        	}
 			.wrapper {
+				position: absolute;
 			    width:100%;
 			    margin: 0 auto;
+			    height: 100%;
+			    display: flex;
 			}
 
 			#to_source {
 			    float:left;
-			    width: 49%;
+			    width: 47%;
+			    height: 96%;
 			    background-color: #EEE8AA;
+			    overflow:scroll;
+			    margin-left: 2%;
 			}
 
 			#from_source
 			{
 			    float:right;
-			    width: 49%;
+			    width: 47%;
+			    height: 96%;
 			    background-color: #EEE8AA;
 			    /*margin: 10% 10%;*/
 			    /*padding: 20px;*/
 			    /*width: 180px;*/
+			    overflow:scroll;
+			    margin-left: 2%;
 			}
 
 			mark {
