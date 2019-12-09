@@ -68,8 +68,15 @@
                 .parentId(function(d) { return d.system; })   // Name of the parent (column name is parent in csv)
                 (relations);
     
+    const NLOC_MIN_OFFSET = 10
+    const NLOC_MAX_OFFSET = 1000
     root.sum(function(d) { 
-        return Math.trunc(Math.log(d.nloc)); //TODO
+        if(d.nloc < NLOC_MIN_OFFSET)
+            return NLOC_MIN_OFFSET;
+        else if(d.nloc > NLOC_MAX_OFFSET)
+            return NLOC_MAX_OFFSET;
+        else
+            return d.nloc; //Math.round(Math.log2(d.nloc)); //TODO
     });   // Compute the numeric value for each entity
 
     // Then d3.treemap computes the position of each element of the hierarchy
