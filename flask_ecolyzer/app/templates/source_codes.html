@@ -40,7 +40,11 @@
 			mark {
 			  background: red;
 			  color: black;
-			}					      	
+			}		
+
+			#highlight {
+				background-color: "blue";
+			}			      	
         </style>
 		<script src="https://code.jquery.com/jquery-latest.min.js"></script>
 		<script src="https://cdn.jsdelivr.net/mark.js/8.6.0/jquery.mark.min.js"></script>
@@ -50,7 +54,7 @@
 
 			<div id="to_source">
 				<h2><span>{{ to_fullpath }}</span></h2>
-				<p></p>
+				<src></src>
 			</div>
 			<div id="from_source">
 				<h2><span>{{ from_fullpath }}</span></h2>
@@ -60,29 +64,75 @@
     </body>
 </html>
 <script type="text/javascript">
+
+	function hasCode(line, code_elements) {
+		for(var i = 0; i < code_elements.length; i++) {
+			if((line.search(code_elements[i] + " = function") >= 0)
+					|| (line.search("function " + code_elements[i]) >= 0))
+				return code_elements[i];
+		}
+		return "";		
+	}
+
 	var to_source = {{ to_source|tojson }}
 	var from_source = {{ from_source|tojson }}
 
-	to_source = to_source.replace(/(\t)/g, "&nbsp;&nbsp;&nbsp;&nbsp;")
-	//to_source = to_source.replace(/ /g, "&nbsp;") // TODO: review
-	to_source = to_source.replace(/(\n)/g, "<br>")		
+	var to_source_lines = to_source.split("\n");
+	console.log(to_source_lines);
+	var from_source_lines = from_source.split("\n");	
 
-	from_source = from_source.replace(/(\t)/g, "&nbsp;&nbsp;&nbsp;&nbsp;")
-	//from_source = from_source.replace(/ /g, "&nbsp;")
-	from_source = from_source.replace(/(\n)/g, "<br>")	
-	
-	$("#to_source").find("p").html(to_source);
-	$("#from_source").find("p").html(from_source);	
+	// to_source_view = to_source_view.replace(/(\t)/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
+	// //from_source_view = from_source_view.replace(/(\t)/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
+
+	// to_source_view = to_source_view.replace(/ /g, "&nbsp;")
+	// //from_source_view = from_source_view.replace(/ /g, "&nbsp;")	
+
+	var to_source_view = "";
 
 	var code_elements = {{ code_elements|safe }}
-
 	for(var i = 0; i < code_elements.length; i++) {
-		var from_regex = new RegExp("[:| ]" + code_elements[i] + "[(|{]");
-		$("#from_source").find("p").markRegExp(from_regex);
-
-		var to_regex1 = new RegExp(code_elements[i] + " = function");
-		var to_regex2 = new RegExp("function " + code_elements[i]);
-		$("#to_source").find("p").markRegExp(to_regex1);			
-		$("#to_source").find("p").markRegExp(to_regex2);			
+		to_source_view += "<a href=\"#" + code_elements[i] + "\">" + code_elements[i] + "</a><br>";	
 	}
+
+	var to_source_div = document.getElementById("to_source");
+	for(var i = 0; i < to_source_lines.length; i++) {
+		var line = to_source_lines[i];
+		var code_element = hasCode(line, code_elements);
+		if(code_element != "") {
+			to_source_view += "<a name=\"" + code_element + "\"</a><span><mark>" + line + "</mark></span><br>";
+		}
+		else
+			to_source_view += "<span>" + line + "</span><br>";	
+		//to_source_div.innerHTML += to_source_lines[i] + "<br>";
+	}
+
+	$("#to_source").find("src").html(to_source_view);
+
+	// var from_source_view;
+	// for(var i = 0; i < from_source_lines.length; i++) {
+	// 	from_source_view += from_source_lines[i] + "<br>";
+	// }	
+
+	// to_source = to_source.replace(/(\t)/g, "&nbsp;&nbsp;&nbsp;&nbsp;")
+	// //to_source = to_source.replace(/ /g, "&nbsp;") // TODO: review
+	// to_source = to_source.replace(/(\n)/g, "<br>")		
+
+	// from_source = from_source.replace(/(\t)/g, "&nbsp;&nbsp;&nbsp;&nbsp;")
+	// //from_source = from_source.replace(/ /g, "&nbsp;")
+	// from_source = from_source.replace(/(\n)/g, "<br>")	
+	
+	// $("#to_source").find("p").html(to_source);
+	// $("#from_source").find("p").html(from_source);	
+
+	// var code_elements = {{ code_elements|safe }}
+
+	// for(var i = 0; i < code_elements.length; i++) {
+	// 	var from_regex = new RegExp("[:| ]" + code_elements[i] + "[(|{]");
+	// 	$("#from_source").find("p").markRegExp(from_regex);
+
+	// 	var to_regex1 = new RegExp(code_elements[i] + " = function");
+	// 	var to_regex2 = new RegExp("function " + code_elements[i]);
+	// 	$("#to_source").find("p").markRegExp(to_regex1);			
+	// 	$("#to_source").find("p").markRegExp(to_regex2);			
+	// }
 </script>
