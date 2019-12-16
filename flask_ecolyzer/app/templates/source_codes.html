@@ -7,6 +7,7 @@
         	body {
         		overflow-x: hidden;
         	}
+
 			.wrapper {
 				position: absolute;
 			    width:100%;
@@ -19,7 +20,7 @@
 			    float:left;
 			    width: 47%;
 			    height: 96%;
-			    background-color: #EEE8AA;
+			    background-color: #FFFFFF;
 			    overflow:scroll;
 			    margin-left: 2%;
 			}
@@ -37,23 +38,47 @@
 			    margin-left: 2%;
 			}
 
+			#to_source op {
+				border: 2px solid; 
+			}
+
 			mark {
 			  background: red;
 			  color: black;
-			}		
-
-			#highlight {
-				background-color: "blue";
-			}			      	
+			}
         </style>
 		<script src="https://code.jquery.com/jquery-latest.min.js"></script>
 		<script src="https://cdn.jsdelivr.net/mark.js/8.6.0/jquery.mark.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+		<script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/lang-lua.js"></script>
+		<style type="text/css">
+			pre.prettyprint
+			{
+			    border: 0px;
+			}			
+
+			ol.linenums
+			{
+			    margin-top: 0;
+			    margin-bottom: 0;
+			}	
+
+			li.L0, li.L1, li.L2, li.L3, li.L4,
+			li.L5, li.L6, li.L7, li.L8, li.L9 {
+				background: none;
+				color: #C0C0C0;
+				list-style-type: decimal;
+			}
+		</style>
     </head>
     <body>
 		<div class="wrapper">
-
 			<div id="to_source">
 				<h2><span>{{ to_fullpath }}</span></h2>
+				<!-- <tr>
+					<td><op></op></td>
+				</tr> -->
+				<op></op>
 				<src></src>
 			</div>
 			<div id="from_source">
@@ -87,24 +112,29 @@
 	// to_source_view = to_source_view.replace(/ /g, "&nbsp;")
 	// //from_source_view = from_source_view.replace(/ /g, "&nbsp;")	
 
-	var to_source_view = "";
-
+	var to_operations = "";
 	var code_elements = {{ code_elements|safe }}
 	for(var i = 0; i < code_elements.length; i++) {
-		to_source_view += "<a href=\"#" + code_elements[i] + "\">" + code_elements[i] + "</a><br>";	
+		to_operations += "<a href=\"#" + code_elements[i] + "\">" + code_elements[i] + "</a><br>";	
 	}
+
+	$("#to_source").find("op").html(to_operations);
+
+	var to_source_view = "<pre class=\"prettyprint lang-lua linenums\">";
 
 	var to_source_div = document.getElementById("to_source");
 	for(var i = 0; i < to_source_lines.length; i++) {
 		var line = to_source_lines[i];
 		var code_element = hasCode(line, code_elements);
 		if(code_element != "") {
-			to_source_view += "<a name=\"" + code_element + "\"</a><span><mark>" + line + "</mark></span><br>";
+			to_source_view += "<a name=\"" + code_element + "\"</a><mark>" + line + "</mark>\n";
 		}
 		else
-			to_source_view += "<span>" + line + "</span><br>";	
+			to_source_view += line + "\n";	
 		//to_source_div.innerHTML += to_source_lines[i] + "<br>";
 	}
+
+	to_source_view += "</pre>"
 
 	$("#to_source").find("src").html(to_source_view);
 
