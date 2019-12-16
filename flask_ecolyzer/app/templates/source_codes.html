@@ -18,6 +18,23 @@
 
 			#to_source {
 			    float:left;
+/*			    width: 47%;
+			    height: 96%;
+			    background-color: #FFFFFF;
+			    overflow:scroll;
+			    margin-left: 2%;*/
+			}
+
+			#from_source {
+			    float:right;
+/*			    width: 47%;
+			    height: 96%;
+			    background-color: #EEE8AA;
+			    overflow:scroll;
+			    margin-left: 2%;*/
+			}
+
+			#to_source, #from_source {
 			    width: 47%;
 			    height: 96%;
 			    background-color: #FFFFFF;
@@ -25,26 +42,16 @@
 			    margin-left: 2%;
 			}
 
-			#from_source
-			{
-			    float:right;
-			    width: 47%;
-			    height: 96%;
-			    background-color: #EEE8AA;
-			    /*margin: 10% 10%;*/
-			    /*padding: 20px;*/
-			    /*width: 180px;*/
-			    overflow:scroll;
-			    margin-left: 2%;
-			}
-
-			#to_source op {
+			/*#to_source op {
 				border: 2px solid; 
-			}
+			}*/
 
 			mark {
-			  background: red;
-			  color: black;
+			  /*background: red;*/
+			  /*display: inline;*/
+		/*	  width: 100%;*/
+			  border: 2px solid;
+			  color: red;
 			}
         </style>
 		<script src="https://code.jquery.com/jquery-latest.min.js"></script>
@@ -75,15 +82,13 @@
 		<div class="wrapper">
 			<div id="to_source">
 				<h2><span>{{ to_fullpath }}</span></h2>
-				<!-- <tr>
-					<td><op></op></td>
-				</tr> -->
 				<op></op>
 				<src></src>
 			</div>
 			<div id="from_source">
 				<h2><span>{{ from_fullpath }}</span></h2>
-				<p></p>
+				<op></op>
+				<src></src>
 			</div>
 		</div>		                                    
     </body>
@@ -94,6 +99,16 @@
 		for(var i = 0; i < code_elements.length; i++) {
 			if((line.search(code_elements[i] + " = function") >= 0)
 					|| (line.search("function " + code_elements[i]) >= 0))
+				return code_elements[i];
+		}
+		return "";		
+	}
+
+	function hasCodeFrom(line, code_elements) {
+		var regex = "[\\w]+[.:]";
+		for(var i = 0; i < code_elements.length; i++) {
+			if((line.search(regex + code_elements[i]) >= 0))
+					 // || (line.search("." + code_elements[i]) >= 0))
 				return code_elements[i];
 		}
 		return "";		
@@ -115,19 +130,19 @@
 	var to_operations = "";
 	var code_elements = {{ code_elements|safe }}
 	for(var i = 0; i < code_elements.length; i++) {
-		to_operations += "<a href=\"#" + code_elements[i] + "\">" + code_elements[i] + "</a><br>";	
+		to_operations += "<a href=\"#to_" + code_elements[i] + "\">" + code_elements[i] + "</a><br>";	
 	}
 
 	$("#to_source").find("op").html(to_operations);
 
 	var to_source_view = "<pre class=\"prettyprint lang-lua linenums\">";
 
-	var to_source_div = document.getElementById("to_source");
+	// var to_source_div = document.getElementById("to_source");
 	for(var i = 0; i < to_source_lines.length; i++) {
 		var line = to_source_lines[i];
 		var code_element = hasCode(line, code_elements);
 		if(code_element != "") {
-			to_source_view += "<a name=\"" + code_element + "\"</a><mark>" + line + "</mark>\n";
+			to_source_view += "<a name=\"to_" + code_element + "\"</a><mark>" + line + "</mark>\n";
 		}
 		else
 			to_source_view += line + "\n";	
@@ -137,6 +152,42 @@
 	to_source_view += "</pre>"
 
 	$("#to_source").find("src").html(to_source_view);
+
+	// var from_operations
+	// for(var i = 0; i < code_elements.length; i++) {
+	// 	to_operations += "<a href=\"#to_" + code_elements[i] + "\">" + code_elements[i] + "</a><br>";	
+	// }	
+
+	var from_source_view = "<pre class=\"prettyprint lang-lua linenums\">";
+
+	var from_code_elements = {};
+	var from_operations = "";
+	var from_operations_count = 0;
+	for(var i = 0; i < from_source_lines.length; i++) {
+		var line = from_source_lines[i];
+		var code_element = hasCodeFrom(line, code_elements);
+		if(code_element != "") {
+			// if(!from_code_elements[code_element])
+			// 	from_code_elements[code_element] = 0;
+			from_operations_count += 1;
+			var from_ref = "from_" + from_operations_count + code_element;
+			from_source_view += "<a name=\"" + from_ref + "\"</a>"
+								+ "<a href=\"#to_" + code_element + "\"><mark>" + line + "</mark></a>\n";
+								// + < "\n";
+								// "<a name=\"to_" + code_element + "\"</a><mark>" + line + "</mark>\n";
+			from_operations += "<a href=\"#" + from_ref + "\">" 
+								+ from_operations_count + ". " + code_element + "</a><br>";
+		}
+		else
+			from_source_view += line + "\n";	
+		//to_source_div.innerHTML += to_source_lines[i] + "<br>";
+	}
+
+	from_source_view += "</pre>";
+
+	$("#from_source").find("op").html(from_operations);
+
+	$("#from_source").find("src").html(from_source_view);	
 
 	// var from_source_view;
 	// for(var i = 0; i < from_source_lines.length; i++) {
