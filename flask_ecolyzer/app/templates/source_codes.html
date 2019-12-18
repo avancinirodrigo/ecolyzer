@@ -3,6 +3,7 @@
     <head>
     	<meta charset="utf-8">
         <title>Souce Codes</title>
+        <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">    -->
         <style type="text/css">
         	body {
         		overflow-x: hidden;
@@ -38,7 +39,7 @@
 			    width: 47%;
 			    height: 96%;
 			    background-color: #FFFFFF;
-			    overflow:scroll;
+			    overflow: scroll;
 			    margin-left: 2%;
 			}
 
@@ -47,21 +48,22 @@
 			}*/
 
 			mark {
-			  /*background: red;*/
-			  /*display: inline;*/
-		/*	  width: 100%;*/
-			  border: 2px solid;
-			  color: red;
+			  border: 1px solid;
+			  /*color: red;*/
 			}
-        </style>
+        </style>     
 		<script src="https://code.jquery.com/jquery-latest.min.js"></script>
 		<script src="https://cdn.jsdelivr.net/mark.js/8.6.0/jquery.mark.min.js"></script>
 		<script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
-		<script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/lang-lua.js"></script>
+		<script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/lang-lua.js"></script>	
 		<style type="text/css">
 			pre.prettyprint
 			{
-			    border: 0px;
+			    padding-left:20px; 
+			    /*border: 0px;*/
+			    border: 1px solid #888; 
+			    /*overflow: scroll;*/
+			    /*width: 100%;*/
 			}			
 
 			ol.linenums
@@ -81,12 +83,12 @@
     <body>
 		<div class="wrapper">
 			<div id="to_source">
-				<h2><span>{{ to_fullpath }}</span></h2>
+				<h2><span>{{ to_system }}/{{ to_fullpath }}</span></h2>
 				<op></op>
 				<src></src>
 			</div>
 			<div id="from_source">
-				<h2><span>{{ from_fullpath }}</span></h2>
+				<h2><a name="top"></a><span>{{ from_system }}/{{ from_fullpath }}</span></h2>
 				<op></op>
 				<src></src>
 			</div>
@@ -172,7 +174,8 @@
 			from_operations_count += 1;
 			var from_ref = "from_" + from_operations_count + code_element;
 			from_source_view += "<a name=\"" + from_ref + "\"</a>"
-								+ "<a href=\"#to_" + code_element + "\"><mark>" + line + "</mark></a>\n";
+								+ "<a href=\"#to_" + code_element + "\"><mark>" + line + "</mark></a>"
+								+ "<a href=\"#top\"> <span class=\"glyphicon glyphicon-triangle-top\"></span> </a>\n";
 								// + < "\n";
 								// "<a name=\"to_" + code_element + "\"</a><mark>" + line + "</mark>\n";
 			from_operations += "<a href=\"#" + from_ref + "\">" 

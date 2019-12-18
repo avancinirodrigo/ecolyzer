@@ -107,7 +107,8 @@ def source_codes(from_id, to_id):
 					from_source_file_id = from_id).all()
 	from_file = relations[0].from_source_file.file
 	to_file = relations[0].to_source_file.file
-	# print(from_file, to_file)
+	from_system = relations[0].from_system.name
+	to_system = relations[0].to_system.name
 	from_source = db.session.query(Modification.source_code).\
 					filter_by(file_id = from_file.id).one()
 	to_source = db.session.query(Modification.source_code).\
@@ -118,7 +119,8 @@ def source_codes(from_id, to_id):
 		code_elements.append(rel.to_code_element.name)
 	return render_template('source_codes.html', from_source=from_source[0], 
 						to_source=to_source[0], code_elements=code_elements,
-						from_fullpath=from_file.fullpath, to_fullpath=to_file.fullpath)
+						from_fullpath=from_file.fullpath, to_fullpath=to_file.fullpath,
+						from_system=from_system, to_system=to_system)
 
 @app.route('/blame', methods=['GET'])
 def blame():
