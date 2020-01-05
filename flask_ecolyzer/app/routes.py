@@ -1,6 +1,7 @@
 from flask import jsonify, render_template, url_for
 import json
-from app import app, db
+from . import db
+from . import bp as app
 from ecolyzer.repository import Author, Modification
 from ecolyzer.ecosystem import Relationship
 from ecolyzer.system import Operation, SourceFile
@@ -93,7 +94,7 @@ def get_relationship(id):
 				'count': 1,
 				'system': rel.from_system.name,
 				'nloc': file_mod.nloc,
-				'url': url_for('source_codes', from_id=from_source_id, to_id=id)
+				'url': url_for('.source_codes', from_id=from_source_id, to_id=id)
 			}
 			source_relations.append(info)
 
