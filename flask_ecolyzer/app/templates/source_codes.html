@@ -111,7 +111,7 @@
 	function hasCodeFrom(line, code_elements) {
 		var regex = "[\\w]+[.:]";
 		for(var i = 0; i < code_elements.length; i++) {
-			if((line.search(regex + code_elements[i]) >= 0)
+			if((line.search(regex + code_elements[i] + "\\(") >= 0)
 					|| (line.search(code_elements[i] + "\\(") >= 0))
 				return code_elements[i];
 		}
@@ -182,7 +182,7 @@
 
 	from_operations += "</select>";
 	from_source_view += "</pre>";
-	
+
 	$("#from_source").find("op").html(from_operations);
 	$("#from_source").find("src").html(from_source_view);	
 </script>
