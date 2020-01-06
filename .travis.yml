@@ -13,6 +13,7 @@ env:
 
 install:
   - pip install -r requirements.txt
+  - pip install -r flask_ecolyzer/requirements.txt
 
 branches:
   only:
