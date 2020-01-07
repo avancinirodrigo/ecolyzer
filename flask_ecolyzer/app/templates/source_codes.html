@@ -111,8 +111,8 @@
 	function hasCodeFrom(line, code_elements) {
 		var regex = "[\\w]+[.:]";
 		for(var i = 0; i < code_elements.length; i++) {
-			if((line.search(regex + code_elements[i] + "\\(") >= 0)
-					|| (line.search(code_elements[i] + "\\(") >= 0))
+			if((line.search(regex + code_elements[i] + "[({]") >= 0)
+					|| (line.search(code_elements[i] + "[({]") >= 0))
 				return code_elements[i];
 		}
 		return "";		
