@@ -8,8 +8,7 @@ from flask_ecolyzer.app.config import Config
 
 class TestConfig(Config):
 	TESTING = True
-	SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
-			'postgresql://postgres:postgres@localhost:5432/ecosystem_last_commits'
+	SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:postgres@localhost:5432/flask_test'
 
 #https://stackoverflow.com/questions/39822265/flask-testing-how-to-retrieve-variables-that-were-passed-to-jinja
 @contextmanager
@@ -28,8 +27,8 @@ def app():
     app = create_app(TestConfig)
     return app
 
-def test_relationships(app, client):
+def test_relationships(app, client, db_connection):
 	with get_context_variables(app) as contexts:
 		res = client.get('/relationships')
 		contexts = next(contexts)
-		assert contexts['system'] == 'terrame'
+		assert contexts['system'] == 'sci'
