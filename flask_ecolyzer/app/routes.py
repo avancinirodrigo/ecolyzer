@@ -69,7 +69,7 @@ def relationships():
 						system=to_system.name, paths=paths)
 
 @app.route('/relationships/<int:id>', methods=['GET'])
-def get_relationship(id):
+def source_relations(id):
 	relations = db.session.query(Relationship).filter_by(to_source_file_id = id).all()
 	source_file = relations[0].to_source_file
 	source_relations = []

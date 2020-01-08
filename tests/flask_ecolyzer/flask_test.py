@@ -31,4 +31,27 @@ def test_relationships(app, client, db_connection):
 	with get_context_variables(app) as contexts:
 		res = client.get('/relationships')
 		contexts = next(contexts)
-		assert contexts['system'] == 'sci'
+		system = contexts['system']
+		relations = contexts['relations']
+		paths = contexts['paths']
+		assert system == 'TerraME'
+		assert len(relations) == 53
+		assert len(paths) == 9
+
+def get_source_id(relations, name):
+	for rel in relations:
+		if rel['source'] == name:
+			return rel['id']	
+
+def test_source_relations(app, client, db_connection):
+	source_id = None
+	with get_context_variables(app) as contexts:
+		res = client.get('/relationships')
+		contexts = next(contexts)
+		relations = contexts['relations']
+		source_id = get_source_id(relations, 'CellularSpace')
+
+	with get_context_variables(app) as contexts:
+		res = client.get('/relationships/' + str(source_id))
+		contexts = next(contexts)
+		print(contexts)
