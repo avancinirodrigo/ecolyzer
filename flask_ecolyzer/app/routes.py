@@ -122,7 +122,3 @@ def source_codes(from_id, to_id):
 						to_source=to_source[0], code_elements=code_elements,
 						from_fullpath=from_file.fullpath, to_fullpath=to_file.fullpath,
 						from_system=from_system, to_system=to_system)
-
-@app.route('/blame', methods=['GET'])
-def blame():
-	return render_template('sources_blame.html')
