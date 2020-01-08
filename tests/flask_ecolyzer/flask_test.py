@@ -38,20 +38,55 @@ def test_relationships(app, client, db_connection):
 		assert len(relations) == 53
 		assert len(paths) == 9
 
-def get_source_id(relations, name):
+def get_url_by_key(relations, name, key):
 	for rel in relations:
-		if rel['source'] == name:
-			return rel['id']	
+		if rel[key] == name:
+			return rel['url']
+
+def get_source_url(relations, name):
+	return get_url_by_key(relations, name, 'source')
+
+def get_from_url(relations, name):
+	return get_url_by_key(relations, name, 'from')					
 
 def test_source_relations(app, client, db_connection):
-	source_id = None
+	source_relations_url = None
 	with get_context_variables(app) as contexts:
 		res = client.get('/relationships')
 		contexts = next(contexts)
 		relations = contexts['relations']
-		source_id = get_source_id(relations, 'CellularSpace')
+		from_system_id = relations
+		source_relations_url = get_source_url(relations, 'CellularSpace')
 
 	with get_context_variables(app) as contexts:
-		res = client.get('/relationships/' + str(source_id))
+		res = client.get(source_relations_url)
 		contexts = next(contexts)
-		print(contexts)
+		from_systems = contexts['from_systems']
+		relations = contexts['relations']
+		source_name = contexts['source_file']
+		assert len(from_systems) == 1
+		assert 'CA' in from_systems.values()
+		assert len(relations) == 32
+		assert source_name == 'CellularSpace'
+
+def test_source_codes(app, client, db_connection):
+	source_relations_url = None
+	with get_context_variables(app) as contexts:
+		res = client.get('/relationships')
+		contexts = next(contexts)
+		relations = contexts['relations']
+		from_system_id = relations
+		source_relations_url = get_source_url(relations, 'CellularSpace')
+
+	source_codes_url = None
+	with get_context_variables(app) as contexts:
+		res = client.get(source_relations_url)
+		contexts = next(contexts)
+		relations = contexts['relations']
+		source_codes_url = get_from_url(relations, 'Influenza')		
+
+	with get_context_variables(app) as contexts:
+		res = client.get(source_codes_url)
+		contexts = next(contexts)
+		code_elements = contexts['code_elements']
+		assert len(code_elements) == 4
