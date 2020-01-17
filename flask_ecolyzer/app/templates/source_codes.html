@@ -102,7 +102,7 @@
 	function hasCodeTo(line, code_elements) {
 		for(var i = 0; i < code_elements.length; i++) {
 			if((line.search(code_elements[i] + " = function") >= 0)
-					|| (line.search("function " + code_elements[i]) >= 0))
+					|| (line.search("function " + code_elements[i] + "[(]") >= 0))
 				return code_elements[i];
 		}
 		return "";		
