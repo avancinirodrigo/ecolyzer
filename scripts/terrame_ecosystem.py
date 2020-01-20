@@ -10,7 +10,7 @@ db.create_all(True)
 session = db.create_session()
 
 repo1 = Repository('repo/terrame')
-sys1 = System('terrame', repo1)
+sys1 = System('TerraME', repo1)
 
 session.add(repo1)
 session.add(sys1)

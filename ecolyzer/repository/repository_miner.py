@@ -70,7 +70,7 @@ class RepositoryMiner:
 		repo = Repo(self.repo.path)
 		blobs = self._repo_file_blobs(repo)
 		for blob in blobs:
-			commit = self._last_commit_from_path(blob.path, repo, rev)		
+			commit = self._last_commit_from_path(blob.path, repo, rev)	
 			commit_info = self._get_commit_info_from_gitpython(commit)
 			author = self._check_author(session, commit_info.author_name, commit_info.author_email)
 			commit = self._check_commit(commit_info, author)
@@ -166,7 +166,7 @@ class RepositoryMiner:
 
 	def _get_blob_source_code(self, blob):
 		data = blob.data_stream.read()
-		return data.decode('utf-8')
+		return data.decode('utf-8', errors='ignore') #TODO: handle instead ignore
 
 	def _create_modification(self, source_file, source_code): #TODO: use in extract_current_files		
 		mod = ModificationInfo(mod.filename)

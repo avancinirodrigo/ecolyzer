@@ -73,9 +73,9 @@
 	// The coordinates are added to the root object above
 	d3.treemap()
 		.size([width, height])
-	    .paddingTop(28)
-	    .paddingRight(6)
-	    .paddingInner(1)      // Padding between each rectangle  
+    	.paddingTop(22)
+    	.paddingRight(6)
+    	.paddingInner(1)      // Padding between each rectangle 
 	    //.padding(1)
 	    //.paddingOuter(2)
 	    .round(true)  		
@@ -156,9 +156,9 @@
 		.enter()
 		.append("text")
 		  .attr("x", function(d){ return d.x0})
-		  .attr("y", function(d){ return d.y0+21})
+		  .attr("y", function(d){ return d.y0+17})
 		  .text(function(d){ return d.data.id })
-		  .attr("font-size", "14px")
+		  .attr("font-size", "17px")
 		  .attr("fill", "black");   
 
 	var blockWidth = 15;
@@ -185,7 +185,7 @@
 
   	legend.append("rect")
 		.attr("x", width - colorTicks.length*blockWidth - blockWidth + (blockWidth/4))
-		.attr("y", 3)
+		.attr("y", 0)
 		.attr("width", blockWidth)
 		.attr("height", blockHeight)
 		.style("fill", function(d, i) {
@@ -196,9 +196,9 @@
 
   	legend.append("text")
         .attr("x", (width - colorTicks.length*blockWidth - blockWidth + (blockWidth/2)))
-        .attr("y", (margin.bottom/3 + 3) + blockHeight + 12)
+        .attr("y", (margin.bottom/3 + 3) + blockHeight + 7)
         .text(function(d, i) {
-        	if((i == 0) || (i == minCount)
+        	if((i == 0) || (i == 1) || (i == 3)
         			|| (i == Math.trunc((colorTicks.length)/2))
         			|| (i == (colorTicks.length - 1)))
  				return colorTicks[i];
@@ -210,7 +210,7 @@
 
     svg.append("text")
         .attr("x", width - colorTicks.length*blockWidth - RELATIONS_LABEL.length*RELATIONS_LABEL_FONT_SIZE/2)
-        .attr("y", 20)
+        .attr("y", 15)
         .text(RELATIONS_LABEL)       
         .style("font-weight", "bolder")
         .attr("font-size", RELATIONS_LABEL_FONT_SIZE + "px");  
