@@ -1,3 +1,4 @@
+import pathlib
 from sqlalchemy import Column, String, Integer, ForeignKey
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.orm.collections import attribute_mapped_collection
@@ -51,4 +52,7 @@ class SourceFile(Base):
 
 	def system(self, system):
 		self.file.system = system
-		
+	
+	@property
+	def source_code(self): #TODO: source code is in Modification		
+		return open(str(pathlib.Path().absolute()) + '/' + self.file.fullpath).read()

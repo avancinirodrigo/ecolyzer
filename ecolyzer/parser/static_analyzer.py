@@ -51,3 +51,10 @@ class StaticAnalyzer:
 				result.append(call)
 
 		calls[:] = result
+
+	def number_of_calls(self, source_code, code_element):
+		parser = LuaParser()
+		parser.parser(source_code)
+		calls = parser.extract_calls() + parser.extract_global_calls()
+		return calls.count(code_element)
+			

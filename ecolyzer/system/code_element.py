@@ -27,3 +27,7 @@ class CodeElement(Base):
 
 	def author(self):
 		return self.modification.author()
+
+	@property
+	def source_code(self): #TODO: this is a hack, review
+		return self.modification.source_code

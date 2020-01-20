@@ -16,7 +16,8 @@ class Relationship(Base):
 	from_code_element_id = Column(Integer, ForeignKey('code_element.id'))
 	from_code_element = relationship('CodeElement', foreign_keys=[from_code_element_id])
 	from_author_id = Column(Integer, ForeignKey('author.id'))
-	from_author = relationship('Author', foreign_keys=[from_author_id]) 
+	from_author = relationship('Author', foreign_keys=[from_author_id])
+	from_code_element_count = Column(Integer) 
 
 	to_system_id = Column(Integer, ForeignKey('system.id'))
 	to_system = relationship('System', foreign_keys=[to_system_id])
@@ -33,6 +34,7 @@ class Relationship(Base):
 		self.from_system = from_info.system
 		self.from_source_file = from_info.source_file
 		self.from_code_element = from_info.code_element
+		self.from_code_element_count = from_info.code_element_count
 		self.from_author = from_info.author
 		self.to_system = to_info.system
 		self.to_source_file = to_info.source_file
@@ -46,3 +48,12 @@ class RelationInfo():
 		self.source_file = source_file
 		self.code_element = code_element
 		self.author = code_element.author()				
+
+class FromRelationInfo(RelationInfo):
+	"""FromRelationInfo"""
+	def __init__(self, system, source_file, code_element, code_element_count):
+		self.system = system
+		self.source_file = source_file
+		self.code_element = code_element
+		self.author = code_element.author()
+		self.code_element_count = code_element_count

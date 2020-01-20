@@ -1,3 +1,4 @@
+import os
 import pytest
 from ecolyzer.repository import Repository
 from ecolyzer.system import File, SourceFile, Operation, Call
@@ -125,3 +126,9 @@ def test_add_same_code_element():
 			in str(e.value))
 	session.close()
 	db.drop_all()	 	
+
+def test_source_code():
+	filepath = 'repo/terrame/packages/base/lua/Cell.lua'
+	file = File(filepath)
+	src_file = SourceFile(file)
+	assert src_file.source_code != None	

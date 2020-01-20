@@ -115,3 +115,12 @@ def test_lua_reverse_engineering():
 			assert operations[element.name]
 			assert element.name not in calls
 			
+def test_number_of_calls():
+	luafile = os.path.join(os.path.dirname(__file__), 'data', 'CellularSpace1.lua')		
+	file = File(luafile)
+	src_file = SourceFile(file)
+	src = open(luafile).read()
+	analyzer = StaticAnalyzer()
+	assert analyzer.number_of_calls(src, 'forEachCell') == 16
+	assert analyzer.number_of_calls(src, 'addNeighborhood') == 8
+	assert analyzer.number_of_calls(src, 'Cell') == 2

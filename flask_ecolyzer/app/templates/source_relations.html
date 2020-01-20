@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <title>{{ source_file }}</title>
-        <script type="text/javascript" src="{{ url_for('static', filename='js/3rdparty/d3.v4.min.js') }}"></script>
+        <script type="text/javascript" src="https://d3js.org/d3.v5.min.js"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='js/utils.js') }}"></script>
         <style type="text/css">
             .tooltip {
@@ -67,29 +67,52 @@
                 .id(function(d) { return d.id; })   // Name of the entity (column name is name in csv)
                 .parentId(function(d) { return d.system; })   // Name of the parent (column name is parent in csv)
                 (relations);
+
+    var minNloc = d3.min(relations, function(d) {
+        return d.nloc;
+    });
+
+    var maxNloc = d3.max(relations, function(d) {
+        return d.nloc;
+    });               
+
+    console.log("max: " + maxNloc + ", min: " + minNloc); 
     
-    const NLOC_MIN_OFFSET = 10
-    const NLOC_MAX_OFFSET = 1000
+    const NLOC_MIN_OFFSET = 3;
+    const NLOC_MAX_OFFSET = 300;
     root.sum(function(d) { 
-        if(d.nloc < NLOC_MIN_OFFSET)
-            return NLOC_MIN_OFFSET;
-        else if(d.nloc > NLOC_MAX_OFFSET)
-            return NLOC_MAX_OFFSET;
+        if(d.ncalls <= 3)
+             return 3; //Math.round(Math.sqrt(minNloc));
+        // if(d.nloc > maxNloc/2)
+        //     return NLOC_MAX_OFFSET;
         else
-            return d.nloc; //Math.round(Math.log2(d.nloc)); //TODO
+            return d.ncalls; //Math.round(Math.log2(d.nloc)); //TODO
     });   // Compute the numeric value for each entity
 
+    //root.sort(function(a, b) {d3.descending(a.nloc, b.nloc)});
     // Then d3.treemap computes the position of each element of the hierarchy
     // The coordinates are added to the root object above
     d3.treemap()
     .size([width, height])
-    .paddingTop(28)
-    .paddingRight(6)
-    .paddingInner(1)      // Padding between each rectangle   
-    .round(true)       
-    (root)
+    .paddingTop(20)
+    .paddingRight(4)
+    .paddingInner(1)      // Padding between each rectangle 
+    //.paddingOuter(5)
+    //.padding(1) 
+    .round(true)
+    .tile(d3.treemapSquarify.ratio(1))       
+    (root.sort(function(a, b) {return b.value - a.value;}))
 
-    console.log(root.leaves())
+
+
+    //.sort((a, b) => b.data.nloc - a.data.nloc)
+    //.sort(function(a,b) {
+    //    return b.value - a.value;
+    //})
+
+    console.log("-------------------------------");
+    console.log(root);
+    console.log(root.leaves());
 
     var minCount = d3.min(root.leaves(), function(d) {
         return d.data.count;
@@ -121,7 +144,7 @@
 
     // use this information to add rectangles:
     svg.selectAll("rect")
-    .data(root.leaves())
+    .data(root.leaves())    
     .enter()
     .append("a")
         .attr("xlink:href", function(d) {
@@ -143,6 +166,7 @@
             tip.style("display", "inline-block");
             tip.html("<strong>" + d.data.fullpath + "</strong>"
                         + "<br>calls: " + d.data.count
+                        + "<br>total calls: " + d.data.ncalls
                         + "<br>nloc: " + d.data.nloc);
         })
         .on("mouseout", function (d) {
@@ -166,7 +190,7 @@
         .enter()
         .append("text")
           .attr("x", function(d){ return d.x0})
-          .attr("y", function(d){ return d.y0+21})
+          .attr("y", function(d){ return d.y0+17})
           .text(function(d){ return d.data.id })
           .attr("font-size", "19px")
           .attr("fill", "black");
@@ -206,7 +230,7 @@
 
     legend.append("rect")
         .attr("x", width - colorTicks.length*blockWidth - blockWidth + (blockWidth/4))
-        .attr("y", 3)
+        .attr("y", 0)
         .attr("width", blockWidth)
         .attr("height", blockHeight)
         .style("fill", function(d, i) {
@@ -217,7 +241,7 @@
 
     legend.append("text")
         .attr("x", (width - colorTicks.length*blockWidth - blockWidth + (blockWidth/4) + (blockWidth/2)))
-        .attr("y", (margin.bottom/3 + 3) + blockHeight + 12)
+        .attr("y", (margin.bottom/3 + 3) + blockHeight + 7)
         .text(function(d, i) {
             return colorTicks[i];
         })
@@ -228,7 +252,7 @@
 
     svg.append("text")
         .attr("x", width - colorTicks.length*blockWidth - RELATIONS_LABEL.length*RELATIONS_LABEL_FONT_SIZE/2)
-        .attr("y", 20)
+        .attr("y", 15)
         .text(RELATIONS_LABEL)       
         .style("font-weight", "bolder")
         .attr("font-size", RELATIONS_LABEL_FONT_SIZE + "px");                 
