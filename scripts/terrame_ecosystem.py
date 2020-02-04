@@ -1,3 +1,4 @@
+import os
 from ecolyzer.ecosystem import EcosystemAnalyzer
 from ecolyzer.system import System
 from ecolyzer.repository import Repository, Person, Author, RepositoryMiner, GitPython
