@@ -4,7 +4,8 @@ from ecolyzer.repository import Repository, Person, Author, RepositoryMiner, Git
 from ecolyzer.dataaccess import SQLAlchemyORM
 from ecolyzer.ecosystem import Ecosystem
 
-db_url = 'postgresql://postgres:postgres@localhost:5432/terrame_ecosystem'
+db_url = os.environ.get('DATABASE_URL') or \
+	'postgresql://postgres:postgres@localhost:5432/terrame_ecosystem'
 db = SQLAlchemyORM(db_url)
 db.create_all(True)
 session = db.create_session()
