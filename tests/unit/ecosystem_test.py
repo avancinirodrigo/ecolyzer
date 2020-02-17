@@ -1,6 +1,6 @@
 from ecolyzer.system import System, File, SourceFile, Operation, Call
 from ecolyzer.repository import Repository, Person, Author, GitPython
-from ecolyzer.ecosystem import Ecosystem, RelationInfo, Relationship
+from ecolyzer.ecosystem import Ecosystem, RelationInfo, FromRelationInfo, Relationship
 
 def test_add_same_relation(mocker):
 	mocker.patch.object(GitPython, 'IsGitRepo', return_value=True)
@@ -40,7 +40,7 @@ def test_add_same_relation(mocker):
 	mocker.patch.object(c2, 'author', return_value=ca_author, autospec=True)	
 
 	to_info = RelationInfo(sys1, src1, op1)
-	from_info = RelationInfo(sys2, src3, c1)
+	from_info = FromRelationInfo(sys2, src3, c1, 10)
 
 	rel1 = Relationship(from_info, to_info)
 	rel2 = Relationship(from_info, to_info)

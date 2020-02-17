@@ -1,7 +1,7 @@
 from ecolyzer.repository import Repository, Author, Person
 from ecolyzer.system import System, File, SourceFile, Operation, Call
 from ecolyzer.dataaccess import SQLAlchemyORM
-from ecolyzer.ecosystem import Relationship, RelationInfo
+from ecolyzer.ecosystem import Relationship, RelationInfo, FromRelationInfo
 
 def test_crud(mocker):
 	db_url = 'postgresql://postgres:postgres@localhost:5432/relation_crud'
@@ -42,7 +42,7 @@ def test_crud(mocker):
 	mocker.patch.object(f21, 'author', return_value=ca_author, autospec=True)	
 
 	to_info = RelationInfo(sys1, src1, c11)
-	from_info = RelationInfo(sys2, src2, f21)
+	from_info = FromRelationInfo(sys2, src2, f21, 10)
 
 	rel = Relationship(from_info, to_info)
 	session.add(rel)
@@ -61,6 +61,7 @@ def test_crud(mocker):
 	assert reldb.to_code_element.name == 'call'
 	assert reldb.from_author.name == 'CA Dev'
 	assert reldb.to_author.name == 'TerraMe Dev'
+	assert reldb.from_code_element_count == 10
 
 	session.close()
 	db.drop_all()	
