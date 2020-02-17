@@ -29,6 +29,26 @@
     </body>
 </html> 
 <script type="text/javascript">	
+	function mapperPaths(paths) {
+		var mapperList = [];
+		for(var k in paths) { 
+			mapperList.push(k);
+		}
+
+		for(var k in paths) { 
+			var shortestPath = k
+			for(var i = 0; i < mapperList.length; i++)
+			{
+				if(k.includes(mapperList[i])) {
+					if(shortestPath.length > mapperList[i].length) {
+						shortestPath = mapperList[i]
+					}
+				}
+			}
+			paths[k] = shortestPath	
+		}
+	}
+
 	var relations = {{ relations|safe }}
 	console.log(relations)
 	
@@ -46,6 +66,9 @@
 	  			.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 	var paths = {{ paths|safe }}
+	mapperPaths(paths)
+	console.log(paths)
+
 	var maxPathStrLength = 0
     for(var k in paths) { 
         var info = {
