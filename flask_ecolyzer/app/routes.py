@@ -11,6 +11,7 @@ def authors():
 	authors = db.session.query(Author).all()
 	return render_template('authors.html', authors=authors)
 
+@app.route('/', methods=['GET'])
 @app.route('/relationships', methods=['GET'])
 def relationships():
 	relations = db.session.query(Relationship).all()
@@ -33,7 +34,7 @@ def relationships():
 				'source': rel.to_source_file.name(),
 				'fullpath': rel.to_source_file.fullpath(),
 				'path': rel.to_source_file.path(),
-				'url': 'relationships/' + str(source_id),
+				'url': url_for('.source_relations', id=source_id),
 				'system': rel.to_system.name,
 				'operations': operations,
 				'count': 1

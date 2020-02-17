@@ -3,3 +3,5 @@ flask_sqlalchemy
 python-dotenv
 pytest-flask
 blinker
+pg8000
+gunicorn

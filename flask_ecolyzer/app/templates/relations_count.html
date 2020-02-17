@@ -107,7 +107,7 @@
 		.append("a")
 			.attr("xlink:href", function(d) {
 				if(d.data.url)
-					return "http://127.0.0.1:5000/" + d.data.url; 
+					return d.data.url; 
 			})
 		.append("rect")
 			.attr('x', function (d) { return d.x0; })
