@@ -81,13 +81,15 @@
     const NLOC_MIN_OFFSET = 3;
     const NLOC_MAX_OFFSET = 300;
     root.sum(function(d) { 
-        if(d.ncalls <= 3)
-             return 3; //Math.round(Math.sqrt(minNloc));
-        // if(d.nloc > maxNloc/2)
-        //     return NLOC_MAX_OFFSET;
-        else
-            return d.ncalls; //Math.round(Math.log2(d.nloc)); //TODO
-    });   // Compute the numeric value for each entity
+        // if(d.ncalls <= 3)
+        //      return 3; //Math.round(Math.sqrt(minNloc));
+        // // if(d.nloc > maxNloc/2)
+        // //     return NLOC_MAX_OFFSET;
+        // else
+        //     return d.ncalls; //Math.round(Math.log2(d.nloc)); //TODO
+        return d.count;
+    })
+        .sort(function(a, b) {return b.value - a.value;});   // Compute the numeric value for each entity
 
     //root.sort(function(a, b) {d3.descending(a.nloc, b.nloc)});
     // Then d3.treemap computes the position of each element of the hierarchy
@@ -101,7 +103,7 @@
     //.padding(1) 
     .round(true)
     .tile(d3.treemapSquarify.ratio(1))       
-    (root.sort(function(a, b) {return b.value - a.value;}))
+    (root.sort(function(a, b) {return b.data.ncalls - a.data.ncalls;}))
 
 
 
@@ -122,6 +124,14 @@
         return d.data.count;
     });
 
+    var minCalls = d3.min(root.leaves(), function(d) {
+        return d.data.ncalls;
+    });
+
+    var maxCalls = d3.max(root.leaves(), function(d) {
+        return d.data.ncalls;
+    });    
+
     var numOfUniqueValues = d3.map(root.leaves(), function(d) {return d.data.count;}).keys().length 
     console.log("num of uniques: " + numOfUniqueValues)
 
@@ -129,12 +139,12 @@
 
     if(numOfUniqueValues <= 2) {
         heatmap = d3.scaleLinear()
-            .domain([minCount, maxCount])
+            .domain([minCalls, maxCalls])
             .range(["blue", "red"])
     }
     else {
         heatmap = d3.scaleLinear()
-            .domain([minCount, Math.trunc((minCount + maxCount)/2), maxCount])
+            .domain([minCalls, Math.trunc((minCalls + maxCalls)/2), maxCalls])
             .range(["blue", "green", "red"])    
     }
 
@@ -156,7 +166,7 @@
         .attr('height', function (d) { return d.y1 - d.y0; })
         // .style("stroke", "black")
         .style("fill", function(d) {
-            return heatmap(d.data.count);
+            return heatmap(d.data.ncalls);
         })
         // .append("title")
         // .text(function(d) { return d.data.fullpath; });

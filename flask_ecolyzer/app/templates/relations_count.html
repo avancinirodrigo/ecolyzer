@@ -4,7 +4,7 @@
     <head>
         <meta charset="utf-8">
         <title>{{ system }} Ecosystem</title>
-        <script type="text/javascript" src="{{ url_for('static', filename='js/3rdparty/d3.v4.min.js') }}"></script>
+       	<script type="text/javascript" src="https://d3js.org/d3.v5.min.js"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='js/utils.js') }}"></script>
         <style type="text/css">
 		    .tooltip {
@@ -67,7 +67,6 @@
 	}
 
 	var relations = {{ relations|safe }}
-	console.log(relations)
 	
 	// set the dimensions and margins of the graph
 	var margin = {top: 10, right: 10, bottom: 10, left: 10},
@@ -84,7 +83,6 @@
 
 	var paths = {{ paths|safe }}
 	mapperPaths(paths);
-	console.log(paths);
 	addParents(relations, paths);
 	var parents = removeSubdirs(paths);
 
@@ -99,8 +97,6 @@
         	maxPathStrLength = k.length; 
     }	  			
 
-   	console.log(relations);
-
 	relations.unshift({"id":"{{ system }}"}); 
 
 	// stratify the data: reformatting for d3.js
@@ -109,23 +105,25 @@
 			    .parentId(function(d) { return d.parent; })
 			    (relations);
 
-	console.log(maxPathStrLength)
+	root.sort(function(a, b) {return b.count - a.count;})
 
 	root.sum(function(d) { return d.operations + maxPathStrLength; })   // Compute the numeric value for each entity
-
+		.sort(function(a, b) {return b.value - a.value;})
 	// Then d3.treemap computes the position of each element of the hierarchy
 	// The coordinates are added to the root object above
-	d3.treemap()
+	var treemap = d3.treemap()
 		.size([width, height])
     	.paddingTop(22)
     	.paddingRight(6)
     	.paddingInner(1)      // Padding between each rectangle 
 	    //.padding(1)
 	    //.paddingOuter(2)
-	    .round(true)  		
-		(root)
+	    .round(true)  
+	    //.sort(function(a, b) {return b.value - a.value;})		
+	    //.value(function(d) {return d.operations;})
+		(root.sort(function(a, b) {return b.data.count - a.data.count;}))
 
-	console.log(root.leaves())
+	//treemap.nodes().sort(function(a, b) {return b.value - a.value;});
 
 	var minCount = d3.min(root.leaves(), function(d) {
 		if(d.data.count != 0)
@@ -144,9 +142,12 @@
 		.append("div")
         .attr("class", "tooltip");
 
+    // console.log(root.leaves());
+    // var leaves = root.leaves().sort(function(a, b) {return b.data.count - a.data.count;});
+    // console.log(leaves);
 	// use this information to add rectangles:
 	svg.selectAll("rect")
-		.data(root.leaves())
+		.data(root.leaves()) //.sort(function(a, b) {return b.data.count - a.data.count;}))
 		.enter()
 		.append("a")
 			.attr("xlink:href", function(d) {
@@ -170,7 +171,7 @@
                 tip.style("display", "inline-block");
                 tip.html("<center><b>" + d.data.source + "</b></center>"
                 			+ d.data.fullpath
-                			+ "<br>operations: " + d.value 
+                			+ "<br>operations: " + d.data.operations 
                 			+ "<br>relations: " + d.data.count);
             })
             .on("mouseout", function (d) {
@@ -209,13 +210,10 @@
 	var blockWidth = 15;
 	var blockHeight = 20;	
 	var colorTicks = heatmap.ticks(); //(6);
-	console.log(colorTicks);
 
 	colorTicks.splice(0, 2);	
 	colorTicks = [0, minCount].concat(colorTicks);
 	colorTicks.push(maxCount);
-
-	console.log(colorTicks);
 
 	var legend = svg.selectAll(".legend")
 		.data(colorTicks)
