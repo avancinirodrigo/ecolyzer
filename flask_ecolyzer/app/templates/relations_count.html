@@ -49,6 +49,23 @@
 		}
 	}
 
+	function addParents(relations, paths) {
+	   	for(var i = 0; i < relations.length; i++) {
+	   		relations[i]["parent"] = paths[relations[i]["path"]];
+	   	}
+	}
+
+	function removeSubdirs(paths) {
+	   	parents = [];
+
+	  	for(k in paths) {
+	 		if(k === paths[k])
+	 			parents[k] = 0; 		
+	  	}
+
+	  	return parents;
+	}
+
 	var relations = {{ relations|safe }}
 	console.log(relations)
 	
@@ -66,26 +83,30 @@
 	  			.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 	var paths = {{ paths|safe }}
-	mapperPaths(paths)
-	console.log(paths)
+	mapperPaths(paths);
+	console.log(paths);
+	addParents(relations, paths);
+	var parents = removeSubdirs(paths);
 
 	var maxPathStrLength = 0
-    for(var k in paths) { 
+    for(var k in parents) { 
         var info = {
             "id": k,
-            "path": "{{ system }}"
+            "parent": "{{ system }}"
         };
         relations.unshift(info) 
         if(maxPathStrLength < k.length)
         	maxPathStrLength = k.length; 
     }	  			
 
-	relations.unshift({"id":"{{ system }}"}) 
+   	console.log(relations);
+
+	relations.unshift({"id":"{{ system }}"}); 
 
 	// stratify the data: reformatting for d3.js
   	var root = d3.stratify()
 				.id(function(d) { return d.id; })
-			    .parentId(function(d) { return d.path; })
+			    .parentId(function(d) { return d.parent; })
 			    (relations);
 
 	console.log(maxPathStrLength)
@@ -148,7 +169,8 @@
                 tip.style("top", d3.event.pageY - 20 + "px");
                 tip.style("display", "inline-block");
                 tip.html("<center><b>" + d.data.source + "</b></center>"
-                			+ "operations: " + d.value 
+                			+ d.data.fullpath
+                			+ "<br>operations: " + d.value 
                 			+ "<br>relations: " + d.data.count);
             })
             .on("mouseout", function (d) {

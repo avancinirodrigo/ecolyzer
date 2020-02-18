@@ -1,1 +1,1 @@
-FLASK_APP=flask_ecolyzer.py
+FLASK_APP=main.py

@@ -22,7 +22,6 @@ miner.add_ignore_dir_with('test')
 miner.add_ignore_dir_with('example')	
 miner.add_ignore_dir_with('data')	
 miner.add_ignore_dir_with('images')	
-miner.add_ignore_dir_with('luadoc')	
 miner.add_ignore_dir_with('zerobrane')	
 miner.extract_last_commits(session, '2.0-RC-8')
 
