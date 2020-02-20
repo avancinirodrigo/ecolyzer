@@ -222,8 +222,8 @@
     // colorTicks.splice(0, 2);    
     // colorTicks = [minCount].concat(colorTicks);
     // colorTicks.push(maxCount);
-    colorTicks[0] = minCount;
-    colorTicks[colorTicks.length-1] = maxCount
+    colorTicks[0] = minCalls;
+    colorTicks[colorTicks.length-1] = maxCalls
 
     console.log(colorTicks);
 
@@ -253,7 +253,9 @@
         .attr("x", (width - colorTicks.length*blockWidth - blockWidth + (blockWidth/4) + (blockWidth/2)))
         .attr("y", (margin.bottom/3 + 3) + blockHeight + 7)
         .text(function(d, i) {
-            return colorTicks[i];
+            if((i == 0) || (i == Math.trunc((colorTicks.length)/2))
+                    || (i == (colorTicks.length - 1)))
+                return colorTicks[i];
         })
         .style("text-anchor", "middle");
 

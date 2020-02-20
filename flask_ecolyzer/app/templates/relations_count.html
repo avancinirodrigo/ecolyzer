@@ -51,7 +51,7 @@
 
 	function addParents(relations, paths) {
 	   	for(var i = 0; i < relations.length; i++) {
-	   		relations[i]["parent"] = paths[relations[i]["path"]];
+	   		relations[i]["parentDir"] = paths[relations[i]["path"]];
 	   	}
 	}
 
@@ -60,7 +60,7 @@
 
 	  	for(k in paths) {
 	 		if(k === paths[k])
-	 			parents[k] = 0; 		
+	 			parents[k] = k.length; 		
 	  	}
 
 	  	return parents;
@@ -86,29 +86,45 @@
 	addParents(relations, paths);
 	var parents = removeSubdirs(paths);
 
-	var maxPathStrLength = 0
     for(var k in parents) { 
         var info = {
             "id": k,
-            "parent": "{{ system }}"
+            "parentDir": "{{ system }}"
         };
-        relations.unshift(info) 
-        if(maxPathStrLength < k.length)
-        	maxPathStrLength = k.length; 
-    }	  			
+        relations.unshift(info);
+    }	  		
 
 	relations.unshift({"id":"{{ system }}"}); 
 
 	// stratify the data: reformatting for d3.js
   	var root = d3.stratify()
 				.id(function(d) { return d.id; })
-			    .parentId(function(d) { return d.parent; })
+			    .parentId(function(d) { return d.parentDir; })
 			    (relations);
 
 	root.sort(function(a, b) {return b.count - a.count;})
 
-	root.sum(function(d) { return d.operations + maxPathStrLength; })   // Compute the numeric value for each entity
+	root.sum(function(d) {
+		return d.operations;
+	})   // Compute the numeric value for each entity
 		.sort(function(a, b) {return b.value - a.value;})
+	
+	var increment = 0;
+	root.children.forEach(function(d) {
+		if(d.value < d.id.length)
+		{
+			var value = d.id.length / d.children.length;
+			if(value > increment)
+				increment = value;
+		}
+	});
+
+	if(increment != 0) {
+		root.sum(function(d) { 
+			return d.operations + increment;
+		})	
+	}
+
 	// Then d3.treemap computes the position of each element of the hierarchy
 	// The coordinates are added to the root object above
 	var treemap = d3.treemap()
@@ -119,8 +135,6 @@
 	    //.padding(1)
 	    //.paddingOuter(2)
 	    .round(true)  
-	    //.sort(function(a, b) {return b.value - a.value;})		
-	    //.value(function(d) {return d.operations;})
 		(root.sort(function(a, b) {return b.data.count - a.data.count;}))
 
 	//treemap.nodes().sort(function(a, b) {return b.value - a.value;});
