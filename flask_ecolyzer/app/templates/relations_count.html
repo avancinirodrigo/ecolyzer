@@ -49,9 +49,23 @@
 		}
 	}
 
+	var numOfOperations = 0;
+	var numOfLoc = 0;
+	var infoByPath = [];
+
 	function addParents(relations, paths) {
 	   	for(var i = 0; i < relations.length; i++) {
-	   		relations[i]["parentDir"] = paths[relations[i]["path"]];
+	   		numOfOperations += relations[i]["operations"];
+	   		numOfLoc += relations[i]["nloc"];
+	   		var parentDir = paths[relations[i]["path"]];
+	   		relations[i]["parentDir"] = parentDir;
+	   		if(!infoByPath[parentDir]) {
+	   			infoByPath[parentDir] = [];
+	   			infoByPath[parentDir]["operations"] = 0;
+	   			infoByPath[parentDir]["nloc"] = 0;
+	   		}
+	   		infoByPath[parentDir]["operations"]  += relations[i]["operations"];
+	   		infoByPath[parentDir]["nloc"]  += relations[i]["nloc"];
 	   	}
 	}
 
@@ -67,7 +81,7 @@
 	}
 
 	var relations = {{ relations|safe }}
-	
+	var numOfSourceFiles = relations.length;
 	// set the dimensions and margins of the graph
 	var margin = {top: 10, right: 10, bottom: 10, left: 10},
  	width = getWidth() - margin.left - margin.right - 20;
@@ -180,28 +194,36 @@
 			//.append("title")
 			//.text(function(d) { return d.data.fullpath; });
             .on("mousemove", function (d) {
-                tip.style("left", d3.event.pageX + 10 + "px");
+            	if(d3.event.pageX > 7*width/8)
+            		tip.style("left", (d3.event.pageX - 6*d.data.fullpath.length) + "px");
+            	else
+                	tip.style("left", d3.event.pageX + 10 + "px");
                 tip.style("top", d3.event.pageY - 20 + "px");
                 tip.style("display", "inline-block");
                 tip.html("<center><b>" + d.data.source + "</b></center>"
                 			+ d.data.fullpath
                 			+ "<br>operations: " + d.data.operations 
-                			+ "<br>relations: " + d.data.count);
+                			+ "<br>relations: " + d.data.count
+                			+ "<br>nloc: " + d.data.nloc);
             })
             .on("mouseout", function (d) {
                 tip.style("display", "none");
             });		
 
 	// and to add the text labels
-	// svg.selectAll("text")
-	// 	.data(root.leaves())
-	// 	.enter()
-	// 	.append("text")
-	// 		.attr("x", function(d){ return d.x0+10})    // +10 to adjust position (more right)
-	// 		.attr("y", function(d){ return d.y0+12})    // +20 to adjust position (lower)
-	// 		.text(function(d){ return d.data.source + ": " + d.data.count})
-	// 		.attr("font-size", "15px")
-	// 		.attr("fill", "white")
+	svg.selectAll("text")
+		.data(root.leaves())
+		.enter()
+		.append("text")
+			.attr("x", function(d){ return d.x0+4})    // +10 to adjust position (more right)
+			.attr("y", function(d){ return d.y0+15})    // +20 to adjust position (lower)
+			.text(function(d) { 
+				var width = d.x1 - d.x0;
+				if(width > 8*d.data.source.length)
+					return d.data.source; 
+			})
+			.attr("font-size", "15px")
+			.attr("fill", "white")
 
 	svg.append("text")
 		  .attr("x", 0)
@@ -210,6 +232,18 @@
 		  .attr("font-size", "24px")
 		  .attr("fill", "black")
 		  .style("font-weight", "bold") 
+		  .on("mousemove", function (d) {
+                tip.style("left", d3.event.pageX + 10 + "px");
+                tip.style("top", d3.event.pageY - 20 + "px");
+                tip.style("display", "inline-block");
+                tip.html("<center><b>{{system}}</b></center>"
+                			+ "total of source files: " + numOfSourceFiles
+                			+ "<br>total of operations: " + numOfOperations
+                			+ "<br>total of loc: " + numOfLoc);
+            })
+            .on("mouseout", function (d) {
+                tip.style("display", "none");
+            });
 
 	svg.selectAll("titles")
 		.data(root.descendants().filter(function(d){return d.depth==1}))
@@ -219,7 +253,22 @@
 		  .attr("y", function(d){ return d.y0+17})
 		  .text(function(d){ return d.data.id })
 		  .attr("font-size", "17px")
-		  .attr("fill", "black");   
+		  .attr("fill", "black")
+		  .on("mousemove", function (d) {
+		  		if(d3.event.pageX > 7*width/8)
+            		tip.style("left", (d3.event.pageX - 6*21) + "px");
+            	else
+               		tip.style("left", d3.event.pageX + 10 + "px");
+                tip.style("top", d3.event.pageY - 20 + "px");
+                tip.style("display", "inline-block");
+                tip.html("<center><b>" + d.data.id + "</b></center>"
+                			+ "total of source files: " + d.children.length
+                			+ "<br>total of operations: " + infoByPath[d.data.id]["operations"]
+                			+ "<br>total of loc: " + infoByPath[d.data.id]["nloc"]);
+            })
+            .on("mouseout", function (d) {
+                tip.style("display", "none");
+            });		  
 
 	var blockWidth = 15;
 	var blockHeight = 20;	

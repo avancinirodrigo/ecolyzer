@@ -30,10 +30,25 @@
 
 <script type="text/javascript">
 	var relations = {{ relations|safe }};
-	var source_file = "{{ source_file }}"
+    var numOfSourceFiles = relations.length;
+    
+    var numOfLoc = 0;
+    var infoBySystem = [];
+    for(var i = 0; i < relations.length; i++) {
+        numOfLoc += relations[i]["nloc"];
+        var system = relations[i]["system"]
+        if(!infoBySystem[system]) {
+            infoBySystem[system] = [];
+            infoBySystem[system]["ncalls"] = 0;
+            infoBySystem[system]["nloc"] = 0;
+
+        }
+        infoBySystem[system]["ncalls"] += relations[i]["ncalls"];
+        infoBySystem[system]["nloc"] += relations[i]["nloc"];
+    }
+
     var from_systems = {{ from_systems|safe }}
-    console.log(relations)
-	console.log(from_systems)
+    var numOfSystems = Object.keys(from_systems).length;
 
     // set the dimensions and margins of the graph
     var margin = {top: 10, right: 10, bottom: 10, left: 10},
@@ -75,8 +90,6 @@
     var maxNloc = d3.max(relations, function(d) {
         return d.nloc;
     });               
-
-    console.log("max: " + maxNloc + ", min: " + minNloc); 
     
     const NLOC_MIN_OFFSET = 3;
     const NLOC_MAX_OFFSET = 300;
@@ -91,7 +104,6 @@
     })
         .sort(function(a, b) {return b.value - a.value;});   // Compute the numeric value for each entity
 
-    //root.sort(function(a, b) {d3.descending(a.nloc, b.nloc)});
     // Then d3.treemap computes the position of each element of the hierarchy
     // The coordinates are added to the root object above
     d3.treemap()
@@ -105,25 +117,6 @@
     .tile(d3.treemapSquarify.ratio(1))       
     (root.sort(function(a, b) {return b.data.ncalls - a.data.ncalls;}))
 
-
-
-    //.sort((a, b) => b.data.nloc - a.data.nloc)
-    //.sort(function(a,b) {
-    //    return b.value - a.value;
-    //})
-
-    console.log("-------------------------------");
-    console.log(root);
-    console.log(root.leaves());
-
-    var minCount = d3.min(root.leaves(), function(d) {
-        return d.data.count;
-    });
-
-    var maxCount = d3.max(root.leaves(), function(d) {
-        return d.data.count;
-    });
-
     var minCalls = d3.min(root.leaves(), function(d) {
         return d.data.ncalls;
     });
@@ -132,8 +125,9 @@
         return d.data.ncalls;
     });    
 
-    var numOfUniqueValues = d3.map(root.leaves(), function(d) {return d.data.count;}).keys().length 
-    console.log("num of uniques: " + numOfUniqueValues)
+    var numOfUniqueValues = d3.map(root.leaves(), function(d) {
+        return d.data.count;
+    }).keys().length 
 
     var heatmap;
 
@@ -171,11 +165,14 @@
         // .append("title")
         // .text(function(d) { return d.data.fullpath; });
         .on("mousemove", function (d) {
-            tip.style("left", d3.event.pageX + 10 + "px");
+            if(d3.event.pageX > 7*width/8)
+                tip.style("left", (d3.event.pageX - 10 - 6.5*d.data.fullpath.length) + "px");
+            else
+                tip.style("left", d3.event.pageX + 10 + "px");
             tip.style("top", d3.event.pageY - 20 + "px");
             tip.style("display", "inline-block");
             tip.html("<strong>" + d.data.fullpath + "</strong>"
-                        + "<br>calls: " + d.data.count
+                        + "<br>used operations: " + d.data.count
                         + "<br>total calls: " + d.data.ncalls
                         + "<br>nloc: " + d.data.nloc);
         })
@@ -184,48 +181,74 @@
         });             
 
     // and to add the text labels
-    // svg.selectAll("text")
-    // .data(root.leaves())
-    // .enter()
-    // .append("text")
-    //     .attr("x", function(d){ return d.x0+10})    // +10 to adjust position (more right)
-    //     .attr("y", function(d){ return d.y0+14})    // +20 to adjust position (lower)
-    //     .text(function(d){ return d.data.from + ": " + d.value})
-    //     .attr("font-size", "15px")
-    //     .attr("fill", "black")    
+    svg.selectAll("text")
+    .data(root.leaves())
+    .enter()
+    .append("text")
+        .attr("x", function(d){ return d.x0+4})    // +10 to adjust position (more right)
+        .attr("y", function(d){ return d.y0+15})    // +20 to adjust position (lower)
+        .text(function(d) { 
+            var width = d.x1 - d.x0;
+            if(width > 8*d.data.from.length)
+                return d.data.from; 
+        })
+        .attr("font-size", "15px")
+        .attr("fill", "white")    
 
      // Add title for groups
       svg.selectAll("titles")
         .data(root.descendants().filter(function(d){return d.depth==1}))
         .enter()
         .append("text")
-          .attr("x", function(d){ return d.x0})
-          .attr("y", function(d){ return d.y0+17})
-          .text(function(d){ return d.data.id })
-          .attr("font-size", "19px")
-          .attr("fill", "black");
+            .attr("x", function(d){ return d.x0})
+            .attr("y", function(d){ return d.y0+17})
+            .text(function(d){ return d.data.id })
+            .attr("font-size", "19px")
+            .attr("fill", "black")
+            .on("mousemove", function (d) {
+                if(d3.event.pageX > 7*width/8)
+                    tip.style("left", (d3.event.pageX - 6*23) + "px");
+                else
+                    tip.style("left", d3.event.pageX + 10 + "px");
+                tip.style("top", d3.event.pageY - 20 + "px");
+                tip.style("display", "inline-block");
+                tip.html("<center><b>" + d.data.id + "</b></center>"
+                            + "total of source files: " + d.children.length
+                            + "<br>total of relations: " + infoBySystem[d.data.id]["ncalls"]
+                            + "<br>total of loc: " + infoBySystem[d.data.id]["nloc"]);
+            })
+            .on("mouseout", function (d) {
+                tip.style("display", "none");
+            });                 
 
       // Add title for the 3 groups
       svg.append("text")
-          .attr("x", 0)
-          .attr("y", 14)    // +20 to adjust position (lower)
-          .text("{{ source_file }}")
-          .attr("font-size", "20px")
-          .attr("fill", "black")
-          .style("font-weight", "bold")     
+            .attr("x", 0)
+            .attr("y", 14)    // +20 to adjust position (lower)
+            .text("{{ source_file }}")
+            .attr("font-size", "20px")
+            .attr("fill", "black")
+            .style("font-weight", "bold")   
+            .on("mousemove", function (d) {
+                tip.style("left", d3.event.pageX + 10 + "px");
+                tip.style("top", d3.event.pageY - 20 + "px");
+                tip.style("display", "inline-block");
+                tip.html("<center><b>{{source_file}}</b></center>"
+                            + "total of systems: " + numOfSystems
+                            + "<br>total of source files: " + numOfSourceFiles
+                            + "<br>total of relations: " + root.value
+                            + "<br>total of loc: " + numOfLoc);
+            })
+            .on("mouseout", function (d) {
+                tip.style("display", "none");
+            });            
 
     var blockWidth = 15;
     var blockHeight = 20;   
-    var colorTicks = heatmap.ticks().filter(tick => Number.isInteger(tick)); //(6);
-    console.log(colorTicks);
+    var colorTicks = heatmap.ticks().filter(tick => Number.isInteger(tick));
 
-    // colorTicks.splice(0, 2);    
-    // colorTicks = [minCount].concat(colorTicks);
-    // colorTicks.push(maxCount);
     colorTicks[0] = minCalls;
     colorTicks[colorTicks.length-1] = maxCalls
-
-    console.log(colorTicks);
 
     var legend = svg.selectAll(".legend")
         .data(colorTicks)

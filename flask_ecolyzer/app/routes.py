@@ -28,7 +28,9 @@ def relationships():
 		else:
 			source_pos[source_id] = len(relations_count)
 			operations = db.session.query(Operation).\
-						filter_by(source_file_id=source_id).count()						
+						filter_by(source_file_id=source_id).count()		
+			file_mod = db.session.query(Modification).\
+						filter_by(file_id = rel.to_source_file.file_id).one()					
 			info = {
 				'id': source_id,
 				'source': rel.to_source_file.name(),
@@ -37,6 +39,7 @@ def relationships():
 				'url': url_for('.source_relations', id=source_id),
 				'system': rel.to_system.name,
 				'operations': operations,
+				'nloc': file_mod.nloc,
 				'count': 1
 			}
 			relations_count.append(info)
@@ -51,6 +54,8 @@ def relationships():
 		operations = db.session.query(Operation).\
 					filter_by(source_file_id=src.id).count()
 		if operations > 0:		
+			file_mod = db.session.query(Modification).\
+						filter_by(file_id = src.file_id).one()
 			info = {
 				'id': src.id,
 				'source': src.name(),
@@ -59,6 +64,7 @@ def relationships():
 				'url': '',
 				'system': to_system.name,
 				'operations': operations,
+				'nloc': file_mod.nloc,
 				'count': 0
 			}
 			sources_without_relation_info.append(info)
