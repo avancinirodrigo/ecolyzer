@@ -91,8 +91,19 @@
         return d.nloc;
     });               
     
-    const NLOC_MIN_OFFSET = 3;
-    const NLOC_MAX_OFFSET = 300;
+    //const NLOC_MIN_OFFSET = 3;
+    //const NLOC_MAX_OFFSET = 300;
+    root.sum(function(d) { 
+        // if(d.ncalls <= 3)
+        //      return 3; //Math.round(Math.sqrt(minNloc));
+        // // if(d.nloc > maxNloc/2)
+        // //     return NLOC_MAX_OFFSET;
+        // else
+        //     return d.ncalls; //Math.round(Math.log2(d.nloc)); //TODO
+        return d.ncalls;
+    })
+        .sort(function(a, b) {return b.value - a.value;});   // Compute the numeric value for each entity
+
     root.sum(function(d) { 
         // if(d.ncalls <= 3)
         //      return 3; //Math.round(Math.sqrt(minNloc));
@@ -101,8 +112,7 @@
         // else
         //     return d.ncalls; //Math.round(Math.log2(d.nloc)); //TODO
         return d.count;
-    })
-        .sort(function(a, b) {return b.value - a.value;});   // Compute the numeric value for each entity
+    })        
 
     // Then d3.treemap computes the position of each element of the hierarchy
     // The coordinates are added to the root object above
@@ -185,11 +195,13 @@
     .data(root.leaves())
     .enter()
     .append("text")
-        .attr("x", function(d){ return d.x0+4})    // +10 to adjust position (more right)
+        .attr("x", function(d){ return d.x0+2})    // +10 to adjust position (more right)
         .attr("y", function(d){ return d.y0+15})    // +20 to adjust position (lower)
         .text(function(d) { 
             var width = d.x1 - d.x0;
-            if(width > 8*d.data.from.length)
+            var height = d.y1 - d.y0;
+            if((width > 8*d.data.from.length)
+                    && (height > 15))
                 return d.data.from; 
         })
         .attr("font-size", "15px")
