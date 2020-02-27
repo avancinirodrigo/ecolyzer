@@ -83,7 +83,7 @@
 	var relations = {{ relations|safe }}
 	var numOfSourceFiles = relations.length;
 	// set the dimensions and margins of the graph
-	var margin = {top: 10, right: 10, bottom: 10, left: 10},
+	var margin = {top: 30, right: 10, bottom: 10, left: 10},
  	width = getWidth() - margin.left - margin.right - 20;
   	height = getHeight() - margin.top - margin.bottom - 20;
 
@@ -147,7 +147,7 @@
     	.paddingRight(6)
     	.paddingInner(1)      // Padding between each rectangle 
 	    //.padding(1)
-	    //.paddingOuter(2)
+	    //.paddingOuter(10)
 	    .round(true)  
 		(root.sort(function(a, b) {return b.data.count - a.data.count;}))
 
@@ -182,6 +182,9 @@
 				if(d.data.url)
 					return d.data.url; 
 			})
+		//.append("text")
+  //       	.attr("class", "node")
+  //       	.text(function(d) { return d.data.source; })			
 		.append("rect")
 			.attr('x', function (d) { return d.x0; })
 			.attr('y', function (d) { return d.y0; })
@@ -192,7 +195,6 @@
 				return heatmap(d.data.count);
 			})
 			//.append("title")
-			//.text(function(d) { return d.data.fullpath; });
             .on("mousemove", function (d) {
             	if(d3.event.pageX > 7*width/8)
             		tip.style("left", (d3.event.pageX - 6*d.data.fullpath.length) + "px");
@@ -208,7 +210,7 @@
             })
             .on("mouseout", function (d) {
                 tip.style("display", "none");
-            });		
+            });
 
 	// and to add the text labels
 	svg.selectAll("text")
@@ -217,17 +219,25 @@
 		.append("text")
 			.attr("x", function(d){ return d.x0+4})    // +10 to adjust position (more right)
 			.attr("y", function(d){ return d.y0+15})    // +20 to adjust position (lower)
+			//.attr("border", "border: solid 1px white")
+			.attr("font", "10px sans-serif")
+			//.attr("font-size", "15px")
+			.attr("fill", "white")
+			//.attr("overflow", "hidden")
+			//.attr("line-height", "12px")
+			//.attr("text-indent", "2px")
+			//.attr("position", "absolute")			
 			.text(function(d) { 
-				var width = d.x1 - d.x0;
-				if(width > 8*d.data.source.length)
+				// var width = d.x1 - d.x0;
+				// var height = d.y1 - d.y0;
+				// if((width > 8*d.data.source.length)
+				// 		&& (height > 15))
 					return d.data.source; 
 			})
-			.attr("font-size", "15px")
-			.attr("fill", "white")
 
 	svg.append("text")
 		  .attr("x", 0)
-		  .attr("y", 14)    // +20 to adjust position (lower)
+		  .attr("y", 0)    // +20 to adjust position (lower)
 		  .text("{{ system }} Ecosystem")
 		  .attr("font-size", "24px")
 		  .attr("fill", "black")
@@ -291,7 +301,7 @@
 
   	legend.append("rect")
 		.attr("x", width - colorTicks.length*blockWidth - blockWidth + (blockWidth/4))
-		.attr("y", 0)
+		.attr("y", -15)
 		.attr("width", blockWidth)
 		.attr("height", blockHeight)
 		.style("fill", function(d, i) {
@@ -302,7 +312,7 @@
 
   	legend.append("text")
         .attr("x", (width - colorTicks.length*blockWidth - blockWidth + (blockWidth/2)))
-        .attr("y", (margin.bottom/3 + 3) + blockHeight + 7)
+        .attr("y", (margin.bottom/3 + 3) + blockHeight + 7 -15)
         .text(function(d, i) {
         	if((i == 0) || (i == 1) || (i == 3)
         			|| (i == Math.trunc((colorTicks.length)/2))
@@ -316,7 +326,7 @@
 
     svg.append("text")
         .attr("x", width - colorTicks.length*blockWidth - RELATIONS_LABEL.length*RELATIONS_LABEL_FONT_SIZE/2)
-        .attr("y", 15)
+        .attr("y", 0)
         .text(RELATIONS_LABEL)       
         .style("font-weight", "bolder")
         .attr("font-size", RELATIONS_LABEL_FONT_SIZE + "px");  
