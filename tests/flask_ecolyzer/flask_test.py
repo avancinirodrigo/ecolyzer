@@ -1,6 +1,5 @@
 import pytest
 import os
-#from flask import json
 from flask import template_rendered
 from contextlib import contextmanager
 from flask_ecolyzer.app import create_app
