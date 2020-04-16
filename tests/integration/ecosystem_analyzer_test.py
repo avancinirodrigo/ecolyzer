@@ -38,10 +38,10 @@ def test_make_relations():
 
 	relationships = ecosystem.relationships()
 
-	assert len(relationships) == 296
+	assert len(relationships) == 292
 
 	rel1 = relationships[0]
-	rel2 = relationships[295]
+	rel2 = relationships[291]
 
 	assert rel1.from_system.name == 'ca'
 	assert rel1.from_author.name == 'Pedro Andrade'
@@ -50,6 +50,7 @@ def test_make_relations():
 	assert rel1.to_author.name == 'rvmaretto'	
 	assert rel1.to_author.email == 'rvmaretto@gmail.com'	
 	assert rel1.from_code_element.name == rel1.to_code_element.name == 'createNeighborhood'
+	assert rel1.from_code_element_count == 1
 	
 	assert rel2.from_system.name == 'ca'
 	assert rel2.from_author.name == 'Pedro Andrade'
@@ -57,12 +58,13 @@ def test_make_relations():
 	assert rel2.to_system.name == 'terrame'
 	assert rel2.to_author.name == 'rvmaretto'	
 	assert rel2.to_author.email == 'rvmaretto@gmail.com'	
-	assert rel2.from_code_element.name == rel2.to_code_element.name == 'type'	
-	
+	assert rel2.from_code_element.name == rel2.to_code_element.name == 'type'
+	assert rel2.from_code_element_count == 1
+
 	session.close()
 	db.drop_all()
 
-def test_make_relations_last_commits():
+def test_relations_last_commits():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/ecolyzer_relations_last'
 	db = SQLAlchemyORM(db_url)
 	db.create_all(True)
@@ -92,10 +94,10 @@ def test_make_relations_last_commits():
 
 	relationships = ecosystem.relationships()
 
-	assert len(relationships) == 575
+	assert len(relationships) == 531
 
 	rel1 = relationships[0]
-	rel2 = relationships[574]
+	rel2 = relationships[530]
 
 	assert rel1.from_system.name == 'ca'
 	assert rel1.from_author.name == 'Pedro Andrade'
@@ -104,6 +106,7 @@ def test_make_relations_last_commits():
 	assert rel1.to_author.name == 'wsenafranca'	
 	assert rel1.to_author.email == 'wsenafranca@gmail.com'	
 	assert rel1.from_code_element.name == rel1.to_code_element.name == 'run'
+	assert rel1.from_code_element_count == 1
 	
 	assert rel2.from_system.name == 'ca'
 	assert rel2.from_author.name == 'Pedro Andrade'
@@ -112,6 +115,7 @@ def test_make_relations_last_commits():
 	assert rel2.to_author.name == 'Pedro Andrade'	
 	assert rel2.to_author.email == 'pedro.andrade@inpe.br'	
 	assert rel2.from_code_element.name == rel2.to_code_element.name == 'assertSnapshot'	
-	
+	assert rel2.from_code_element_count == 1
+
 	session.close()
 	db.drop_all()	

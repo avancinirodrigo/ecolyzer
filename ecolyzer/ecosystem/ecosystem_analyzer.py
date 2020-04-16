@@ -1,6 +1,7 @@
 from ecolyzer.system import System, Call, Operation
 from ecolyzer.dataaccess import NullSession
-from .relationship import Relationship, RelationInfo
+from ecolyzer.parser import StaticAnalyzer
+from .relationship import Relationship, RelationInfo, FromRelationInfo
 
 class EcosystemAnalyzer():
 	"""EcosystemAnalyzer"""
@@ -19,10 +20,16 @@ class EcosystemAnalyzer():
 						to_operation = Operation(from_code_element.name, to_src_file)
 						if to_src_file.code_element_exists(to_operation):	
 							to_code_element = to_src_file.code_element_by_key(to_operation.key) 
-							from_info = RelationInfo(sys_from, from_src_file, from_code_element)
+							from_code_element_count = self._total_of_calls(from_code_element)
+							from_info = FromRelationInfo(sys_from, from_src_file, 
+											from_code_element, from_code_element_count)
 							to_info = RelationInfo(sys_to, to_src_file, to_code_element)
 							rel = Relationship(from_info, to_info)
 							self.ecosystem.add_relationship(rel)
 							session.add(rel)
 						session.expunge(to_operation)
 		session.commit()
+
+	def _total_of_calls(self, from_code_element):
+		analyzer = StaticAnalyzer()
+		return analyzer.number_of_calls(from_code_element.source_code, from_code_element.name)

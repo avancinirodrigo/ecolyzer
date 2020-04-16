@@ -1,7 +1,7 @@
 from ecolyzer.repository import Repository, Author, Person
 from ecolyzer.system import System, File, SourceFile, Operation, Call
 from ecolyzer.dataaccess import SQLAlchemyORM
-from ecolyzer.ecosystem import Relationship, RelationInfo, Ecosystem
+from ecolyzer.ecosystem import Relationship, RelationInfo, FromRelationInfo, Ecosystem
 
 def test_add_relationship(mocker):
 	db_url = 'postgresql://postgres:postgres@localhost:5432/eco_add_relation'
@@ -43,11 +43,11 @@ def test_add_relationship(mocker):
 	mocker.patch.object(c21, 'author', return_value=ca_author, autospec=True)	
 
 	to_info = RelationInfo(sys1, src1, c11)
-	from_info = RelationInfo(sys2, src2, f21)
+	from_info = FromRelationInfo(sys2, src2, f21, 10)
 	rel1 = Relationship(from_info, to_info)
 
 	to_info = RelationInfo(sys1, src1, f11)
-	from_info = RelationInfo(sys2, src2, c21)
+	from_info = FromRelationInfo(sys2, src2, c21, 20)
 	rel2 = Relationship(from_info, to_info)
 
 	eco = Ecosystem()
@@ -70,6 +70,7 @@ def test_add_relationship(mocker):
 	assert rel1db.to_code_element.name == 'call'
 	assert rel1db.from_author.name == 'CA Dev'
 	assert rel1db.to_author.name == 'TerraMe Dev'
+	assert rel1db.from_code_element_count == 10
 
 	rel2db = relsdb[1]
 	assert rel2db.from_system.name == 'ca'
@@ -80,6 +81,7 @@ def test_add_relationship(mocker):
 	assert rel2db.to_code_element.name == 'get'
 	assert rel2db.from_author.name == 'CA Dev'
 	assert rel2db.to_author.name == 'TerraMe Dev'
+	assert rel2db.from_code_element_count == 20
 
 	session.close()
 	db.drop_all()	

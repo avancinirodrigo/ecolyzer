@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy import engine
 from sqlalchemy_utils import database_exists, create_database, drop_database
 
@@ -10,7 +10,7 @@ class SQLAlchemyORM:
 
 	def create_engine(self):
 		self.engine = create_engine(self.url)
-		self.session = sessionmaker(bind=self.engine, autoflush=False)
+		self.session = scoped_session(sessionmaker(bind=self.engine, autoflush=False))
 		
 	def create_all_tables(self):
 		Base.metadata.create_all(self.engine)

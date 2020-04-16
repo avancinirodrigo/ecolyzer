@@ -11,6 +11,7 @@ class Modification(Base):
 	new_path = Column(String)
 	added = Column(Integer)
 	removed = Column(Integer)
+	nloc = Column(Integer)
 	status = Column(String, nullable=False)
 	source_code = Column(String)
 	commit_id = Column(Integer, ForeignKey('commit.id'))
@@ -23,6 +24,7 @@ class Modification(Base):
 		self.new_path = mod_info.new_path
 		self.added = mod_info.added
 		self.removed = mod_info.removed
+		self.nloc = mod_info.nloc
 		self.status = mod_info.status
 		self.source_code = mod_info.source_code		
 		self.commit = commit
@@ -38,5 +40,6 @@ class ModificationInfo:
 		self.new_path = ''
 		self.added = 0
 		self.removed = 0
+		self.nloc = 0
 		self.status = ''
 		self.source_code = None

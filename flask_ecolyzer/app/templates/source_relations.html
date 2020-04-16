@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>{{ source_file }}</title>
+        <script type="text/javascript" src="https://d3js.org/d3.v5.min.js"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/utils.js') }}"></script>
+        <style type="text/css">
+            .tooltip {
+                position: absolute;
+                display: none;
+                width: auto;
+                height: auto;
+                background: none repeat scroll 0 0 white;
+                border: 0 none;
+                border-radius: 8px 8px 8px 8px;
+                box-shadow: -3px 3px 15px #888888;
+                color: black;
+                font: 12px sans-serif;
+                padding: 5px;
+                text-align: left;
+                opacity: 0.95;
+            }           
+        </style>        
+    </head>
+    <body>
+		<div id="treemap"></div>
+    </body>
+</html>
+
+<script type="text/javascript">
+	var relations = {{ relations|safe }};
+    var numOfSourceFiles = relations.length;
+    
+    var numOfLoc = 0;
+    var infoBySystem = [];
+    for(var i = 0; i < relations.length; i++) {
+        numOfLoc += relations[i]["nloc"];
+        var system = relations[i]["system"]
+        if(!infoBySystem[system]) {
+            infoBySystem[system] = [];
+            infoBySystem[system]["ncalls"] = 0;
+            infoBySystem[system]["nloc"] = 0;
+
+        }
+        infoBySystem[system]["ncalls"] += relations[i]["ncalls"];
+        infoBySystem[system]["nloc"] += relations[i]["nloc"];
+    }
+
+    var from_systems = {{ from_systems|safe }}
+    var numOfSystems = Object.keys(from_systems).length;
+
+    // set the dimensions and margins of the graph
+    var margin = {top: 30, right: 10, bottom: 10, left: 10},
+    width = getWidth() - margin.left - margin.right - 20,
+    height = getHeight() - margin.top - margin.bottom - 20;
+
+    // append the svg object to the body of the page
+    var svg = d3.select("#treemap")
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    for(var k in from_systems) { 
+        var info = {
+            "id": from_systems[k],
+            "from": "",
+            "code": "",
+            "count": 0,
+            "system": "root"
+        };
+        relations.unshift(info)   
+    }
+
+    relations.unshift({"id":"root", "from":"",
+                    "code":"", "count":0, "system":"",})     
+
+    // stratify the data: reformatting for d3.js
+    var root = d3.stratify()
+                .id(function(d) { return d.id; })   // Name of the entity (column name is name in csv)
+                .parentId(function(d) { return d.system; })   // Name of the parent (column name is parent in csv)
+                (relations);
+
+    var minNloc = d3.min(relations, function(d) {
+        return d.nloc;
+    });
+
+    var maxNloc = d3.max(relations, function(d) {
+        return d.nloc;
+    });               
+    
+    //const NLOC_MIN_OFFSET = 3;
+    //const NLOC_MAX_OFFSET = 300;
+    root.sum(function(d) { 
+        // if(d.ncalls <= 3)
+        //      return 3; //Math.round(Math.sqrt(minNloc));
+        // // if(d.nloc > maxNloc/2)
+        // //     return NLOC_MAX_OFFSET;
+        // else
+        //     return d.ncalls; //Math.round(Math.log2(d.nloc)); //TODO
+        return d.ncalls;
+    })
+        .sort(function(a, b) {return b.value - a.value;});   // Compute the numeric value for each entity
+
+    root.sum(function(d) { 
+        // if(d.ncalls <= 3)
+        //      return 3; //Math.round(Math.sqrt(minNloc));
+        // // if(d.nloc > maxNloc/2)
+        // //     return NLOC_MAX_OFFSET;
+        // else
+        //     return d.ncalls; //Math.round(Math.log2(d.nloc)); //TODO
+        return d.count;
+    })        
+
+    // Then d3.treemap computes the position of each element of the hierarchy
+    // The coordinates are added to the root object above
+    d3.treemap()
+    .size([width, height])
+    .paddingTop(20)
+    .paddingRight(4)
+    .paddingInner(1)      // Padding between each rectangle 
+    //.paddingOuter(5)
+    //.padding(1) 
+    .round(true)
+    .tile(d3.treemapSquarify.ratio(1))       
+    (root.sort(function(a, b) {return b.data.ncalls - a.data.ncalls;}))
+
+    var minCalls = d3.min(root.leaves(), function(d) {
+        return d.data.ncalls;
+    });
+
+    var maxCalls = d3.max(root.leaves(), function(d) {
+        return d.data.ncalls;
+    });    
+
+    var numOfUniqueValues = d3.map(root.leaves(), function(d) {
+        return d.data.count;
+    }).keys().length 
+
+    var heatmap;
+
+    if(numOfUniqueValues <= 2) {
+        heatmap = d3.scaleLinear()
+            .domain([minCalls, maxCalls])
+            .range(["blue", "red"])
+    }
+    else {
+        heatmap = d3.scaleLinear()
+            .domain([minCalls, Math.trunc((minCalls + maxCalls)/2), maxCalls])
+            .range(["blue", "green", "red"])    
+    }
+
+    var tip = d3.select("#treemap")
+        .append("div")
+        .attr("class", "tooltip");    
+
+    // use this information to add rectangles:
+    svg.selectAll("rect")
+    .data(root.leaves())    
+    .enter()
+    .append("g")
+        .append("a")
+            .attr("xlink:href", function(d) {
+                return d.data.url; })    
+            .append("rect")
+                .attr('x', function (d) { return d.x0; })
+                .attr('y', function (d) { return d.y0; })
+                .attr('width', function (d) { return d.x1 - d.x0; })
+                .attr('height', function (d) { return d.y1 - d.y0; })
+                // .style("stroke", "black")
+                .style("fill", function(d) {
+                    return heatmap(d.data.ncalls);
+                })
+                // .append("title")
+                // .text(function(d) { return d.data.fullpath; });
+                .on("mousemove", function (d) {
+                    if(d3.event.pageX > 7*width/8)
+                        tip.style("left", (d3.event.pageX - 10 - 6.5*d.data.fullpath.length) + "px");
+                    else
+                        tip.style("left", d3.event.pageX + 10 + "px");
+                    tip.style("top", d3.event.pageY - 20 + "px");
+                    tip.style("display", "inline-block");
+                    tip.html("<strong>" + d.data.fullpath + "</strong>"
+                                + "<br>used operations: " + d.data.count
+                                + "<br>total calls: " + d.data.ncalls
+                                + "<br>nloc: " + d.data.nloc);
+                })
+                .on("mouseout", function (d) {
+                    tip.style("display", "none");
+                });             
+
+    // and to add the text labels
+    svg.selectAll("g")
+        .append("text")
+            .attr("x", function(d){ return d.x0+2})
+            .attr("y", function(d){ return d.y0+15})
+            .attr("font", "10px sans-serif")
+            .attr("fill", "white")
+            .text(function(d) { 
+                if(d.data.ncalls > minCalls)
+                    return d.data.from; 
+            })  
+
+     // Add title for groups
+      svg.selectAll("titles")
+        .data(root.descendants().filter(function(d){return d.depth==1}))
+        .enter()
+        .append("text")
+            .attr("x", function(d){ return d.x0})
+            .attr("y", function(d){ return d.y0+17})
+            .text(function(d){ return d.data.id })
+            .attr("font-size", "19px")
+            .attr("fill", "black")
+            .on("mousemove", function (d) {
+                if(d3.event.pageX > 7*width/8)
+                    tip.style("left", (d3.event.pageX - 6*23) + "px");
+                else
+                    tip.style("left", d3.event.pageX + 10 + "px");
+                tip.style("top", d3.event.pageY - 20 + "px");
+                tip.style("display", "inline-block");
+                tip.html("<center><b>" + d.data.id + "</b></center>"
+                            + "total of source files: " + d.children.length
+                            + "<br>total of relations: " + infoBySystem[d.data.id]["ncalls"]
+                            + "<br>total of loc: " + infoBySystem[d.data.id]["nloc"]);
+            })
+            .on("mouseout", function (d) {
+                tip.style("display", "none");
+            });                 
+
+      // Add title for the 3 groups
+      svg.append("text")
+            .attr("x", 0)
+            .attr("y", 0)
+            .text("{{ source_file }}")
+            .attr("font-size", "20px")
+            .attr("fill", "black")
+            .style("font-weight", "bold")   
+            .on("mousemove", function (d) {
+                tip.style("left", d3.event.pageX + 10 + "px");
+                tip.style("top", d3.event.pageY - 20 + "px");
+                tip.style("display", "inline-block");
+                tip.html("<center><b>{{source_file}}</b></center>"
+                            + "total of systems: " + numOfSystems
+                            + "<br>total of source files: " + numOfSourceFiles
+                            + "<br>total of relations: " + root.value
+                            + "<br>total of loc: " + numOfLoc);
+            })
+            .on("mouseout", function (d) {
+                tip.style("display", "none");
+            });            
+
+    var blockWidth = 15;
+    var blockHeight = 20;   
+    var colorTicks = heatmap.ticks().filter(tick => Number.isInteger(tick));
+
+    colorTicks[0] = minCalls;
+    colorTicks[colorTicks.length-1] = maxCalls
+
+    var legend = svg.selectAll(".legend")
+        .data(colorTicks)
+        .enter()
+        .append("g")
+        .attr("class", "legend")
+        .attr("font-size", "14px")
+        .attr("font-style", "PT Sans")
+        .attr("transform", function(d, i) {
+            return ("translate(" + i * blockWidth + ", 0)")
+        });     
+
+    legend.append("rect")
+        .attr("x", width - colorTicks.length*blockWidth - blockWidth + (blockWidth/4))
+        .attr("y", -15)
+        .attr("width", blockWidth)
+        .attr("height", blockHeight)
+        .style("fill", function(d, i) {
+            return(heatmap(colorTicks[i]));
+        })
+        .append("title")
+        .text(function(d, i) { return colorTicks[i]; });                   
+
+    legend.append("text")
+        .attr("x", (width - colorTicks.length*blockWidth - blockWidth + (blockWidth/4) + (blockWidth/2)))
+        .attr("y", (margin.bottom/3 + 3) + blockHeight + 7 -15)
+        .text(function(d, i) {
+            if((i == 0) || (i == Math.trunc((colorTicks.length)/2))
+                    || (i == (colorTicks.length - 1)))
+                return colorTicks[i];
+        })
+        .style("text-anchor", "middle");
+
+    const RELATIONS_LABEL = "Number of relationships:";
+    const RELATIONS_LABEL_FONT_SIZE = 14;    
+
+    svg.append("text")
+        .attr("x", width - colorTicks.length*blockWidth - RELATIONS_LABEL.length*RELATIONS_LABEL_FONT_SIZE/2)
+        .attr("y", 0)
+        .text(RELATIONS_LABEL)       
+        .style("font-weight", "bolder")
+        .attr("font-size", RELATIONS_LABEL_FONT_SIZE + "px");                 
+</script>

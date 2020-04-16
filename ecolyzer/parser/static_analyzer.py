@@ -1,5 +1,6 @@
 from ecolyzer.system import Operation, Call
 from .lua_parser import LuaParser, SyntaxException, ChunkException
+from .lua_metrics import LuaMetrics
 
 class StaticAnalyzer:
 	def __init__(self):
@@ -11,14 +12,15 @@ class StaticAnalyzer:
 		try:
 			parser.parser(src)
 			functions = (parser.extract_functions() 
-						+ parser.extract_local_functions()
 						+ parser.extract_table_functions())
 			self._remove_duplicated(functions)
 			for func in functions:
 				code_elements.append(Operation(func, src_file))
 
 			calls = parser.extract_calls() + parser.extract_global_calls()
-			self._remove_inner_calls(calls, functions)
+			local_functions = parser.extract_local_functions()
+			all_functions = functions + local_functions
+			self._remove_inner_calls(calls, all_functions)
 			self._remove_duplicated(calls)
 			for call in calls:
 				code_elements.append(Call(call, src_file))
@@ -28,6 +30,9 @@ class StaticAnalyzer:
 			pass
 
 		return code_elements
+
+	def lua_metrics(self, filepah, source_code):
+		return LuaMetrics(filepah, source_code)
 
 	def _remove_inner_calls(self, calls, functions):
 		external_calls = []
@@ -46,3 +51,10 @@ class StaticAnalyzer:
 				result.append(call)
 
 		calls[:] = result
+
+	def number_of_calls(self, source_code, code_element):
+		parser = LuaParser()
+		parser.parser(source_code)
+		calls = parser.extract_calls() + parser.extract_global_calls()
+		return calls.count(code_element)
+			

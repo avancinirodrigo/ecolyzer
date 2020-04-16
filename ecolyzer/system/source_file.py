@@ -1,4 +1,5 @@
-from sqlalchemy import Column, String, Integer, ForeignKey, PrimaryKeyConstraint
+import pathlib
+from sqlalchemy import Column, String, Integer, ForeignKey
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.orm.collections import attribute_mapped_collection
 from ecolyzer.dataaccess import Base
@@ -43,9 +44,15 @@ class SourceFile(Base):
 	def name(self):
 		return self.file.name
 
+	def path(self):
+		return self.file.path
+
 	def fullpath(self):
 		return self.file.fullpath		
 
 	def system(self, system):
 		self.file.system = system
-		
+	
+	@property
+	def source_code(self): #TODO: source code is in Modification		
+		return open(str(pathlib.Path().absolute()) + '/' + self.file.fullpath).read()

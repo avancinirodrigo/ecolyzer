@@ -70,7 +70,7 @@ class RepositoryMiner:
 		repo = Repo(self.repo.path)
 		blobs = self._repo_file_blobs(repo)
 		for blob in blobs:
-			commit = self._last_commit_from_path(blob.path, repo, rev)		
+			commit = self._last_commit_from_path(blob.path, repo, rev)	
 			commit_info = self._get_commit_info_from_gitpython(commit)
 			author = self._check_author(session, commit_info.author_name, commit_info.author_email)
 			commit = self._check_commit(commit_info, author)
@@ -97,11 +97,18 @@ class RepositoryMiner:
 		file_mod = ModificationInfo(blob.path)
 		#file_mod.old_path = mod.old_path
 		file_mod.new_path = blob.path
-		#file_mod.added = mod.added
-		#file_mod.removed = mod.removed
 		#file_mod.status = mod.change_type.name 
-		file_mod.source_code = self._get_blob_source_code(blob)
-		return file_mod			
+		source_code = self._get_blob_source_code(blob)
+		file_mod.source_code = source_code
+		file_mod.added = self._count_lines_of_code(blob.path, source_code)
+		file_mod.removed = 0
+		file_mod.nloc = file_mod.added
+		return file_mod
+
+	def _count_lines_of_code(self, filepath, source_code):
+		analyzer = StaticAnalyzer()
+		metrics = analyzer.lua_metrics(filepath, source_code)
+		return metrics.nloc()
 
 	def _last_commit_from_path(self, fullpath, repo, rev):
 		return list(repo.iter_commits(rev=rev, paths=fullpath, max_count=1))[0]
@@ -159,7 +166,7 @@ class RepositoryMiner:
 
 	def _get_blob_source_code(self, blob):
 		data = blob.data_stream.read()
-		return data.decode('utf-8')
+		return data.decode('utf-8', errors='ignore') #TODO: handle instead ignore
 
 	def _create_modification(self, source_file, source_code): #TODO: use in extract_current_files		
 		mod = ModificationInfo(mod.filename)

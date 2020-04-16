@@ -15,7 +15,6 @@ class LuaParser:
 			else:
 				raise e
 
-
 	def extract_functions(self):
 		visitor = FunctionVisitor()
 		visitor.visit(self.tree)

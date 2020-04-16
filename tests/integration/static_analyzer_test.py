@@ -6,12 +6,7 @@ from ecolyzer.parser import StaticAnalyzer
 def test_lua_reverse_engineering():
 	operations = {
 		'CellularSpace' : True,
-		'coordCoupling' : True,
-		'createMooreNeighborhood' : True,
-		'createVonNeumannNeighborhood' : True,
 		'createNeighborhood' : True,
-		'createMxNNeighborhood' : True,
-		'spatialCoupling' : True,
 		'add' : True,
 		'getCell' : True,
 		'get' : True,
@@ -100,6 +95,16 @@ def test_lua_reverse_engineering():
 	analyzer = StaticAnalyzer()
 	code_elements = analyzer.lua_reverse_engineering(src_file, src)
 
+	code_elements_dict = {}
+	for element in code_elements:
+		code_elements_dict[element.name] = True
+
+	for k in operations.keys():
+		assert code_elements_dict[k]
+
+	for k in calls.keys():
+		assert code_elements_dict[k]		 
+
 	assert len(code_elements) == len(operations) + len(calls)
 	
 	for element in code_elements:
@@ -110,3 +115,12 @@ def test_lua_reverse_engineering():
 			assert operations[element.name]
 			assert element.name not in calls
 			
+def test_number_of_calls():
+	luafile = os.path.join(os.path.dirname(__file__), 'data', 'CellularSpace1.lua')		
+	file = File(luafile)
+	src_file = SourceFile(file)
+	src = open(luafile).read()
+	analyzer = StaticAnalyzer()
+	assert analyzer.number_of_calls(src, 'forEachCell') == 16
+	assert analyzer.number_of_calls(src, 'addNeighborhood') == 8
+	assert analyzer.number_of_calls(src, 'Cell') == 2

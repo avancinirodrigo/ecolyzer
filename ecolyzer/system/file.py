@@ -1,5 +1,5 @@
 import os
-from sqlalchemy import Column, String, Integer, ForeignKey
+from sqlalchemy import Column, String, Integer, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.hybrid import hybrid_property
 from ecolyzer.dataaccess import Base
@@ -12,9 +12,11 @@ class File(Base):
 	_name = Column('name', String, nullable=False)
 	_path = Column('path', String)
 	_ext = Column('ext', String)
-	_fullpath = Column('fullpath', String, nullable=False, unique=True)
+	_fullpath = Column('fullpath', String, nullable=False)
 	system_id = Column(Integer, ForeignKey('system.id'))
 	system = relationship('System', backref=backref('file'))
+
+	__table_args__ = (UniqueConstraint('id', 'fullpath'),)	
 
 	def __init__(self, fullpath):
 		self.fullpath = fullpath

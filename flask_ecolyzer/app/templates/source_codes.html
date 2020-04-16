@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    	<meta charset="utf-8">
+        <title>Souce Codes</title>
+        <style type="text/css">
+        	body {
+        		overflow: hidden;
+        	}
+
+			.wrapper {
+				position: absolute;
+			    width:100%;
+			    margin: 0 auto;
+			    height: 100%;
+			    display: flex;
+			}
+
+			#to_source {
+			    float:left;
+			}
+
+			#from_source {
+			    float:right;
+			}
+
+			#to_source, #from_source {
+			    width: 47%;
+			    height: 96%;
+			    background-color: #FFFFFF;
+			    overflow: scroll;
+			    margin-left: 2%;
+			}
+
+			a {
+			    text-decoration: none;
+			}	
+			
+			a, a:visited, a:active {
+			  	color: blue;
+			}					
+
+			a:hover {
+				text-decoration: underline;
+			}
+
+			i {
+			  	border: solid black;
+			  	border-width: 0 3px 3px 0;
+			  	display: inline-block;
+			  	padding: 3px;
+			}
+
+			.up {
+			  	transform: rotate(-135deg);
+			  	-webkit-transform: rotate(-135deg);
+			}						
+        </style>     
+		<script src="https://code.jquery.com/jquery-latest.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/mark.js/8.6.0/jquery.mark.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+		<script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/lang-lua.js"></script>	
+		<style type="text/css">
+			pre.prettyprint
+			{
+			    padding-left:20px; 
+			    border: 0px;
+			    tab-size: 4;
+			}			
+
+			ol.linenums
+			{
+			    margin-top: 0;
+			    margin-bottom: 0;
+			}	
+
+			li.L0, li.L1, li.L2, li.L3, li.L4,
+			li.L5, li.L6, li.L7, li.L8, li.L9 {
+				background: none;
+				color: #C0C0C0;
+				list-style-type: decimal;
+			}			
+		</style>
+    </head>
+    <body>
+		<div class="wrapper">
+			<div id="to_source">
+				<h2><a name="to_top"></a><span>{{ to_system }}/{{ to_fullpath }}</span></h2>
+				<op></op>
+				<src></src>
+			</div>
+			<div id="from_source">
+				<h2><a name="from_top"></a><span>{{ from_system }}/{{ from_fullpath }}</span></h2>
+				<op></op>
+				<src></src>
+			</div>
+		</div>		                                    
+    </body>
+</html>
+<script type="text/javascript">
+
+	function hasCodeTo(line, code_elements) {
+		for(var i = 0; i < code_elements.length; i++) {
+			if((line.search(code_elements[i] + " = function") >= 0)
+					|| (line.search("function " + code_elements[i] + "[(]") >= 0))
+				return code_elements[i];
+		}
+		return "";		
+	}
+
+	function hasCodeFrom(line, code_elements) {
+		if(line.search("^[\\s]*[--]+") >= 0)
+			return ""
+		var regex = "[\\w]+[.:]";
+		for(var i = 0; i < code_elements.length; i++) {
+			if((line.search(regex + code_elements[i] + "[({]") >= 0)
+					|| (line.search(code_elements[i] + "[({]") >= 0))
+				return code_elements[i];
+		}
+		return "";		
+	}
+
+	var to_source = {{ to_source|tojson }}
+	var from_source = {{ from_source|tojson }}
+
+	var to_source_lines = to_source.split("\n");
+	console.log(to_source_lines);
+	var from_source_lines = from_source.split("\n");	
+
+	var to_operations = "<select name=\"to_relations\" onchange=\"location=this.value;\">";
+	to_operations += "<option selected disabled> {{ to_system }} relations</option>";
+	var code_elements = {{ code_elements|safe }}
+	for(var i = 0; i < code_elements.length; i++) {
+		to_operations += "<option value=\"#to_" + code_elements[i] + "\">"
+						+ code_elements[i] + "</option>";
+	}
+
+	to_operations += "</select>"
+	$("#to_source").find("op").html(to_operations);
+
+	var to_source_view = "<pre class=\"prettyprint lang-lua linenums\">";
+
+	for(var i = 0; i < to_source_lines.length; i++) {
+		var line = to_source_lines[i];
+		var code_element = hasCodeTo(line, code_elements);
+		if(code_element != "") {
+			to_source_view += "<a name=\"to_" + code_element + "\"></a><mark>" + line + "</mark>"
+								+ "  <a href=\"#to_top\">" 
+								+ "<i class=\"arrow up\"></i>" 
+								+ "</a>\n";
+		}
+		else
+			to_source_view += line + "\n";	
+	}
+
+	to_source_view += "</pre>"
+
+	$("#to_source").find("src").html(to_source_view);
+
+	var from_source_view = "<pre class=\"prettyprint lang-lua linenums\">";
+	var from_code_elements = {};
+	var from_operations = "<select name=\"from_relations\" onchange=\"location=this.value;\">";
+	from_operations += "<option selected disabled> {{ from_system }} relations</option>";
+	var from_operations_count = 0;
+
+	for(var i = 0; i < from_source_lines.length; i++) {
+		var line = from_source_lines[i];
+		var code_element = hasCodeFrom(line, code_elements);
+		if(code_element != "") {
+			from_operations_count += 1;
+			var from_ref = "from_" + from_operations_count + code_element;
+			from_source_view += "<a name=\"" + from_ref + "\"></a>"
+								+ "<a href=\"#to_" + code_element + "\"><mark>" + line + "</mark></a>"
+								+ "  <a href=\"#from_top\">" 
+								+ "<i class=\"arrow up\"></i>"	
+								+ "</a>\n";
+			from_operations += "<option value=\"#" + from_ref + "\">"
+								+ from_operations_count + ".\t" + code_element 
+								+ "</option>";
+		}
+		else
+			from_source_view += line + "\n";
+	}
+
+	from_operations += "</select>";
+	from_source_view += "</pre>";
+
+	$("#from_source").find("op").html(from_operations);
+	$("#from_source").find("src").html(from_source_view);	
+</script>

@@ -1,0 +1,15 @@
+runtime: python37
+
+handlers:
+- url: /static
+  static_dir: app/static
+
+- url: /.*
+  script: auto
+
+env_variables: 
+  PYTHONPATH: 'ecolyzer'
+  DATABASE_URL: postgres+pg8000://postgres:postgres@/terrame_ecosystem?unix_sock=/cloudsql/ecolyzer:us-central1:postgres/.s.PGSQL.5432
+  
+beta_settings:
+  cloud_sql_instances: ecolyzer:us-central1:postgres
