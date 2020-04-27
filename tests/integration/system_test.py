@@ -83,7 +83,7 @@ def test_add_source_file():
 	sysdb = session.query(System).get(1)
 	src1db = sysdb.get_source_file(file1.fullpath)
 	assert src1db.file.fullpath == src1.file.fullpath 
-	assert src1db.ext() == src1.file.ext
+	assert src1db.ext == src1.file.ext
 
 	session.close()
 	db.drop_all()	

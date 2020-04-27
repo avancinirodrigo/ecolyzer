@@ -38,6 +38,7 @@ class SourceFile(Base):
 	def code_elements_len(self):
 		return len(self._elements)
 
+	@property
 	def ext(self):
 		return self.file.ext
 

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, ForeignKey
+from sqlalchemy import Column, ForeignKey
 from .code_element import CodeElement
 
 class Call(CodeElement):

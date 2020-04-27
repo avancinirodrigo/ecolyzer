@@ -273,7 +273,7 @@ class RepositoryMiner:
 		return files_modification
 
 	def _extract_code_elements(self, source_file, source_code):		
-		if source_file.ext() == 'lua':
+		if source_file.ext == 'lua':
 			analyzer = StaticAnalyzer()
 			return analyzer.lua_reverse_engineering(source_file, source_code)
 		return []

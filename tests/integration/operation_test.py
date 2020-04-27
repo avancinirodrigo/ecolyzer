@@ -42,7 +42,7 @@ def test_operation_crud():
 	filedb = session.query(File).get(1)
 	src_filedb = session.query(SourceFile).get(1)
 	assert filedb.name == 'file'	
-	assert src_filedb.ext() == 'src'
+	assert src_filedb.ext == 'src'
 	
 	session.close()
 	db.drop_all()
