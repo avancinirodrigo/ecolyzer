@@ -1,10 +1,39 @@
-from ecolyzer.system import Operation, Call
+from ecolyzer.system import Operation, Call, Association
 from .lua_parser import LuaParser, SyntaxException, ChunkException
 from .lua_metrics import LuaMetrics
+from .java_parser import JavaParser
 
 class StaticAnalyzer:
 	def __init__(self):
 		pass
+
+	def reverse_engineering(self, src_file, src):
+		if src_file.ext == 'lua':
+			return self.lua_reverse_engineering(src_file, src)
+		elif src_file.ext == 'java':
+			return self._java_reverse_engineering(src_file, src)
+
+	def _java_reverse_engineering(self, src_file, src):
+		code_elements = []
+		parser = JavaParser()
+		parser.parser(src)
+
+		operations = parser.extract_operations()
+		self._remove_duplicated(operations)
+		for op in operations:
+			code_elements.append(Operation(op, src_file))
+
+		calls = parser.extract_calls()
+		self._remove_inner_calls(calls, operations)
+		self._remove_duplicated(calls)		
+		for call in calls:
+			code_elements.append(Call(call, src_file))
+
+		associations = parser.extract_associations()
+		for ass in associations:
+			code_elements.append(Association(ass, src_file))
+
+		return code_elements
 
 	def lua_reverse_engineering(self, src_file, src):
 		code_elements = []
@@ -52,9 +81,21 @@ class StaticAnalyzer:
 
 		calls[:] = result
 
-	def number_of_calls(self, source_code, code_element):
-		parser = LuaParser()
-		parser.parser(source_code)
-		calls = parser.extract_calls() + parser.extract_global_calls()
+	def number_of_calls(self, source_file, source_code, code_element):
+		parser = None
+		if source_file.ext == 'lua':
+			parser = LuaParser()
+			parser.parser(source_code)
+			calls = parser.extract_calls() + parser.extract_global_calls()
+		elif source_file.ext == 'java':
+			parser = JavaParser()
+			parser.parser(source_code)
+			calls = parser.extract_calls() 
+		else:
+			raise SourceFileNotSupportedException('Source file \'{0}\' not supported.'.\
+				format(source_file.ext))
+		
 		return calls.count(code_element)
 			
+class SourceFileNotSupportedException(Exception):
+	pass			

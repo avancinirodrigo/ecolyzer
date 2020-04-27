@@ -3,7 +3,7 @@ from ecolyzer.parser import LuaParser
 import os
 
 def test_extract_functions():
-	luafile = os.path.join(os.path.dirname(__file__), 'data', 'Utils.lua')
+	luafile = os.path.join(os.path.dirname(__file__), '../data', 'Utils.lua')
 	src = open(luafile).read()
 	parser = LuaParser()
 	parser.parser(src)
@@ -58,7 +58,7 @@ def test_extract_functions():
 	for func in functions:
 		assert file_functions[func]
 
-	luafile = os.path.join(os.path.dirname(__file__), 'data', 'CellularSpace1.lua')
+	luafile = os.path.join(os.path.dirname(__file__), '../data', 'CellularSpace1.lua')
 	src = open(luafile).read()
 	parser = LuaParser()
 	parser.parser(src)
@@ -108,7 +108,7 @@ def test_extract_global_calls():
 		'forEachElement' : True
 	}	
 
-	luafile = os.path.join(os.path.dirname(__file__), 'data', 'CellularSpace1.lua')
+	luafile = os.path.join(os.path.dirname(__file__), '../data', 'CellularSpace1.lua')
 	src = open(luafile).read()
 	parser = LuaParser()
 	parser.parser(src)
@@ -156,7 +156,7 @@ def test_extract_calls():
 		'init' : True
 	}
 
-	luafile = os.path.join(os.path.dirname(__file__), 'data', 'CellularSpace1.lua')
+	luafile = os.path.join(os.path.dirname(__file__), '../data', 'CellularSpace1.lua')
 	src = open(luafile).read()
 	parser = LuaParser()
 	parser.parser(src)
@@ -171,7 +171,7 @@ def test_extract_globals():
 		'metaTableCellularSpace_' : True,	
 	}
 
-	luafile = os.path.join(os.path.dirname(__file__), 'data', 'CellularSpace1.lua')
+	luafile = os.path.join(os.path.dirname(__file__), '../data', 'CellularSpace1.lua')
 	src = open(luafile).read()
 	parser = LuaParser()
 	parser.parser(src)
@@ -190,7 +190,7 @@ def test_extract_local_functions():
 		'spatialCoupling' : True	
 	}
 
-	luafile = os.path.join(os.path.dirname(__file__), 'data', 'CellularSpace1.lua')
+	luafile = os.path.join(os.path.dirname(__file__), '../data', 'CellularSpace1.lua')
 	src = open(luafile).read()
 	parser = LuaParser()
 	parser.parser(src)
@@ -224,7 +224,7 @@ def test_extract_table_functions():
 		'__len' : True
 	}
 
-	luafile = os.path.join(os.path.dirname(__file__), 'data', 'CellularSpace1.lua')
+	luafile = os.path.join(os.path.dirname(__file__), '../data', 'CellularSpace1.lua')
 	src = open(luafile).read()
 	parser = LuaParser()
 	parser.parser(src)

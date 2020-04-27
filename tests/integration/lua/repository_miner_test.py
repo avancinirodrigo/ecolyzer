@@ -338,7 +338,7 @@ def test_get_commit_source_file():
 	session.commit()
 	afile = sys.get_file('base/lua/CellularSpace.lua')
 	srcfiledb = session.query(SourceFile).filter_by(file_id = afile.id).first()
-	assert srcfiledb.ext() == 'lua'
+	assert srcfiledb.ext == 'lua'
 	assert srcfiledb.name() == 'CellularSpace'
 	assert srcfiledb.code_elements_len() == 78
 

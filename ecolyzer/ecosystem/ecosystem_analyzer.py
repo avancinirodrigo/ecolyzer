@@ -20,7 +20,8 @@ class EcosystemAnalyzer():
 						to_operation = Operation(from_code_element.name, to_src_file)
 						if to_src_file.code_element_exists(to_operation):	
 							to_code_element = to_src_file.code_element_by_key(to_operation.key) 
-							from_code_element_count = self._total_of_calls(from_code_element)
+							from_code_element_count = self._total_of_calls(from_src_file,
+														 from_code_element)
 							from_info = FromRelationInfo(sys_from, from_src_file, 
 											from_code_element, from_code_element_count)
 							to_info = RelationInfo(sys_to, to_src_file, to_code_element)
@@ -30,6 +31,6 @@ class EcosystemAnalyzer():
 						session.expunge(to_operation)
 		session.commit()
 
-	def _total_of_calls(self, from_code_element):
+	def _total_of_calls(self, from_source_file, from_code_element):
 		analyzer = StaticAnalyzer()
-		return analyzer.number_of_calls(from_code_element.source_code, from_code_element.name)
+		return analyzer.number_of_calls(from_source_file, from_code_element.source_code, from_code_element.name)
