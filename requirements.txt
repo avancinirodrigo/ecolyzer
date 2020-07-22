@@ -7,3 +7,4 @@ codecov
 git+https://github.com/boolangery/py-lua-parser.git
 sqlalchemy
 sqlalchemy-utils
+javalang
