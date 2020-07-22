@@ -57,15 +57,15 @@ def test_add_relationship(mocker):
 	session.add(eco)
 	session.commit()
 	ecodb = session.query(Ecosystem).one()
-	relsdb = ecodb.relationships()
+	relsdb = ecodb.relationships
 
 	assert len(relsdb) == 2
 	
 	rel1db = relsdb[0]
 	assert rel1db.from_system.name == 'ca'
 	assert rel1db.to_system.name == 'terrame'
-	assert rel1db.from_source_file.name() == 'file2'
-	assert rel1db.to_source_file.name() == 'file1'
+	assert rel1db.from_source_file.name == 'file2'
+	assert rel1db.to_source_file.name == 'file1'
 	assert rel1db.from_code_element.name == 'call'
 	assert rel1db.to_code_element.name == 'call'
 	assert rel1db.from_author.name == 'CA Dev'
@@ -75,8 +75,8 @@ def test_add_relationship(mocker):
 	rel2db = relsdb[1]
 	assert rel2db.from_system.name == 'ca'
 	assert rel2db.to_system.name == 'terrame'
-	assert rel2db.from_source_file.name() == 'file2'
-	assert rel2db.to_source_file.name() == 'file1'
+	assert rel2db.from_source_file.name == 'file2'
+	assert rel2db.to_source_file.name == 'file1'
 	assert rel2db.from_code_element.name == 'get'
 	assert rel2db.to_code_element.name == 'get'
 	assert rel2db.from_author.name == 'CA Dev'

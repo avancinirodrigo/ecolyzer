@@ -55,8 +55,8 @@ def test_crud(mocker):
 	reldb = relsdb[0]
 	assert reldb.from_system.name == 'ca'
 	assert reldb.to_system.name == 'terrame'
-	assert reldb.from_source_file.name() == 'file2'
-	assert reldb.to_source_file.name() == 'file1'
+	assert reldb.from_source_file.name == 'file2'
+	assert reldb.to_source_file.name == 'file1'
 	assert reldb.from_code_element.name == 'call'
 	assert reldb.to_code_element.name == 'call'
 	assert reldb.from_author.name == 'CA Dev'

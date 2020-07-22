@@ -53,6 +53,6 @@ def test_add_same_relation(mocker):
 	ecosystem.add_relationship(rel1)
 	ecosystem.add_relationship(rel2)
 
-	assert len(ecosystem.relationships()) == 2
-	ecosystem.relationships()[0] = rel1
-	ecosystem.relationships()[1] = rel2
+	assert len(ecosystem.relationships) == 2
+	ecosystem.relationships[0] == rel1
+	ecosystem.relationships[1] == rel2

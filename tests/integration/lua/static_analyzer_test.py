@@ -93,7 +93,7 @@ def test_lua_reverse_engineering():
 	src_file = SourceFile(file)
 	src = open(luafile).read()
 	analyzer = StaticAnalyzer()
-	code_elements = analyzer.lua_reverse_engineering(src_file, src)
+	code_elements = analyzer.reverse_engineering(src_file, src)
 
 	code_elements_dict = {}
 	for element in code_elements:

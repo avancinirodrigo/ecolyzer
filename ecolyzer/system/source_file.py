@@ -42,12 +42,15 @@ class SourceFile(Base):
 	def ext(self):
 		return self.file.ext
 
+	@property
 	def name(self):
 		return self.file.name
 
+	@property
 	def path(self):
 		return self.file.path
 
+	@property
 	def fullpath(self):
 		return self.file.fullpath		
 

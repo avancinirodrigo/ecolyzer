@@ -17,7 +17,7 @@ class RepositoryMiner:
 		self.repo = repo
 		self.system = system
 		self.source_file_extensions = {}
-		self.source_file_extensions['lua'] = 'lua'
+		self.source_file_extensions = {'lua':'lua', 'java':'java'}
 		self.ignore_dir_with = {}
 		self.from_commit = None
 		self.to_commit = None
@@ -107,8 +107,7 @@ class RepositoryMiner:
 
 	def _count_lines_of_code(self, filepath, source_code):
 		analyzer = StaticAnalyzer()
-		metrics = analyzer.lua_metrics(filepath, source_code)
-		return metrics.nloc()
+		return analyzer.nloc(filepath, source_code)
 
 	def _last_commit_from_path(self, fullpath, repo, rev):
 		return list(repo.iter_commits(rev=rev, paths=fullpath, max_count=1))[0]
@@ -273,10 +272,8 @@ class RepositoryMiner:
 		return files_modification
 
 	def _extract_code_elements(self, source_file, source_code):		
-		if source_file.ext == 'lua':
 			analyzer = StaticAnalyzer()
-			return analyzer.lua_reverse_engineering(source_file, source_code)
-		return []
+			return analyzer.reverse_engineering(source_file, source_code)
 
 	def is_source_file(self, file):
 		return self._valid_ext(file.ext)

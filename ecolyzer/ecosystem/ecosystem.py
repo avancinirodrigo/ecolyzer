@@ -12,6 +12,7 @@ class Ecosystem(Base):
 	 	
 	def add_relationship(self, relationship):
 	 	self._relationships.append(relationship)
-	 	
+	
+	@property 	
 	def relationships(self):
-		return self._relationships
+		return self._relationships.copy()
