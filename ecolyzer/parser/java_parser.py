@@ -1,11 +1,16 @@
 import sys
 import javalang
+from javalang import parser
+from .parse_exceptions import SyntaxException
 
 class JavaParser():
 	"""JavaParser"""
 	def parser(self, src):
 		sys.setrecursionlimit(10**6) 
-		self.tree = javalang.parse.parse(src)
+		try:
+			self.tree = javalang.parse.parse(src)
+		except parser.JavaSyntaxError:
+			raise SyntaxException('SyntaxException')
 
 	def extract_operations(self):
 		return self._extract_declarations()

@@ -1,7 +1,8 @@
 from ecolyzer.system import Operation, Call, Association
-from .lua_parser import LuaParser, SyntaxException, ChunkException
+from .lua_parser import LuaParser
 from .lizard import Lizard
 from .java_parser import JavaParser
+from .parse_exceptions import SyntaxException, ChunkException
 
 class StaticAnalyzer:
 	def __init__(self):
@@ -16,24 +17,27 @@ class StaticAnalyzer:
 	def _java_reverse_engineering(self, src_file, src):
 		code_elements = []
 		parser = JavaParser()
-		parser.parser(src)
+		try:
+			parser.parser(src)
 
-		methods = parser.extract_operations()
-		operations = [method['name'] for method in methods]
-		self._remove_methods_duplicated(methods)
-		self._remove_private_modifiers(methods)
-		for op in methods:
-			code_elements.append(Operation(op, src_file))		
+			methods = parser.extract_operations()
+			operations = [method['name'] for method in methods]
+			self._remove_methods_duplicated(methods)
+			self._remove_private_modifiers(methods)
+			for op in methods:
+				code_elements.append(Operation(op, src_file))		
 
-		calls = parser.extract_calls()
-		self._remove_inner_calls(calls, operations)
-		self._remove_duplicated(calls)		
-		for call in calls:
-			code_elements.append(Call(call, src_file))			
+			calls = parser.extract_calls()
+			self._remove_inner_calls(calls, operations)
+			self._remove_duplicated(calls)		
+			for call in calls:
+				code_elements.append(Call(call, src_file))			
 
-		associations = parser.extract_associations()
-		for ass in associations:
-			code_elements.append(Association(ass, src_file))
+			associations = parser.extract_associations()
+			for ass in associations:
+				code_elements.append(Association(ass, src_file))
+		except SyntaxException:
+			pass
 
 		return code_elements
 

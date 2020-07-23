@@ -1,6 +1,8 @@
 from luaparser import ast
 from luaparser import astnodes
 from luaparser import builder
+from .parse_exceptions import SyntaxException, ChunkException
+
 
 class LuaParser:
 	def parser(self, src):
@@ -94,9 +96,3 @@ class TableVisitor(ast.ASTVisitor):
 			if (isinstance(field.key, astnodes.Name) and
 					isinstance(field.value, astnodes.AnonymousFunction)):
 				self.functions.append(field.key.id)
-
-class SyntaxException(Exception):
-	pass
-
-class ChunkException(Exception):
-	pass
