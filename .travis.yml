@@ -25,6 +25,7 @@ before_script:
   - git clone https://github.com/TerraME/terrame.git repo/terrame
   - git clone https://github.com/TerraME/ca.git repo/ca
   - git clone https://github.com/jfree/jfreechart.git repo/jfreechart
+  - git clone https://github.com/micromata/projectforge-webapp.git repo/projectforge-webapp
   - psql -c "ALTER USER postgres WITH PASSWORD 'postgres'" -U postgres;
 
 script:
