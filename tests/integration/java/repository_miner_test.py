@@ -973,99 +973,6 @@ def test_extract_tag_interval():
 	session.close()
 	db.drop_all()	
 
-# def test_extract_deleted_files():
-# 	db_url = 'postgresql://postgres:postgres@localhost:5432/miner_del_files'
-# 	db = SQLAlchemyORM(db_url)
-# 	db.create_all(True)
-# 	repo = Repository('repo/terrame')
-# 	sys = System('terrame', repo)
-# 	session = db.create_session()
-# 	session.add(repo)
-# 	session.add(sys)
-# 	session.commit()
-# 	miner = RepositoryMiner(repo, sys)
-
-# 	miner.extract(session, '082dff5e822ea1b4491911b7bf434a7f47a4be26')
-# 	file = session.query(File).filter_by(fullpath = 'src/lua/terrame.lua').one()
-# 	mod = session.query(Modification).filter_by(file_id = file.id).first()
-
-# 	assert mod.new_path == 'src/lua/terrame.lua'
-# 	assert mod.old_path == None
-# 	assert mod.status == 'ADD'
-# 	assert sys.file_exists('src/lua/terrame.lua')
-
-# 	miner.extract(session, 'f2e117598feee9db8cabbd1c300e143199e12d92')	
-# 	file = session.query(File).filter_by(fullpath = 'src/lua/terrame.lua').one()
-# 	mod = session.query(Modification).filter_by(file_id = file.id).filter_by(status = 'DELETE').first()
-	
-# 	assert mod.new_path == None
-# 	assert mod.old_path == 'src/lua/terrame.lua'	
-# 	assert mod.status == 'DELETE'
-# 	assert sys.file_exists('src/lua/terrame.lua')
-
-# 	session.close()
-# 	db.drop_all()
-
-# def test_extract_renamed_files():
-# 	db_url = 'postgresql://postgres:postgres@localhost:5432/miner_rename_file'
-# 	db = SQLAlchemyORM(db_url)
-# 	db.create_all(True)
-# 	repo = Repository('repo/terrame')
-# 	sys = System('terrame', repo)
-# 	session = db.create_session()
-# 	session.add(repo)
-# 	session.add(sys)
-# 	session.commit()
-# 	miner = RepositoryMiner(repo, sys)
-	
-# 	miner.extract(session, '082dff5e822ea1b4491911b7bf434a7f47a4be26')
-# 	file = session.query(File).filter_by(fullpath = 'base/lua/Observer.lua').one()
-# 	mod = session.query(Modification).filter_by(file_id = file.id).first()
-
-# 	assert mod.new_path == 'base/lua/Observer.lua'
-# 	assert mod.old_path == None
-# 	assert mod.status == 'ADD'
-# 	assert sys.file_exists('base/lua/Observer.lua')
-
-# 	miner.extract(session, 'c57b6d69461abf10ba5950e0577dff3c982f3ea4')	
-# 	file = session.query(File).filter_by(fullpath = 'src/lua/observer.lua').one()
-# 	mod = session.query(Modification).filter_by(file_id = file.id).filter_by(status = 'RENAME').first()
-	
-# 	assert mod.new_path == 'src/lua/observer.lua'
-# 	assert mod.old_path == 'base/lua/Observer.lua'
-# 	assert mod.status == 'RENAME'
-# 	assert sys.file_exists('src/lua/observer.lua')
-# 	assert sys.file_exists('base/lua/Observer.lua')
-
-# 	session.close()	
-# 	db.drop_all()
-
-# def test_extract_same_commit():
-# 	db_url = 'postgresql://postgres:postgres@localhost:5432/miner_rename_file'
-# 	db = SQLAlchemyORM(db_url)
-# 	db.create_all(True)
-# 	repo = Repository('repo/terrame')
-# 	sys = System('terrame', repo)
-# 	session = db.create_session()
-# 	session.add(repo)
-# 	session.add(sys)
-# 	session.commit()
-# 	miner = RepositoryMiner(repo, sys)
-	
-# 	miner.extract(session, '082dff5e822ea1b4491911b7bf434a7f47a4be26')
-# 	file_count = session.query(File).count()	
-# 	srcfile_count = session.query(SourceFile).count()
-# 	mod_count = session.query(Modification).count()	
-
-# 	#TODO(#41) miner.extract(session, '082dff5e822ea1b4491911b7bf434a7f47a4be26')
-
-# 	assert file_count == session.query(File).count()
-# 	assert srcfile_count == session.query(SourceFile).count()
-# 	assert mod_count == session.query(Modification).count()
-
-# 	session.close()	
-# 	db.drop_all()
-
 def test_extract_current_files():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/miner_java_curr_files'
 	db = SQLAlchemyORM(db_url)
@@ -1079,7 +986,7 @@ def test_extract_current_files():
 	session = db.create_session()		
 	miner.extract_current_files(session)
 
-	assert session.query(File).count() >= 990
+	assert session.query(File).count() >= 985
 
 	session.close()
 	db.drop_all()
@@ -1108,29 +1015,26 @@ def test_extract_last_commits():
 		'equals': True,
 		'hashCode': True,
 		'clone': True,
-		'writeObject': True,
-		'readObject': True,
 		'nullNotPermitted': True,
 		'append': True,
 		'getToolTipText': True,
 		'getArea': True,
-		'equal': True,
 		'getURLText': True,
 		'defaultWriteObject': True,
 		'writeShape': True,
 		'defaultReadObject': True,
 		'setArea': True,
 		'readShape': True,
-		'Override': True, #TODO: Annotations
+		'Override': True,
 		'java/awt/Shape': True,
 		'java/io/IOException': True,
 		'java/io/ObjectInputStream': True,
 		'java/io/ObjectOutputStream': True,
+		'java/util/Objects': True,
 		'org/jfree/chart/plot/Plot': True,
 		'org/jfree/chart/HashUtils': True,
-		'org/jfree/chart/util/ObjectUtils': True,
 		'org/jfree/chart/util/Args': True,
-		'org/jfree/chart/util/SerialUtils': True
+		'org/jfree/chart/util/SerialUtils': True,
 	}
 
 	src_code_elements = srcfile.code_elements()
@@ -1139,7 +1043,7 @@ def test_extract_last_commits():
 		assert code_elements[srcfile.code_element_by_key(k).name]
 		#print('\'' + srcfile.code_element_by_key(k).name + '\': ' + 'True,')
 
-	assert srcfile.code_elements_len() == 26
+	assert srcfile.code_elements_len() == 25
 
 	file_mod = session.query(Modification).\
 					filter_by(file_id = srcfile.file_id).one()	
