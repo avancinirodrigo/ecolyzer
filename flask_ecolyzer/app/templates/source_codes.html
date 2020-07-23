@@ -149,7 +149,7 @@
 	var to_source_view = "<pre class=\"prettyprint lang-{{language}} linenums\">";
 
 	for(var i = 0; i < to_source_lines.length; i++) {
-		var line = to_source_lines[i];
+		var line = to_source_lines[i].replace(/</g,"&lt;").replace(/>/g,"&gt;") ;
 		var code_element = hasCodeTo(line, code_elements, "{{language}}");
 		if(code_element != "") {
 			to_source_view += "<a name=\"to_" + code_element + "\"></a><mark>" + line + "</mark>"
