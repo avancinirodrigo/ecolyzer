@@ -6,10 +6,6 @@ from ecolyzer.repository import Author, Modification
 from ecolyzer.ecosystem import Relationship
 from ecolyzer.system import Operation, SourceFile
 
-@app.route('/authors')
-def authors():
-	authors = db.session.query(Author).all()
-	return render_template('authors.html', authors=authors)
 
 @app.route('/', methods=['GET'])
 @app.route('/relationships', methods=['GET'])
