@@ -17,7 +17,7 @@ class RepositoryMiner:
 		self.repo = repo
 		self.system = system
 		self.source_file_extensions = {}
-		self.source_file_extensions['lua'] = 'lua'
+		self.source_file_extensions = {'lua':'lua', 'java':'java'}
 		self.ignore_dir_with = {}
 		self.from_commit = None
 		self.to_commit = None
@@ -69,19 +69,27 @@ class RepositoryMiner:
 	def extract_last_commits(self, session=NullSession(), rev=None):
 		repo = Repo(self.repo.path)
 		blobs = self._repo_file_blobs(repo)
+		file_count = 0
 		for blob in blobs:
-			commit = self._last_commit_from_path(blob.path, repo, rev)	
-			commit_info = self._get_commit_info_from_gitpython(commit)
-			author = self._check_author(session, commit_info.author_name, commit_info.author_email)
-			commit = self._check_commit(commit_info, author)
-			mod_info = self._get_modification_from_gitpython(blob)
-			file = self._check_file(mod_info)
-			mod = Modification(mod_info, file, commit)
-			srcfile = self._check_source_file(file)
-			code_elements = self._extract_code_elements(srcfile, mod.source_code)
-			for element in code_elements:
-				code_element = self._check_code_element(session, srcfile, element, mod)
-			session.add(mod)
+			try:
+				commit = self._last_commit_from_path(blob.path, repo, rev)	
+				commit_info = self._get_commit_info_from_gitpython(commit)
+				author = self._check_author(session, commit_info.author_name, commit_info.author_email)
+				commit = self._check_commit(commit_info, author)
+				mod_info = self._get_modification_from_gitpython(blob)
+				file = self._check_file(mod_info)
+				mod = Modification(mod_info, file, commit)
+				srcfile = self._check_source_file(file)
+				code_elements = self._extract_code_elements(srcfile, mod.source_code)
+				for element in code_elements:
+					code_element = self._check_code_element(session, srcfile, element, mod)
+				session.add(mod)
+				file_count += 1
+				if file_count == 50:
+					session.commit()
+					file_count = 0
+			except FileNoExistsOnRevException:
+				pass
 		session.commit()
 
 	def _get_commit_info_from_gitpython(self, commit):
@@ -107,11 +115,13 @@ class RepositoryMiner:
 
 	def _count_lines_of_code(self, filepath, source_code):
 		analyzer = StaticAnalyzer()
-		metrics = analyzer.lua_metrics(filepath, source_code)
-		return metrics.nloc()
+		return analyzer.nloc(filepath, source_code)
 
 	def _last_commit_from_path(self, fullpath, repo, rev):
-		return list(repo.iter_commits(rev=rev, paths=fullpath, max_count=1))[0]
+		commits = list(repo.iter_commits(rev=rev, paths=fullpath, max_count=1))
+		if len(commits) > 0:
+			return commits[0]
+		raise FileNoExistsOnRevException
 
 	def extract_current_files(self, session=NullSession()):
 		repo = Repo(self.repo.path)
@@ -273,10 +283,8 @@ class RepositoryMiner:
 		return files_modification
 
 	def _extract_code_elements(self, source_file, source_code):		
-		if source_file.ext() == 'lua':
 			analyzer = StaticAnalyzer()
-			return analyzer.lua_reverse_engineering(source_file, source_code)
-		return []
+			return analyzer.reverse_engineering(source_file, source_code)
 
 	def is_source_file(self, file):
 		return self._valid_ext(file.ext)
@@ -287,3 +295,7 @@ class RepositoryMiner:
 	@staticmethod
 	def HashHeadCommit(path):
 		return Repo(path).head.commit.hexsha	
+
+
+class FileNoExistsOnRevException(Exception):
+	pass

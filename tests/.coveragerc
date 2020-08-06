@@ -1,0 +1,10 @@
+[run]
+source = 
+    ../ecolyzer
+    ../flask_ecolyzer
+omit =
+    */flask_ecolyzer/main.py    
+[report]
+exclude_lines =
+    pragma: no cover
+    @abstract

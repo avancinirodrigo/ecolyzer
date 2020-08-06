@@ -45,7 +45,7 @@ def test_make_relations(mocker):
 	ecolyzer = EcosystemAnalyzer(ecosystem)
 	ecolyzer.make_relations(sys2, sys1)
 
-	relationships = ecosystem.relationships()
+	relationships = ecosystem.relationships
 
 	assert len(relationships) == 2
 

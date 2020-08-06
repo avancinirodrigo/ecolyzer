@@ -36,7 +36,7 @@ def test_make_relations():
 	ecolyzer = EcosystemAnalyzer(ecosystem)
 	ecolyzer.make_relations(sys2, sys1, session)
 
-	relationships = ecosystem.relationships()
+	relationships = ecosystem.relationships
 
 	assert len(relationships) == 292
 
@@ -49,7 +49,7 @@ def test_make_relations():
 	assert rel1.to_system.name == 'terrame'
 	assert rel1.to_author.name == 'rvmaretto'	
 	assert rel1.to_author.email == 'rvmaretto@gmail.com'	
-	assert rel1.from_code_element.name == rel1.to_code_element.name == 'createNeighborhood'
+	assert rel1.from_code_element.name == rel1.to_code_element.name == 'notify'
 	assert rel1.from_code_element_count == 1
 	
 	assert rel2.from_system.name == 'ca'
@@ -92,7 +92,7 @@ def test_relations_last_commits():
 	ecolyzer = EcosystemAnalyzer(ecosystem)
 	ecolyzer.make_relations(sys2, sys1, session)
 
-	relationships = ecosystem.relationships()
+	relationships = ecosystem.relationships
 
 	assert len(relationships) == 531
 

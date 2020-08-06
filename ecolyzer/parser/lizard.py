@@ -1,7 +1,7 @@
 import lizard
 
-class LuaMetrics(object):
-	"""LuaMetrics"""
+class Lizard(object):
+	"""Lizard"""
 	def __init__(self, filepath, source_code):
 		self.metrics = lizard.analyze_file.\
 						analyze_source_code(filepath, source_code)

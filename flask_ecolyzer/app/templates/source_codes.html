@@ -99,11 +99,19 @@
 </html>
 <script type="text/javascript">
 
-	function hasCodeTo(line, code_elements) {
-		for(var i = 0; i < code_elements.length; i++) {
-			if((line.search(code_elements[i] + " = function") >= 0)
-					|| (line.search("function " + code_elements[i] + "[(]") >= 0))
-				return code_elements[i];
+	function hasCodeTo(line, code_elements, language) {
+		if(language == 'lua') {
+			for(var i = 0; i < code_elements.length; i++) {
+				if((line.search(code_elements[i] + " = function") >= 0)
+						|| (line.search("function " + code_elements[i] + "[(]") >= 0))
+					return code_elements[i];
+			}
+		}
+		else if(language == 'java') {
+			for(var i = 0; i < code_elements.length; i++) {
+				if(line.search("[a-zA-Z]+ " + code_elements[i] + "[(]") >= 0)
+					return code_elements[i];
+			}
 		}
 		return "";		
 	}
@@ -138,11 +146,11 @@
 	to_operations += "</select>"
 	$("#to_source").find("op").html(to_operations);
 
-	var to_source_view = "<pre class=\"prettyprint lang-lua linenums\">";
+	var to_source_view = "<pre class=\"prettyprint lang-{{language}} linenums\">";
 
 	for(var i = 0; i < to_source_lines.length; i++) {
-		var line = to_source_lines[i];
-		var code_element = hasCodeTo(line, code_elements);
+		var line = to_source_lines[i].replace(/</g,"&lt;").replace(/>/g,"&gt;") ;
+		var code_element = hasCodeTo(line, code_elements, "{{language}}");
 		if(code_element != "") {
 			to_source_view += "<a name=\"to_" + code_element + "\"></a><mark>" + line + "</mark>"
 								+ "  <a href=\"#to_top\">" 
@@ -157,7 +165,7 @@
 
 	$("#to_source").find("src").html(to_source_view);
 
-	var from_source_view = "<pre class=\"prettyprint lang-lua linenums\">";
+	var from_source_view = "<pre class=\"prettyprint lang-{{language}} linenums\">";
 	var from_code_elements = {};
 	var from_operations = "<select name=\"from_relations\" onchange=\"location=this.value;\">";
 	from_operations += "<option selected disabled> {{ from_system }} relations</option>";

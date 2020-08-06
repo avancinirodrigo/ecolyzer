@@ -6,10 +6,6 @@ from ecolyzer.repository import Author, Modification
 from ecolyzer.ecosystem import Relationship
 from ecolyzer.system import Operation, SourceFile
 
-@app.route('/authors')
-def authors():
-	authors = db.session.query(Author).all()
-	return render_template('authors.html', authors=authors)
 
 @app.route('/', methods=['GET'])
 @app.route('/relationships', methods=['GET'])
@@ -33,9 +29,9 @@ def relationships():
 						filter_by(file_id = rel.to_source_file.file_id).one()					
 			info = {
 				'id': source_id,
-				'source': rel.to_source_file.name(),
-				'fullpath': rel.to_source_file.fullpath(),
-				'path': rel.to_source_file.path(),
+				'source': rel.to_source_file.name,
+				'fullpath': rel.to_source_file.fullpath,
+				'path': rel.to_source_file.path,
 				'url': url_for('.source_relations', id=source_id),
 				'system': rel.to_system.name,
 				'operations': operations,
@@ -43,7 +39,7 @@ def relationships():
 				'count': 1
 			}
 			relations_count.append(info)
-			paths[rel.to_source_file.path()] = 0
+			paths[rel.to_source_file.path] = 0
 			source_ids.append(source_id)
 
 	sources_without_relation = db.session.query(SourceFile).\
@@ -58,9 +54,9 @@ def relationships():
 						filter_by(file_id = src.file_id).one()
 			info = {
 				'id': src.id,
-				'source': src.name(),
-				'fullpath': src.fullpath(),
-				'path': src.path(),
+				'source': src.name,
+				'fullpath': src.fullpath,
+				'path': src.path,
 				'url': '',
 				'system': to_system.name,
 				'operations': operations,
@@ -68,7 +64,7 @@ def relationships():
 				'count': 0
 			}
 			sources_without_relation_info.append(info)
-			paths[src.path()] = 0
+			paths[src.path] = 0
 	
 	relations_count = relations_count + sources_without_relation_info
 
@@ -96,8 +92,8 @@ def source_relations(id):
 						filter_by(file_id = from_source_file.file_id).one()	
 			info = {
 				'id': from_source_id,
-				'from': from_source_file.name(),
-				'fullpath': from_source_file.fullpath(),
+				'from': from_source_file.name,
+				'fullpath': from_source_file.fullpath,
 				'code': rel.from_code_element.name + '()',
 				'count': 1,
 				'system': rel.from_system.name,
@@ -108,7 +104,7 @@ def source_relations(id):
 			source_relations.append(info)
 
 	return render_template('source_relations.html', relations=source_relations,
-						source_file=source_file.name(), from_systems=from_systems)
+						source_file=source_file.name, from_systems=from_systems)
 
 @app.route('/relationships/<int:from_id>/<int:to_id>', methods=['GET'])
 def source_codes(from_id, to_id):
@@ -127,7 +123,14 @@ def source_codes(from_id, to_id):
 	for rel in relations:
 		# print(rel.to_code_element.name)
 		code_elements.append(rel.to_code_element.name)
+
+	language = ''
+	if to_file.ext == 'lua':
+		language = 'lua'
+	elif to_file.ext == 'java':
+		language = 'java'
+
 	return render_template('source_codes.html', from_source=from_source[0], 
 						to_source=to_source[0], code_elements=code_elements,
 						from_fullpath=from_file.fullpath, to_fullpath=to_file.fullpath,
-						from_system=from_system, to_system=to_system)
+						from_system=from_system, to_system=to_system, language=language)

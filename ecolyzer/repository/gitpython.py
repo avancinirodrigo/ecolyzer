@@ -13,9 +13,9 @@ class GitPython:
 	def commit_hashs_reverse(self, max_count=None, branch='master'):
 		commits = list(self.repo.iter_commits(branch, reverse=True))		
 		if max_count:
-			return (commits[i].hexsha for i in range(max_count))
+			return list(commits[i].hexsha for i in range(max_count))
 		else:
-			return (commit.hexsha for commit in commits)
+			return list(commit.hexsha for commit in commits)
 		
 	@staticmethod
 	def IsGitRepo(path):
