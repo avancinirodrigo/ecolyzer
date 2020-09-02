@@ -5,3 +5,4 @@ from .person import Person
 from .author import Author
 from .modification import ModificationInfo, Modification
 from .gitpython import GitPython
+from .github import GitHub
