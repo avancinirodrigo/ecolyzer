@@ -6,6 +6,7 @@ from git import Repo
 from ecolyzer.system import File, SourceFile, Operation
 from ecolyzer.parser import StaticAnalyzer
 from ecolyzer.dataaccess import NullSession
+from ecolyzer.utils import FileUtils
 from .commit import CommitInfo, Commit
 from .modification import ModificationInfo, Modification
 from .person import Person
@@ -158,7 +159,7 @@ class RepositoryMiner:
 		self.ignore_dir_with[dir] = dir
 
 	def _is_valid_source(self, filepath):
-		path, filename, ext = File.Split(filepath)
+		path, filename, ext = FileUtils.split(filepath)
 		return (self._valid_ext(ext) 
 					and self._valid_dir(path))		
 
