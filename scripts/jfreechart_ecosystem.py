@@ -1,10 +1,9 @@
 import os
-from ecolyzer.ecosystem import EcosystemAnalyzer
 from ecolyzer.system import System
 from ecolyzer.repository import Repository, Person, Author, \
 							RepositoryMiner, GitPython
 from ecolyzer.dataaccess import SQLAlchemyORM
-from ecolyzer.ecosystem import Ecosystem
+from ecolyzer.ecosystem import Ecosystem, EcosystemAnalyzer
 
 db_url = 'postgresql://postgres:postgres@localhost:5432/jfreechart_ecosystem'
 db = SQLAlchemyORM(db_url)

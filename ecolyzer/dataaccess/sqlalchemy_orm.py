@@ -3,6 +3,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy import engine
 from sqlalchemy_utils import database_exists, create_database, drop_database
+from sqlalchemy.orm.session import close_all_sessions
+
 
 class SQLAlchemyORM:
 	def  __init__(self, url):
@@ -44,6 +46,9 @@ class SQLAlchemyORM:
 		Base.metadata.drop_all(self.engine)
 		self.dropdb() 
 
+	def close_all(self):
+		close_all_sessions()
+				
 Base = declarative_base()
 
 class NullSession:
