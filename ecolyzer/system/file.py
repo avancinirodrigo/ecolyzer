@@ -2,7 +2,9 @@ import os
 from sqlalchemy import Column, String, Integer, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.hybrid import hybrid_property
+from ecolyzer.utils import FileUtils
 from ecolyzer.dataaccess import Base
+
 
 class File(Base):
 	"""File"""
@@ -57,7 +59,7 @@ class File(Base):
 		if fullpath == None:
 			return 
 		self._fullpath = None	
-		path, filename, ext = File.Split(fullpath)		
+		path, filename, ext = FileUtils.split(fullpath)		
 		self.path = path
 		self.name = filename
 		self.ext = ext	
@@ -74,37 +76,3 @@ class File(Base):
 		elif self.path == '':
 			return self.name + '.' + self.ext
 		return self.path + '/' + self.name + '.' + self.ext
-
-	@staticmethod
-	def Extension(fullpath):
-		path, file_with_ext = os.path.split(fullpath)
-		ext = ''
-		if '.' in file_with_ext:
-			split_list = file_with_ext.split('.')
-			if len(split_list) > 2:
-				ext = split_list.pop()
-			else:
-				if not file_with_ext.startswith('.'):
-					ext = split_list[1]
-		return ext
-
-	@staticmethod
-	def Split(fullpath):
-		path, file_with_ext = os.path.split(fullpath)
-		filename = ''
-		ext = ''
-		if '.' in file_with_ext:
-			split_list = file_with_ext.split('.')
-			if len(split_list) > 2:
-				ext = split_list.pop()
-				filename = '.'.join(split_list)
-			else:
-				if file_with_ext.startswith('.'):
-					filename = '.' + split_list[1]
-				else:
-					filename = split_list[0]
-					ext = split_list[1]
-		else:
-			filename = file_with_ext		
-
-		return path, filename, ext

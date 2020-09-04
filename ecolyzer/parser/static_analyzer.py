@@ -34,6 +34,7 @@ class StaticAnalyzer:
 				code_elements.append(Call(call, src_file))			
 
 			associations = parser.extract_associations()
+			self._remove_duplicated(associations)
 			for ass in associations:
 				code_elements.append(Association(ass, src_file))
 		except SyntaxException:

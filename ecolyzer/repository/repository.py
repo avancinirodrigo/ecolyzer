@@ -2,6 +2,7 @@ from sqlalchemy import Column, String, Integer
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.collections import attribute_mapped_collection
 from ecolyzer.dataaccess import Base
+from ecolyzer.utils import FileUtils
 from .author import Author
 from .commit import Commit
 from .gitpython import GitPython
@@ -11,7 +12,7 @@ class Repository(Base):
 	__tablename__ = 'repository'
 
 	id = Column(Integer, primary_key=True)
-	path = Column(String, nullable=False, unique=True)
+	_path = Column('path', String, nullable=False, unique=True)
 	_authors = relationship(Author, 
 					collection_class=attribute_mapped_collection('email'))
 	_commits = relationship(Commit, 
@@ -19,9 +20,17 @@ class Repository(Base):
 
 	def __init__(self, path):
 		if GitPython.IsGitRepo(path):
-			self.path = path
+			self._path = path
 		else:
 			raise Exception('Invalid repository path \'{0}\''.format(path))
+
+	@property
+	def path(self):
+		return self._path
+
+	@path.setter
+	def path(self, path):
+		self._path = path		
 
 	def add_author(self, author):
 		if author.email not in self._authors: 
@@ -53,3 +62,8 @@ class Repository(Base):
 			return self._commits[hash]
 		else:
 			raise ValueError('Commit \'{0}\' not exists'.format(hash))
+
+	@property
+	def name(self) -> str:
+		return FileUtils.last_dir(self._path)
+	
