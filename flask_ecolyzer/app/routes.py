@@ -5,71 +5,23 @@ from . import bp as app
 from ecolyzer.repository import Author, Modification
 from ecolyzer.ecosystem import Relationship
 from ecolyzer.system import Operation, SourceFile
-
+from ecolyzer.ucs import CentralSoftwareUsage
 
 @app.route('/', methods=['GET'])
 @app.route('/relationships', methods=['GET'])
 def relationships():
-	relations = db.session.query(Relationship).all()
-	to_system = relations[0].to_system
-	relations_count = []
-	source_pos = {}
-	paths = {}
-	source_ids = []
-	for rel in relations:
-		source_id = rel.to_source_file_id
-		if source_id in source_pos:
-			pos = source_pos[source_id]
-			relations_count[pos]['count'] = relations_count[pos]['count'] + 1
-		else:
-			source_pos[source_id] = len(relations_count)
-			operations = db.session.query(Operation).\
-						filter_by(source_file_id=source_id).count()		
-			file_mod = db.session.query(Modification).\
-						filter_by(file_id = rel.to_source_file.file_id).one()					
-			info = {
-				'id': source_id,
-				'source': rel.to_source_file.name,
-				'fullpath': rel.to_source_file.fullpath,
-				'path': rel.to_source_file.path,
-				'url': url_for('.source_relations', id=source_id),
-				'system': rel.to_system.name,
-				'operations': operations,
-				'nloc': file_mod.nloc,
-				'count': 1
-			}
-			relations_count.append(info)
-			paths[rel.to_source_file.path] = 0
-			source_ids.append(source_id)
-
-	sources_without_relation = db.session.query(SourceFile).\
-					filter(SourceFile.id.notin_(source_ids)).\
-					filter_by(system_id=to_system.id).all()
-	sources_without_relation_info = []
-	for src in sources_without_relation:
-		operations = db.session.query(Operation).\
-					filter_by(source_file_id=src.id).count()
-		if operations > 0:		
-			file_mod = db.session.query(Modification).\
-						filter_by(file_id = src.file_id).one()
-			info = {
-				'id': src.id,
-				'source': src.name,
-				'fullpath': src.fullpath,
-				'path': src.path,
-				'url': '',
-				'system': to_system.name,
-				'operations': operations,
-				'nloc': file_mod.nloc,
-				'count': 0
-			}
-			sources_without_relation_info.append(info)
-			paths[src.path] = 0
-	
-	relations_count = relations_count + sources_without_relation_info
-
-	return render_template('relations_count.html', relations=relations_count,
-						system=to_system.name, paths=paths)
+	dataaccess = db.session
+	uc = CentralSoftwareUsage()
+	central_software_info = uc.execute(dataaccess)
+	components = central_software_info['components']
+	for comp in components:
+		if comp['operations'] > 0:
+			comp['url'] = url_for('.source_relations', id=comp['id'])
+	dataaccess.close()
+	return render_template('relations_count.html', 
+						relations=central_software_info['components'],
+						system=central_software_info['central_software'].name, 
+						paths=central_software_info['component_paths'])
 
 @app.route('/relationships/<int:id>', methods=['GET'])
 def source_relations(id):

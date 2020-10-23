@@ -52,6 +52,7 @@
 	var numOfOperations = 0;
 	var numOfLoc = 0;
 	var numOfRelations = 0;
+	var numOfCoverage = 0;
 	var infoByPath = [];
 
 	function addParents(relations, paths) {
@@ -59,6 +60,7 @@
 	   		numOfOperations += relations[i]["operations"];
 	   		numOfLoc += relations[i]["nloc"];
 	   		numOfRelations += relations[i]["count"];
+	   		numOfCoverage += relations[i]["coverage"];
 	   		var parentDir = paths[relations[i]["path"]];
 	   		relations[i]["parentDir"] = parentDir;
 	   		if(!infoByPath[parentDir]) {
@@ -66,10 +68,12 @@
 	   			infoByPath[parentDir]["operations"] = 0;
 	   			infoByPath[parentDir]["nloc"] = 0;
 	   			infoByPath[parentDir]["relations"] = 0;
+	   			infoByPath[parentDir]["coverage"] = 0;
 	   		}
 	   		infoByPath[parentDir]["operations"]  += relations[i]["operations"];
 	   		infoByPath[parentDir]["nloc"]  += relations[i]["nloc"];
 	   		infoByPath[parentDir]["relations"] += relations[i]["count"];
+	   		infoByPath[parentDir]["coverage"] += relations[i]["coverage"];
 	   	}
 	}
 
@@ -204,8 +208,9 @@
 		                tip.style("display", "inline-block");
 		                tip.html("<center><b>" + d.data.source + "</b></center>"
 		                			+ d.data.fullpath
-		                			+ "<br>operations: " + d.data.operations 
-		                			+ "<br>relations: " + d.data.count
+		                			+ "<br>operations: " + d.data.operations
+		                			+ "<br>coverage: " + d.data.coverage 
+		                			+ "<br>relationships: " + d.data.count         			
 		                			+ "<br>nloc: " + d.data.nloc);
 		            })
 		            .on("mouseout", function (d) {
@@ -239,6 +244,7 @@
                 			+ "total of source files: " + numOfSourceFiles
                 			+ "<br>total of relationships: " + numOfRelations
                 			+ "<br>total of operations: " + numOfOperations
+                			+ "<br>total of coverage: " + numOfCoverage
                 			+ "<br>total of loc: " + numOfLoc);
             })
             .on("mouseout", function (d) {
@@ -265,6 +271,7 @@
                 			+ "total of source files: " + d.children.length
                 			+ "<br> total of relationships: " + infoByPath[d.data.id]["relations"]
                 			+ "<br>total of operations: " + infoByPath[d.data.id]["operations"]
+                			+ "<br>total of coverage: " + infoByPath[d.data.id]["coverage"]
                 			+ "<br>total of loc: " + infoByPath[d.data.id]["nloc"]);
             })
             .on("mouseout", function (d) {
