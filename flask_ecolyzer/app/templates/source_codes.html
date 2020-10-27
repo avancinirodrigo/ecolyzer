@@ -136,7 +136,7 @@
 	var from_source_lines = from_source.split("\n");	
 
 	var to_operations = "<select name=\"to_relations\" onchange=\"location=this.value;\">";
-	to_operations += "<option selected disabled> {{ to_system }} relations</option>";
+	to_operations += "<option selected disabled> {{ to_system }} relationships</option>";
 	var code_elements = {{ code_elements|safe }}
 	for(var i = 0; i < code_elements.length; i++) {
 		to_operations += "<option value=\"#to_" + code_elements[i] + "\">"
@@ -168,7 +168,7 @@
 	var from_source_view = "<pre class=\"prettyprint lang-{{language}} linenums\">";
 	var from_code_elements = {};
 	var from_operations = "<select name=\"from_relations\" onchange=\"location=this.value;\">";
-	from_operations += "<option selected disabled> {{ from_system }} relations</option>";
+	from_operations += "<option selected disabled> {{ from_system }} relationships</option>";
 	var from_operations_count = 0;
 
 	for(var i = 0; i < from_source_lines.length; i++) {
