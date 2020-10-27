@@ -209,7 +209,8 @@
 		                tip.html("<center><b>" + d.data.source + "</b></center>"
 		                			+ d.data.fullpath
 		                			+ "<br>operations: " + d.data.operations
-		                			+ "<br>coverage: " + d.data.coverage 
+		                			+ "<br>coverage: " + d.data.coverage + " ("
+		                			+ Math.round(d.data.coverage*100/d.data.operations) + "%)"
 		                			+ "<br>relationships: " + d.data.count         			
 		                			+ "<br>nloc: " + d.data.nloc);
 		            })
@@ -244,7 +245,8 @@
                 			+ "total of source files: " + numOfSourceFiles
                 			+ "<br>total of relationships: " + numOfRelations
                 			+ "<br>total of operations: " + numOfOperations
-                			+ "<br>total of coverage: " + numOfCoverage
+                			+ "<br>total of coverage: " + numOfCoverage + " ("
+		                			+ Math.round(numOfCoverage*100/numOfOperations) + "%)"
                 			+ "<br>total of loc: " + numOfLoc);
             })
             .on("mouseout", function (d) {
@@ -271,7 +273,8 @@
                 			+ "total of source files: " + d.children.length
                 			+ "<br> total of relationships: " + infoByPath[d.data.id]["relations"]
                 			+ "<br>total of operations: " + infoByPath[d.data.id]["operations"]
-                			+ "<br>total of coverage: " + infoByPath[d.data.id]["coverage"]
+                			+ "<br>total of coverage: " + infoByPath[d.data.id]["coverage"] + " ("
+		                			+ Math.round(infoByPath[d.data.id]["coverage"]*100/infoByPath[d.data.id]["operations"]) + "%)"
                 			+ "<br>total of loc: " + infoByPath[d.data.id]["nloc"]);
             })
             .on("mouseout", function (d) {

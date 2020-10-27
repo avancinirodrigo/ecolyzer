@@ -26,7 +26,7 @@ class CentralSoftwareUsage:
 			else:
 				source_pos[source_id] = len(components)
 				operations = dataaccess.query(Operation).\
-							filter_by(source_file_id=source_id).all() #.count()	
+							filter_by(source_file_id=source_id).all()
 				component_operations[source_id] = {}
 				for op in operations:
 					component_operations[source_id][op.name] = True
@@ -75,7 +75,5 @@ class CentralSoftwareUsage:
 		
 		components = components + sources_without_relation_info	
 
-
-			
 		return {'components': components, 'central_software': to_system,
 				'component_paths': paths}

@@ -5,7 +5,7 @@ from ecolyzer.utils import FileUtils
 from ecolyzer.ecosystem import Ecosystem, EcosystemAnalyzer
 
 
-class MappingEcosystemDependents():
+class MappingEcosystemDependents:
 	"""MappingEcosystemDependents"""
 	def __init__(self, repo_url: str, **kwargs):
 		self._repo_url = repo_url
