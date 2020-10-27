@@ -5,6 +5,7 @@
         <title>{{ source_file }}</title>
         <script type="text/javascript" src="https://d3js.org/d3.v5.min.js"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='js/utils.js') }}"></script>
+        <script src="https://code.jquery.com/jquery-latest.min.js"></script>
         <style type="text/css">
             .tooltip {
                 position: absolute;
@@ -20,11 +21,40 @@
                 padding: 5px;
                 text-align: left;
                 opacity: 0.95;
-            }           
+            }  
+
+            .container {
+                width: 100%;
+                height: 100%;
+            }
+
+            .left {
+               float: left;
+            }    
+
+            .left_container {
+                position: absolute;
+            } 
+
+            select {
+              background: #fff;
+            }            
+       
         </style>        
     </head>
     <body>
-		<div id="treemap"></div>
+        <div class="container">
+            <div class="left_container">
+                <div class="left">
+                    <div id="component_name"></div>
+                </div>
+                <div class="left">
+                    <div id="operations"></div> 
+                </div>
+            </div>
+            <div id="treemap"></div>
+        </div>
+		
     </body>
 </html>
 
@@ -51,7 +81,7 @@
     var numOfSystems = Object.keys(from_systems).length;
 
     // set the dimensions and margins of the graph
-    var margin = {top: 30, right: 10, bottom: 10, left: 10},
+    var margin = {top: 20, right: 10, bottom: 10, left: 10},
     width = getWidth() - margin.left - margin.right - 20,
     height = getHeight() - margin.top - margin.bottom - 20;
 
@@ -183,8 +213,8 @@
                     tip.style("top", d3.event.pageY - 20 + "px");
                     tip.style("display", "inline-block");
                     tip.html("<strong>" + d.data.fullpath + "</strong>"
-                                + "<br>used operations: " + d.data.count
-                                + "<br>total calls: " + d.data.ncalls
+                                + "<br>distinct operations: " + d.data.count
+                                + "<br>total of calls: " + d.data.ncalls
                                 + "<br>nloc: " + d.data.nloc);
                 })
                 .on("mouseout", function (d) {
@@ -222,34 +252,60 @@
                 tip.style("display", "inline-block");
                 tip.html("<center><b>" + d.data.id + "</b></center>"
                             + "total of source files: " + d.children.length
-                            + "<br>total of relations: " + infoBySystem[d.data.id]["ncalls"]
+                            + "<br>total of relationships: " + infoBySystem[d.data.id]["ncalls"]
                             + "<br>total of loc: " + infoBySystem[d.data.id]["nloc"]);
             })
             .on("mouseout", function (d) {
                 tip.style("display", "none");
-            });                 
+            });                    
 
-      // Add title for the 3 groups
-      svg.append("text")
-            .attr("x", 0)
-            .attr("y", 0)
+    d3.select("#component_name")
+            .append("text")
             .text("{{ source_file }}")
-            .attr("font-size", "20px")
+            .style("font-size", "20px")
             .attr("fill", "black")
             .style("font-weight", "bold")   
+            .style("margin-left", margin.left + "px")
+            .style("padding-right", "4px")
             .on("mousemove", function (d) {
                 tip.style("left", d3.event.pageX + 10 + "px");
                 tip.style("top", d3.event.pageY - 20 + "px");
                 tip.style("display", "inline-block");
                 tip.html("<center><b>{{source_file}}</b></center>"
-                            + "total of systems: " + numOfSystems
+                            + "total of dependents: " + numOfSystems
                             + "<br>total of source files: " + numOfSourceFiles
-                            + "<br>total of relations: " + root.value
+                            + "<br>total of relationships: " + root.value
                             + "<br>total of loc: " + numOfLoc);
             })
             .on("mouseout", function (d) {
                 tip.style("display", "none");
-            });            
+            });    
+
+    var operations = {{ operations|safe }};
+    var component_url = "{{ component_url }}";
+    var selected_operation = "{{ selected_operation }}";
+    var operationsDropDown = "<select onchange=\"location=this.value;\">";
+    operationsDropDown += "<option value=\"" + component_url + "\" selected >"
+                            + "" + "</option>";
+    for(const [key, value] of Object.entries(operations)) {
+        if(value == 0) {
+            operationsDropDown += "<option disabled >";
+        }
+        else {
+            operationsDropDown += "<option value=\"" + component_url 
+                            + "?operation=" + key + "\""
+            if (selected_operation == key)
+                operationsDropDown += " selected "
+            operationsDropDown += ">"
+        }
+
+        operationsDropDown += key + "() </option>";
+        console.log(key, value);
+    }
+    operationsDropDown += "</select>"    
+    $("#operations").html(operationsDropDown);
+    $("#operations").css({"position": "relative"});
+    $("#operations").css({"top": "3px"});
 
     var blockWidth = 15;
     var blockHeight = 20;   
@@ -295,8 +351,8 @@
 
     svg.append("text")
         .attr("x", width - colorTicks.length*blockWidth - RELATIONS_LABEL.length*RELATIONS_LABEL_FONT_SIZE/2)
-        .attr("y", 0)
         .text(RELATIONS_LABEL)       
         .style("font-weight", "bolder")
-        .attr("font-size", RELATIONS_LABEL_FONT_SIZE + "px");                 
+        .attr("font-size", RELATIONS_LABEL_FONT_SIZE + "px");        
+
 </script>

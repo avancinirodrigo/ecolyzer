@@ -1,11 +1,12 @@
-from flask import jsonify, render_template, url_for
+from flask import jsonify, render_template, url_for, request
 import json
 from . import db
 from . import bp as app
 from ecolyzer.repository import Author, Modification
 from ecolyzer.ecosystem import Relationship
 from ecolyzer.system import Operation, SourceFile
-from ecolyzer.ucs import CentralSoftwareUsage
+from ecolyzer.ucs import CentralSoftwareUsage, ComponentUsage
+
 
 @app.route('/', methods=['GET'])
 @app.route('/relationships', methods=['GET'])
@@ -25,38 +26,21 @@ def relationships():
 
 @app.route('/relationships/<int:id>', methods=['GET'])
 def source_relations(id):
-	relations = db.session.query(Relationship).filter_by(to_source_file_id = id).all()
-	source_file = relations[0].to_source_file
-	source_relations = []
-	from_source_pos = {}
-	from_systems = {}
-	for rel in relations:
-		from_source_id = rel.from_source_file_id
-		if from_source_id in from_source_pos:
-			pos = from_source_pos[from_source_id]
-			source_relations[pos]['count'] += 1
-			source_relations[pos]['ncalls'] += rel.from_code_element_count
-		else: # enter here just in the first time
-			from_source_pos[from_source_id] = len(source_relations)
-			from_systems[rel.from_system_id] = rel.from_system.name
-			from_source_file = rel.from_source_file
-			file_mod = db.session.query(Modification).\
-						filter_by(file_id = from_source_file.file_id).one()	
-			info = {
-				'id': from_source_id,
-				'from': from_source_file.name,
-				'fullpath': from_source_file.fullpath,
-				'code': rel.from_code_element.name + '()',
-				'count': 1,
-				'system': rel.from_system.name,
-				'nloc': file_mod.nloc,
-				'ncalls': rel.from_code_element_count,
-				'url': url_for('.source_codes', from_id=from_source_id, to_id=id)
-			}
-			source_relations.append(info)
-
-	return render_template('source_relations.html', relations=source_relations,
-						source_file=source_file.name, from_systems=from_systems)
+	operation = request.args.get('operation', default = None, type = str)
+	dataaccess = db.session
+	uc = ComponentUsage(id, operation)
+	component_info = uc.execute(dataaccess, url_for)
+	dependents = component_info['dependents']['info']
+	for dep in dependents:
+		dep['url'] = url_for('.source_codes', from_id = dep['id'], to_id = id)
+	component_url = url_for('.source_relations', id = id)
+	return render_template('source_relations.html', 
+						relations=component_info['dependents']['info'],
+						source_file=component_info['component']['name'], 
+						from_systems=component_info['dependents']['ids'],
+						operations=component_info['component']['operations'],
+						component_url=component_url,
+						selected_operation=operation)
 
 @app.route('/relationships/<int:from_id>/<int:to_id>', methods=['GET'])
 def source_codes(from_id, to_id):

@@ -1,2 +1,3 @@
 from .mapping_ecosystem_dependents import MappingEcosystemDependents
 from .central_software_usage import CentralSoftwareUsage
+from .component_usage import ComponentUsage
