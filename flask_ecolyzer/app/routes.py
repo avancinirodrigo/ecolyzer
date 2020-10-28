@@ -17,15 +17,15 @@ def relationships():
 	components = central_software_info['components']
 	for comp in components:
 		if comp['operations'] > 0:
-			comp['url'] = url_for('.source_relations', id=comp['id'])
+			comp['url'] = url_for('.component_usage', id=comp['id'])
 	dataaccess.close()
-	return render_template('relations_count.html', 
+	return render_template('central_software_usage.html', 
 						relations=central_software_info['components'],
 						system=central_software_info['central_software'].name, 
 						paths=central_software_info['component_paths'])
 
 @app.route('/relationships/<int:id>', methods=['GET'])
-def source_relations(id):
+def component_usage(id):
 	operation = request.args.get('operation', default = None, type = str)
 	dataaccess = db.session
 	uc = ComponentUsage(id, operation)
@@ -33,8 +33,8 @@ def source_relations(id):
 	dependents = component_info['dependents']['info']
 	for dep in dependents:
 		dep['url'] = url_for('.source_codes', from_id = dep['id'], to_id = id)
-	component_url = url_for('.source_relations', id = id)
-	return render_template('source_relations.html', 
+	component_url = url_for('.component_usage', id = id)
+	return render_template('component_usage.html', 
 						relations=component_info['dependents']['info'],
 						source_file=component_info['component']['name'], 
 						from_systems=component_info['dependents']['ids'],
