@@ -17,6 +17,7 @@ class ComponentUsage:
 		source_relations = []
 		from_source_pos = {}
 		from_systems = {}
+		dependents_coverage = {}
 
 		operations = self._get_operations(dataaccess)
 
@@ -24,19 +25,24 @@ class ComponentUsage:
 			operations[rel.to_code_element.name] += 1
 			if (not self._operation) or (self._operation == rel.to_code_element.name):
 				self._get_dependent(rel, source_relations,
-									from_systems, from_source_pos, dataaccess, url_for)			
+									from_systems, from_source_pos, 
+									dependents_coverage,
+									dataaccess)			
 
 		return {'component': {'name': source_file.name, 'operations': operations},
-				'dependents': {'ids': from_systems, 'info': source_relations}}
+				'dependents': {'ids': from_systems, 'info': source_relations, 
+				'coverage': dependents_coverage}}
 
 	def _get_dependent(self, rel, source_relations, 
 						from_systems, from_source_pos,
-						dataaccess, url_for):
+						dependents_coverage,
+						dataaccess):
 		from_source_id = rel.from_source_file_id
 		if from_source_id in from_source_pos:
 			pos = from_source_pos[from_source_id]
 			source_relations[pos]['count'] += 1
 			source_relations[pos]['ncalls'] += rel.from_code_element_count
+
 		else: # enter here just in the first time
 			from_source_pos[from_source_id] = len(source_relations)
 			from_systems[rel.from_system_id] = rel.from_system.name
@@ -52,7 +58,11 @@ class ComponentUsage:
 				'nloc': file_mod.nloc,
 				'ncalls': rel.from_code_element_count
 			}
-			source_relations.append(info)		
+			source_relations.append(info)	
+
+		self._add_dependent_coverage(rel.from_system.name, 
+								rel.from_code_element.name,
+								dependents_coverage)
 
 	def _get_operations(self, dataaccess):
 		operations_list = dataaccess.query(Operation).\
@@ -61,3 +71,10 @@ class ComponentUsage:
 		for op in operations_list:
 			operations[op.name]	= 0
 		return operations
+
+	def _add_dependent_coverage(self, dependent_name, curr_call, 
+								dependents_coverage):
+		if dependent_name not in dependents_coverage:
+			dependents_coverage[dependent_name] = {}
+		if curr_call not in dependents_coverage[dependent_name]:
+			dependents_coverage[dependent_name][curr_call] = 1

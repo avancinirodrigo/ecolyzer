@@ -71,7 +71,6 @@
             infoBySystem[system] = [];
             infoBySystem[system]["ncalls"] = 0;
             infoBySystem[system]["nloc"] = 0;
-
         }
         infoBySystem[system]["ncalls"] += relations[i]["ncalls"];
         infoBySystem[system]["nloc"] += relations[i]["nloc"];
@@ -206,9 +205,10 @@
                 // .append("title")
                 // .text(function(d) { return d.data.fullpath; });
                 .on("mousemove", function (d) {
-                    if(d3.event.pageX > 7*width/8)
-                        tip.style("left", (d3.event.pageX - 10 - 6.5*d.data.fullpath.length) + "px");
-                    else
+                    // TODO: review tooltip side to show
+                    // if(d3.event.pageX > 7*width/8)
+                    //     tip.style("left", (d3.event.pageX - 10 - 6.5*d.data.fullpath.length) + "px");
+                    // else
                         tip.style("left", d3.event.pageX + 10 + "px");
                     tip.style("top", d3.event.pageY - 20 + "px");
                     tip.style("display", "inline-block");
@@ -233,6 +233,8 @@
                     return d.data.from; 
             })  
 
+    dependentsCoverage = {{ dependents_coverage|safe }};
+
      // Add title for groups
       svg.selectAll("titles")
         .data(root.descendants().filter(function(d){return d.depth==1}))
@@ -244,20 +246,52 @@
             .attr("font-size", "19px")
             .attr("fill", "black")
             .on("mousemove", function (d) {
-                if(d3.event.pageX > 7*width/8)
-                    tip.style("left", (d3.event.pageX - 6*23) + "px");
-                else
+                // TODO: review tooltip side to show
+                // if(d3.event.pageX > 7*width/8)
+                //     tip.style("left", (d3.event.pageX - 6*23) + "px");
+                // else
                     tip.style("left", d3.event.pageX + 10 + "px");
                 tip.style("top", d3.event.pageY - 20 + "px");
                 tip.style("display", "inline-block");
                 tip.html("<center><b>" + d.data.id + "</b></center>"
                             + "total of source files: " + d.children.length
+                            + "<br>distinct operations: " + Object.keys(dependentsCoverage[d.data.id]).length 
+                            + " (" + Math.round(Object.keys(dependentsCoverage[d.data.id]).length*100/operationsCount) + "%)"
                             + "<br>total of relationships: " + infoBySystem[d.data.id]["ncalls"]
                             + "<br>total of loc: " + infoBySystem[d.data.id]["nloc"]);
             })
             .on("mouseout", function (d) {
                 tip.style("display", "none");
             });                    
+
+    var operations = {{ operations|safe }};
+    var operationsCount = Object.keys(operations).length;
+    var coverageCount = 0;
+    var componentUrl = "{{ component_url }}";
+    var selectedOperation = "{{ selected_operation }}";
+    var operationsDropDown = "<select onchange=\"location=this.value;\">";
+    operationsDropDown += "<option value=\"" + componentUrl + "\" selected >"
+                            + "" + "</option>";
+    for(const [key, value] of Object.entries(operations)) {
+        if(value == 0) {
+            operationsDropDown += "<option disabled >";
+        }
+        else {
+            operationsDropDown += "<option value=\"" + componentUrl 
+                            + "?operation=" + key + "\""
+            if (selectedOperation == key)
+                operationsDropDown += " selected "
+            operationsDropDown += ">"
+            coverageCount += 1;
+        }
+
+        operationsDropDown += key + "() </option>";
+        console.log(key, value);
+    }
+    operationsDropDown += "</select>"    
+    $("#operations").html(operationsDropDown);
+    $("#operations").css({"position": "relative"});
+    $("#operations").css({"top": "3px"});
 
     d3.select("#component_name")
             .append("text")
@@ -272,7 +306,10 @@
                 tip.style("top", d3.event.pageY - 20 + "px");
                 tip.style("display", "inline-block");
                 tip.html("<center><b>{{source_file}}</b></center>"
-                            + "total of dependents: " + numOfSystems
+                            + "operations: " + operationsCount
+                            + "<br>coverage: " +  coverageCount + " ("
+                            + Math.round(coverageCount*100/operationsCount) + "%)"
+                            + "<br>total of dependents: " + numOfSystems
                             + "<br>total of source files: " + numOfSourceFiles
                             + "<br>total of relationships: " + root.value
                             + "<br>total of loc: " + numOfLoc);
@@ -280,32 +317,6 @@
             .on("mouseout", function (d) {
                 tip.style("display", "none");
             });    
-
-    var operations = {{ operations|safe }};
-    var component_url = "{{ component_url }}";
-    var selected_operation = "{{ selected_operation }}";
-    var operationsDropDown = "<select onchange=\"location=this.value;\">";
-    operationsDropDown += "<option value=\"" + component_url + "\" selected >"
-                            + "" + "</option>";
-    for(const [key, value] of Object.entries(operations)) {
-        if(value == 0) {
-            operationsDropDown += "<option disabled >";
-        }
-        else {
-            operationsDropDown += "<option value=\"" + component_url 
-                            + "?operation=" + key + "\""
-            if (selected_operation == key)
-                operationsDropDown += " selected "
-            operationsDropDown += ">"
-        }
-
-        operationsDropDown += key + "() </option>";
-        console.log(key, value);
-    }
-    operationsDropDown += "</select>"    
-    $("#operations").html(operationsDropDown);
-    $("#operations").css({"position": "relative"});
-    $("#operations").css({"top": "3px"});
 
     var blockWidth = 15;
     var blockHeight = 20;   

@@ -39,6 +39,7 @@ def source_relations(id):
 						source_file=component_info['component']['name'], 
 						from_systems=component_info['dependents']['ids'],
 						operations=component_info['component']['operations'],
+						dependents_coverage=component_info['dependents']['coverage'],
 						component_url=component_url,
 						selected_operation=operation)
 
