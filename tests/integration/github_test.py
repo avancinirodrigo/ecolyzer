@@ -24,6 +24,17 @@ def test_dependents_stars():
 		assert dep.url != repo_url
 		assert dep.forks >= 0
 
+def test_dependents_forks():
+	repo_url = 'https://github.com/apache/hadoop'
+	gh = GitHub(repo_url)
+	dependents = gh.dependents(forks=3)
+	assert len(dependents) >= 7
+	for dep in dependents:
+		assert dep.stars >= 2
+		assert dep.url is not None
+		assert dep.url != repo_url
+		assert dep.forks >= 0		
+
 def test_dependents_withou_next_url():
 	repo_url = 'https://github.com/scribejava/scribejava'
 	gh = GitHub(repo_url)	

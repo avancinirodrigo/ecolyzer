@@ -11,7 +11,7 @@ class GitHub():
 	def __init__(self, repo_url: str):
 		self._repo_url = repo_url
 
-	def dependents(self, stars: int=0):
+	def dependents(self, stars: int=0, forks: int=0):
 		url = f'{self._repo_url}/network/dependents'
 		deps = []
 
@@ -21,7 +21,7 @@ class GitHub():
 			data = [
 			   	self._create_dependent(t)
 			    for t in soup.find_all('div', {'class': 'Box-row'})\
-			    	if self._stars(t) >= stars
+			    	if (self._stars(t) >= stars) and (self._forks(t) >= forks)
 			]
 			if len(data) > 0:
 				deps += data

@@ -11,13 +11,14 @@ class MappingEcosystemDependents:
 		self._repo_url = repo_url
 		self._branch = kwargs.get('branch', 'master')
 		self._stars = kwargs.get('stars', 0)
+		self._forks = kwargs.get('forks', 0)
 		self._ignore_dirs_with = kwargs.get('ignore_dirs_with', [])
 		self._system_name = kwargs.get('system_name')
 		self._ecosystem_name = kwargs.get('ecosystem_name')
 
 	def execute(self, dataaccess):
 		gh = GitHub(self._repo_url)
-		dependents = gh.dependents(self._stars)
+		dependents = gh.dependents(self._stars, self._forks)
 		git = GitPython()
 		git.clone(self._repo_url, branch=self._branch)
 
