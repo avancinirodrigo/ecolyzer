@@ -5,6 +5,7 @@ from ecolyzer.parser import StaticAnalyzer
 
 def test_reverse_engineering():
 	operations = {
+		'JFreeChart': True,
 		'isCompatibleValue': True,
 		'getID': True,
 		'setID': True,
@@ -212,7 +213,7 @@ def test_reverse_engineering():
 	for k in associations.keys():
 		assert code_elements_dict[k]				 
 
-	assert len(code_elements) == 175 == len(operations) + len(calls) + len(associations)
+	assert len(code_elements) == 176 == len(operations) + len(calls) + len(associations)
 	
 	for element in code_elements:
 		if element.type == 'call':

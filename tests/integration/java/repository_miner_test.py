@@ -673,6 +673,8 @@ def test_extract():
 	operationsdb = session.query(Operation).filter_by(source_file_id = srcfiledb.id).all()
 
 	operations = {
+		'JFreeChart': True,
+		'JFreeChartInfo': True,
 		'getRenderingHints': True,
 		'setRenderingHints': True,
 		'isBorderVisible': True,
@@ -941,11 +943,11 @@ def test_get_commit_source_file():
 	srcfiledb = session.query(SourceFile).filter_by(file_id = afile.id).first()
 	assert srcfiledb.ext == 'java'
 	assert srcfiledb.name == 'JFreeChart'
-	assert srcfiledb.code_elements_len() == 198
+	assert srcfiledb.code_elements_len() == 200
 
 	functions = session.query(Operation).filter_by(source_file_id = srcfiledb.id).all()	
 	assert srcfiledb.code_element_exists(functions[0])
-	assert functions[0].name == 'getRenderingHints'
+	assert functions[0].name == 'JFreeChart'
 
 	session.close()
 	db.drop_all()
@@ -1010,6 +1012,7 @@ def test_extract_last_commits():
 				.filter_by(fullpath = 'src/main/java/org/jfree/chart/entity/PlotEntity.java').one()
 
 	code_elements = {
+		'PlotEntity': True,
 		'getPlot': True,
 		'toString': True,
 		'equals': True,
@@ -1043,7 +1046,7 @@ def test_extract_last_commits():
 		assert code_elements[srcfile.code_element_by_key(k).name]
 		#print('\'' + srcfile.code_element_by_key(k).name + '\': ' + 'True,')
 
-	assert srcfile.code_elements_len() == 25
+	assert srcfile.code_elements_len() == 26
 
 	file_mod = session.query(Modification).\
 					filter_by(file_id = srcfile.file_id).one()	

@@ -57,7 +57,8 @@ class JavaParser():
 		declarations = []
 		for path, node in self.tree.filter(javalang.tree.Declaration):
 			if (isinstance(node, javalang.tree.AnnotationDeclaration)
-				or isinstance(node, javalang.tree.MethodDeclaration)):
+				or isinstance(node, javalang.tree.MethodDeclaration)
+				or isinstance(node, javalang.tree.ConstructorDeclaration)):
 				modifiers = self._get_method_modifier(node)
 				declarations.append({'name': node.name, 'modifiers': modifiers})
 		return declarations		

@@ -9,6 +9,7 @@ def test_extract_operations():
 	operations = parser.extract_operations()
 
 	src_operations = {
+		'FileSerializer': True,
 		'getPostProcessor': True,
 		'setPostProcessor': True,
 		'generateFile': True,
