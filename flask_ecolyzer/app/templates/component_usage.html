@@ -185,6 +185,20 @@
         .append("div")
         .attr("class", "tooltip");    
 
+    function componentTooltipMouseMove(d) {
+        // TODO: review tooltip side to show
+        // if(d3.event.pageX > 7*width/8)
+        //     tip.style("left", (d3.event.pageX - 10 - 6.5*d.data.fullpath.length) + "px");
+        // else
+            tip.style("left", d3.event.pageX + 10 + "px");
+        tip.style("top", d3.event.pageY - 20 + "px");
+        tip.style("display", "inline-block");
+        tip.html("<strong>" + d.data.fullpath + "</strong>"
+                    + "<br>distinct operations: " + d.data.count
+                    + "<br>total of calls: " + d.data.ncalls
+                    + "<br>nloc: " + d.data.nloc);
+    }
+
     // use this information to add rectangles:
     svg.selectAll("rect")
     .data(root.leaves())    
@@ -205,17 +219,7 @@
                 // .append("title")
                 // .text(function(d) { return d.data.fullpath; });
                 .on("mousemove", function (d) {
-                    // TODO: review tooltip side to show
-                    // if(d3.event.pageX > 7*width/8)
-                    //     tip.style("left", (d3.event.pageX - 10 - 6.5*d.data.fullpath.length) + "px");
-                    // else
-                        tip.style("left", d3.event.pageX + 10 + "px");
-                    tip.style("top", d3.event.pageY - 20 + "px");
-                    tip.style("display", "inline-block");
-                    tip.html("<strong>" + d.data.fullpath + "</strong>"
-                                + "<br>distinct operations: " + d.data.count
-                                + "<br>total of calls: " + d.data.ncalls
-                                + "<br>nloc: " + d.data.nloc);
+                    componentTooltipMouseMove(d);
                 })
                 .on("mouseout", function (d) {
                     tip.style("display", "none");
@@ -224,14 +228,20 @@
     // and to add the text labels
     svg.selectAll("g")
         .append("text")
-            .attr("x", function(d){ return d.x0+2})
-            .attr("y", function(d){ return d.y0+15})
+            .attr("x", function(d) { return d.x0+2})
+            .attr("y", function(d) { return d.y0+15})
             .attr("font", "10px sans-serif")
             .attr("fill", "white")
             .text(function(d) { 
                 if(d.data.ncalls > minCalls)
                     return d.data.from; 
             })  
+            .on("mousemove", function(d) {
+                componentTooltipMouseMove(d);
+            })
+            .on("mouseout", function (d) {
+                tip.style("display", "none");
+            });
 
     dependentsCoverage = {{ dependents_coverage|safe }};
 

@@ -16,7 +16,7 @@ def relationships():
 	central_software_info = uc.execute(dataaccess)
 	components = central_software_info['components']
 	for comp in components:
-		if comp['operations'] > 0:
+		if comp['count'] > 0:
 			comp['url'] = url_for('.component_usage', id=comp['id'])
 	dataaccess.close()
 	return render_template('central_software_usage.html', 

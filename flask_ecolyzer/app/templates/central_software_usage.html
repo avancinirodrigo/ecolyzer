@@ -178,6 +178,22 @@
 		.append("div")
         .attr("class", "tooltip");
 
+    function componentTooltipMouseMove(d) {
+    	if(d3.event.pageX > 7*width/8)
+    		tip.style("left", (d3.event.pageX - 6*d.data.fullpath.length) + "px");
+    	else
+        	tip.style("left", d3.event.pageX + 10 + "px");
+        tip.style("top", d3.event.pageY - 20 + "px");
+        tip.style("display", "inline-block");
+        tip.html("<center><b>" + d.data.source + "</b></center>"
+        			+ d.data.fullpath
+        			+ "<br>operations: " + d.data.operations
+        			+ "<br>coverage: " + d.data.coverage + " ("
+        			+ Math.round(d.data.coverage*100/d.data.operations) + "%)"
+        			+ "<br>relationships: " + d.data.count         			
+        			+ "<br>nloc: " + d.data.nloc);
+		               	
+    }
     // console.log(root.leaves());
     // var leaves = root.leaves().sort(function(a, b) {return b.data.count - a.data.count;});
     // console.log(leaves);
@@ -192,29 +208,17 @@
 						return d.data.url; 
 				})		
 				.append("rect")
-					.attr('x', function (d) { return d.x0; })
-					.attr('y', function (d) { return d.y0; })
-					.attr('width', function (d) { return d.x1 - d.x0; })
-					.attr('height', function (d) { return d.y1 - d.y0; })
+					.attr('x', function(d) { return d.x0; })
+					.attr('y', function(d) { return d.y0; })
+					.attr('width', function(d) { return d.x1 - d.x0; })
+					.attr('height', function(d) { return d.y1 - d.y0; })
 					.style("fill", function(d) {
 						return heatmap(d.data.count);
 					})
-		            .on("mousemove", function (d) {
-		            	if(d3.event.pageX > 7*width/8)
-		            		tip.style("left", (d3.event.pageX - 6*d.data.fullpath.length) + "px");
-		            	else
-		                	tip.style("left", d3.event.pageX + 10 + "px");
-		                tip.style("top", d3.event.pageY - 20 + "px");
-		                tip.style("display", "inline-block");
-		                tip.html("<center><b>" + d.data.source + "</b></center>"
-		                			+ d.data.fullpath
-		                			+ "<br>operations: " + d.data.operations
-		                			+ "<br>coverage: " + d.data.coverage + " ("
-		                			+ Math.round(d.data.coverage*100/d.data.operations) + "%)"
-		                			+ "<br>relationships: " + d.data.count         			
-		                			+ "<br>nloc: " + d.data.nloc);
-		            })
-		            .on("mouseout", function (d) {
+		            .on("mousemove", function(d) {
+		            	componentTooltipMouseMove(d);
+		             })
+		            .on("mouseout", function(d) {
 		                tip.style("display", "none");
 		            });
 
@@ -229,6 +233,12 @@
 				if(d.data.count > minCount)
 					return d.data.source; 
 			})
+			.on("mousemove", function(d) {
+				componentTooltipMouseMove(d);
+		    })
+            .on("mouseout", function(d) {
+                tip.style("display", "none");
+            });
 
 	svg.append("text")
 		  .attr("x", 0)
