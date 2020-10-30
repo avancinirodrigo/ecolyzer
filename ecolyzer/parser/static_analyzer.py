@@ -19,24 +19,26 @@ class StaticAnalyzer:
 		parser = JavaParser()
 		try:
 			parser.parser(src)
+			classes = parser.extract_operations()
+			self._remove_classes_by_modifiers(classes)
+			for i in range(len(classes)):
+				methods = classes[i]['operations']
+				operations = [method['name'] for method in methods]
+				self._remove_methods_duplicated(methods)
+				self._remove_private_modifiers(methods)
+				for op in methods:
+					code_elements.append(Operation(op, src_file))		
 
-			methods = parser.extract_operations()
-			operations = [method['name'] for method in methods]
-			self._remove_methods_duplicated(methods)
-			self._remove_private_modifiers(methods)
-			for op in methods:
-				code_elements.append(Operation(op, src_file))		
+				calls = parser.extract_calls()
+				self._remove_inner_calls(calls, operations)
+				self._remove_duplicated(calls)		
+				for call in calls:
+					code_elements.append(Call(call, src_file))			
 
-			calls = parser.extract_calls()
-			self._remove_inner_calls(calls, operations)
-			self._remove_duplicated(calls)		
-			for call in calls:
-				code_elements.append(Call(call, src_file))			
-
-			associations = parser.extract_associations()
-			self._remove_duplicated(associations)
-			for ass in associations:
-				code_elements.append(Association(ass, src_file))
+				associations = parser.extract_associations()
+				self._remove_duplicated(associations)
+				for ass in associations:
+					code_elements.append(Association(ass, src_file))
 		except SyntaxException:
 			pass
 
@@ -74,6 +76,14 @@ class StaticAnalyzer:
 					or ('protected' in method['modifiers'])):
 				result.append(method['name'])	
 		methods[:] = result
+
+	def _remove_classes_by_modifiers(self, classes):
+		result = []
+		for i in range(len(classes)):
+			if (('public' in classes[i]['modifiers']) 
+					or ('protected' in classes[i]['modifiers'])):
+				result.append(classes[i])	
+		classes[:] = result		
 
 	def nloc(self, filepah, source_code):
 		lizard = Lizard(filepah, source_code)

@@ -674,7 +674,6 @@ def test_extract():
 
 	operations = {
 		'JFreeChart': True,
-		'JFreeChartInfo': True,
 		'getRenderingHints': True,
 		'setRenderingHints': True,
 		'isBorderVisible': True,
@@ -728,8 +727,7 @@ def test_extract():
 		'plotChanged': True,
 		'equals': True,
 		'main': True,
-		'clone': True,
-		'getLogo': True
+		'clone': True
 	}
 
 	operationsdb_dict = {}
@@ -943,7 +941,7 @@ def test_get_commit_source_file():
 	srcfiledb = session.query(SourceFile).filter_by(file_id = afile.id).first()
 	assert srcfiledb.ext == 'java'
 	assert srcfiledb.name == 'JFreeChart'
-	assert srcfiledb.code_elements_len() == 200
+	assert srcfiledb.code_elements_len() == 198
 
 	functions = session.query(Operation).filter_by(source_file_id = srcfiledb.id).all()	
 	assert srcfiledb.code_element_exists(functions[0])

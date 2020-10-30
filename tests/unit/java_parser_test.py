@@ -1,5 +1,6 @@
 from ecolyzer.parser import JavaParser
 
+
 def test_annotations():
 	src = """
 		package net.sf.esfinge.metadata.annotation.container;
@@ -24,7 +25,7 @@ def test_annotations():
 
 	parser = JavaParser()
 	parser.parser(src)
-	annotations = parser.extract_operations()
+	annotations = parser.extract_operations()[0]['operations']
 	assert len(annotations) == 1
 	assert annotations[0]['name'] == 'ProcessorPerMethod'
 	assert 'public' in annotations[0]['modifiers']

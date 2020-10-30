@@ -234,3 +234,14 @@ def test_number_of_calls():
 	assert analyzer.number_of_calls(src_file, src, 'getHorizontalAlignment') == 2
 	assert analyzer.number_of_calls(src_file, src, 'getX') == 7
 	assert analyzer.number_of_calls(src_file, src, 'requireNonNull') == 12
+
+def test_class_modifiers():
+	javafile = os.path.join(os.path.dirname(__file__), '../data', 'InternalClasses.java')
+	file = File(javafile)
+	src_file = SourceFile(file)
+	src = open(javafile).read()
+	analyzer = StaticAnalyzer()
+	code_elements = analyzer.reverse_engineering(src_file, src)
+	assert len(code_elements) == 2
+	assert code_elements[0].name == 'ClassA'
+	assert code_elements[1].name == 'ClassB'
