@@ -9,6 +9,7 @@ def test_extract_operations():
 	operations = parser.extract_operations()[0]['operations']
 
 	src_operations = {
+		'extends.FileSerializer': True,	
 		'FileSerializer': True,
 		'getPostProcessor': True,
 		'setPostProcessor': True,
@@ -34,6 +35,7 @@ def test_internal_class_operations():
 
 	operations = classes[0]['operations']
 	src_operations = {
+		'extends.JFreeChart': True,
 		'JFreeChart': True,
 		'isCompatibleValue': True,
 		'getRenderingHints': True,
@@ -96,7 +98,7 @@ def test_internal_class_operations():
 		'clone': True,
 	}
 
-	assert len(operations) == 71 == len(src_operations) + 12 
+	assert len(operations) == 72 == len(src_operations) + 12 
 
 	for op in operations:
 		assert src_operations[op['name']]		
@@ -104,11 +106,12 @@ def test_internal_class_operations():
 
 	operations = classes[1]['operations']	
 	src_operations = {
+		'extends.JFreeChartInfo': True,
 		'JFreeChartInfo': True,
 		'getLogo': True
 	}
 	
-	assert len(operations) == 2 == len(src_operations)
+	assert len(operations) == 3 == len(src_operations)
 
 	for op in operations:
 		assert src_operations[op['name']]		
@@ -147,7 +150,8 @@ def test_extract_calls():
 		'getParameterTypes': True,
 		'getReturnType': True,
 		'equals': True,
-		'Override': True #TODO: Annotation call
+		'Override': True, #TODO: Annotation call
+		'implements.Serializer': True
 	}
 
 	assert len(calls) == len(src_calls) + 6 # six repeated

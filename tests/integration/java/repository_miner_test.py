@@ -126,7 +126,7 @@ def test_get_commit():
 	session.close()
 	db.drop_all()
 	
-def test_extract():
+def test_extract_first_commit():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/miner_java_extract'
 	db = SQLAlchemyORM(db_url)
 	db.create_all(True)
@@ -673,6 +673,7 @@ def test_extract():
 	operationsdb = session.query(Operation).filter_by(source_file_id = srcfiledb.id).all()
 
 	operations = {
+		'extends.JFreeChart': True,
 		'JFreeChart': True,
 		'getRenderingHints': True,
 		'setRenderingHints': True,
@@ -817,10 +818,18 @@ def test_extract():
 		'getClass': True,
 		'getClassLoader': True,
 		'getResource': True,
-		'getImage': True
+		'getImage': True,
+		'implements.Drawable': True,
+		'implements.TitleChangeListener': True,
+		'implements.PlotChangeListener': True,
+		'implements.Serializable': True,
+		'implements.Cloneable': True,
+		'extends.ProjectInfo': True
 	}
 
-	callsdb = session.query(Call).filter_by(source_file_id = srcfiledb.id).all()	
+	callsdb = session.query(Call).filter_by(source_file_id = srcfiledb.id).all()
+	# for call in callsdb:
+	# 	print(f'\'{call.name}\': True,')
 	callsdb_dict = {}	
 	for call in callsdb:
 		callsdb_dict[call.name] = True
@@ -941,11 +950,12 @@ def test_get_commit_source_file():
 	srcfiledb = session.query(SourceFile).filter_by(file_id = afile.id).first()
 	assert srcfiledb.ext == 'java'
 	assert srcfiledb.name == 'JFreeChart'
-	assert srcfiledb.code_elements_len() == 198
+	assert srcfiledb.code_elements_len() == 205
 
 	functions = session.query(Operation).filter_by(source_file_id = srcfiledb.id).all()	
 	assert srcfiledb.code_element_exists(functions[0])
-	assert functions[0].name == 'JFreeChart'
+	assert functions[0].name == 'extends.JFreeChart'
+	assert functions[1].name == 'JFreeChart'
 
 	session.close()
 	db.drop_all()
@@ -1010,6 +1020,7 @@ def test_extract_last_commits():
 				.filter_by(fullpath = 'src/main/java/org/jfree/chart/entity/PlotEntity.java').one()
 
 	code_elements = {
+		'extends.PlotEntity': True,
 		'PlotEntity': True,
 		'getPlot': True,
 		'toString': True,
@@ -1027,6 +1038,7 @@ def test_extract_last_commits():
 		'setArea': True,
 		'readShape': True,
 		'Override': True,
+		'extends.ChartEntity': True,
 		'java/awt/Shape': True,
 		'java/io/IOException': True,
 		'java/io/ObjectInputStream': True,
@@ -1035,7 +1047,7 @@ def test_extract_last_commits():
 		'org/jfree/chart/plot/Plot': True,
 		'org/jfree/chart/HashUtils': True,
 		'org/jfree/chart/util/Args': True,
-		'org/jfree/chart/util/SerialUtils': True,
+		'org/jfree/chart/util/SerialUtils': True
 	}
 
 	src_code_elements = srcfile.code_elements()
@@ -1044,7 +1056,7 @@ def test_extract_last_commits():
 		assert code_elements[srcfile.code_element_by_key(k).name]
 		#print('\'' + srcfile.code_element_by_key(k).name + '\': ' + 'True,')
 
-	assert srcfile.code_elements_len() == 26
+	assert srcfile.code_elements_len() == 28
 
 	file_mod = session.query(Modification).\
 					filter_by(file_id = srcfile.file_id).one()	

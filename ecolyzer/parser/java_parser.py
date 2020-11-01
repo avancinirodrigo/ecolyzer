@@ -16,14 +16,17 @@ class JavaParser():
 		classes = []
 		self._walk_to_classes(self.tree.children, classes)
 		class_operations = []
-		for c in classes:
-			class_operations.append({'name': c.name,
-								 'operations': self._extract_declarations(c),
-								 'modifiers': self._get_modifier(c)})
+		for clas in classes:
+			class_operations.append({'name': clas.name,
+								 'operations': self._inheritance_operations(clas)
+								 			+ self._extract_declarations(clas),
+								 'modifiers': self._get_modifier(clas)})
 		return class_operations
 
 	def extract_calls(self):
-		return self._extract_invocations() + self._extract_annotations()
+		return (self._extract_invocations() 
+				+ self._extract_annotations()
+				+ self._extract_inheritance())
 
 	def extract_associations(self):
 		return self._extract_imports()
@@ -59,6 +62,26 @@ class JavaParser():
 			annotations.append(node.name)
 		return annotations
 
+	def _extract_inheritance(self):
+		inheritances = []
+		classes = []
+		self._walk_to_classes(self.tree.children, classes)
+		for clas in classes:
+			if not isinstance(clas, javalang.tree.AnnotationDeclaration):
+				if not isinstance(clas, javalang.tree.EnumDeclaration):
+					if clas.extends:
+						exds = clas.extends
+						if isinstance(exds, list):
+							for e in exds:
+								inheritances.append(f'extends.{e.name}')
+						else:
+							inheritances.append(f'extends.{exds.name}')
+				if not isinstance(clas, javalang.tree.InterfaceDeclaration):
+					if clas.implements:
+						for impts in clas.implements:	
+							inheritances.append(f'implements.{impts.name}')	
+		return inheritances
+
 	def _extract_declarations(self, clas):
 		declarations = []
 		has_constructor = False
@@ -73,7 +96,19 @@ class JavaParser():
 				declarations.append({'name': node.name, 'modifiers': modifiers})
 		if not has_constructor:
 			declarations.append(self._default_constructor(clas))	
-		return declarations		
+		return declarations
+
+	def _inheritance_operations(self, clas):
+		operations = []
+		if isinstance(clas, javalang.tree.AnnotationDeclaration):
+			return operations
+		if isinstance(clas, javalang.tree.InterfaceDeclaration):
+			operations.append({'name': f'implements.{clas.name}',
+							'modifiers': {'public': 'public'}})
+		elif 'final' not in clas.modifiers:
+			operations.append({'name': f'extends.{clas.name}',
+							'modifiers': {'public': 'public'}})
+		return operations
 
 	def _default_constructor(self, clas):
 		return {'name': clas.name, 'modifiers': {'public': 'public'}}
