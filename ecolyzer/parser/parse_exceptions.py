@@ -4,3 +4,7 @@ class SyntaxException(Exception):
 
 class ChunkException(Exception):
 	pass	
+
+
+class LexerException(Exception):
+	pass

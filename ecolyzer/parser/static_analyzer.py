@@ -1,8 +1,10 @@
+import traceback		
 from ecolyzer.system import Operation, Call, Association
 from .lua_parser import LuaParser
 from .lizard import Lizard
 from .java_parser import JavaParser
-from .parse_exceptions import SyntaxException, ChunkException
+from .parse_exceptions import (SyntaxException, ChunkException,
+							LexerException)
 
 class StaticAnalyzer:
 	def __init__(self):
@@ -21,6 +23,7 @@ class StaticAnalyzer:
 			parser.parser(src)
 			classes = parser.extract_operations()
 			self._remove_classes_by_modifiers(classes)
+			operations = []
 			for i in range(len(classes)):
 				methods = classes[i]['operations']
 				operations = [method['name'] for method in methods]
@@ -29,18 +32,26 @@ class StaticAnalyzer:
 				for op in methods:
 					code_elements.append(Operation(op, src_file))		
 
-				calls = parser.extract_calls()
-				self._remove_inner_calls(calls, operations)
-				self._remove_duplicated(calls)		
-				for call in calls:
-					code_elements.append(Call(call, src_file))			
+			calls = parser.extract_calls()
+			self._remove_inner_calls(calls, operations)
+			self._remove_duplicated(calls)		
+			for call in calls:
+				code_elements.append(Call(call, src_file))			
 
-				associations = parser.extract_associations()
-				self._remove_duplicated(associations)
-				for ass in associations:
-					code_elements.append(Association(ass, src_file))
+			associations = parser.extract_associations()
+			self._remove_duplicated(associations)
+			for ass in associations:
+				code_elements.append(Association(ass, src_file))
 		except SyntaxException:
 			pass
+		except LexerException:
+			pass	
+		except Exception as e:
+			print('\n')
+			print(src_file.fullpath)
+			print(e)
+			traceback.print_exc()
+			raise e
 
 		return code_elements
 

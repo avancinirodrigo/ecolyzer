@@ -13,3 +13,7 @@ private class ClassC {
 class ClassD {
 	public ClassD() {}
 }	
+
+class ClassD {
+	public ClassD() {}
+}	
