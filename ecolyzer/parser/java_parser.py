@@ -1,4 +1,5 @@
 import sys
+import traceback
 import javalang
 from javalang import parser
 from javalang import tokenizer
@@ -74,7 +75,9 @@ class JavaParser():
 					self._add_declaration(d, decl, calls, method_vars)
 			else:
 				self._add_parameters(method_vars, decl['declaration'])
-				self._add_throws(calls, decl['declaration'])
+				if not isinstance(decl['declaration'], 
+							javalang.tree.AnnotationDeclaration):
+					self._add_throws(calls, decl['declaration'])
 				if not self._is_method_abstract(decl['declaration']):
 					for elem in decl['declaration'].body:
 						self._add_declaration(elem, decl, calls, method_vars)
@@ -104,7 +107,7 @@ class JavaParser():
 	def _add_throws(self, calls, decl):
 		if decl.throws:
 			for throw in decl.throws:
-				calls.append(throw)
+				calls.append({'ref': throw, 'caller': 'throws'})
 
 	def _add_declaration(self, elem, decl, calls, method_vars):
 		if isinstance(elem, javalang.tree.StatementExpression):
@@ -154,10 +157,10 @@ class JavaParser():
 
 	def _process_super_constructor_invocation(self, node, decl, calls, method_vars):
 		if decl['class'].extends: # avoiding super Object, maybe a exception here
-			calls.append(decl['class'].extends.name)
+			calls.append({'ref': decl['class'].extends.name, 'caller': 'super'})
 
 	def _process_class_creator(self, node, decl, calls, method_vars):
-		calls.append(node.type.name)
+		calls.append({'ref': node.type.name, 'caller': 'new'})
 		for arg in node.arguments:
 			self._add_declaration(arg, decl, calls, method_vars)	
 
@@ -243,25 +246,26 @@ class JavaParser():
 	def _add_reference(self, node, clas, calls, method_vars):
 		if (hasattr(node, 'member')
 				and not isinstance(node, javalang.tree.MemberReference)): 
-			qualifier = node.qualifier
+			typeof = node.qualifier
+			caller = node.qualifier
 			if isinstance(node, javalang.tree.SuperMethodInvocation):
-				if clas.extends:
-					qualifier = clas.extends.name	
-				else:
-					qualifier = 'Object'
+				typeof = 'Object'
+				if not isinstance(clas, javalang.tree.EnumDeclaration):
+					if clas.extends:
+						typeof = clas.extends.name	
 			else:			
 				if node.qualifier in method_vars:
-					qualifier = method_vars[node.qualifier]
-			if qualifier:
-				qualifier = f'{qualifier}.'
+					typeof = method_vars[node.qualifier]
+			if typeof:
+				typeof = f'{typeof}.'
 			else:
-				qualifier = f'{clas.name}.'
-			calls.append(f'{qualifier}{node.member}')	
+				typeof = f'{clas.name}.'
+			calls.append({'ref': f'{typeof}{node.member}', 'caller': caller})	
 
 	def _extract_annotations(self):
 		annotations = []
 		for path, node in self.tree.filter(javalang.tree.Annotation):
-			annotations.append(node.name)
+			annotations.append({'ref': node.name, 'caller': '@'})
 		return annotations
 
 	def _extract_inheritance(self, classes):
@@ -273,13 +277,13 @@ class JavaParser():
 						exds = clas.extends
 						if isinstance(exds, list):
 							for e in exds:
-								inheritances.append(f'extends.{e.name}')
+								inheritances.append({'ref': f'extends.{e.name}', 'caller': 'extends'})
 						else:
-							inheritances.append(f'extends.{exds.name}')
+							inheritances.append({'ref': f'extends.{exds.name}', 'caller': 'extends'})
 				if not isinstance(clas, javalang.tree.InterfaceDeclaration):
 					if clas.implements:
 						for impts in clas.implements:	
-							inheritances.append(f'implements.{impts.name}')	
+							inheritances.append({'ref': f'implements.{impts.name}', 'caller': 'implements'})	
 		return inheritances
 
 	def _extract_declarations(self, clas):

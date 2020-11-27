@@ -13,6 +13,7 @@ class Repository(Base):
 
 	id = Column(Integer, primary_key=True)
 	_path = Column('path', String, nullable=False, unique=True)
+	_branch = Column('branch', String, nullable=False)
 	_authors = relationship(Author, 
 					collection_class=attribute_mapped_collection('email'))
 	_commits = relationship(Commit, 
@@ -21,6 +22,7 @@ class Repository(Base):
 	def __init__(self, path):
 		if GitPython.IsGitRepo(path):
 			self._path = path
+			self._branch = GitPython.CurrentBranch(path)
 		else:
 			raise Exception('Invalid repository path \'{0}\''.format(path))
 
@@ -31,6 +33,10 @@ class Repository(Base):
 	@path.setter
 	def path(self, path):
 		self._path = path		
+
+	@property
+	def branch(self):
+		return self._branch
 
 	def add_author(self, author):
 		if author.email not in self._authors: 

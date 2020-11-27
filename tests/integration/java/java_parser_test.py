@@ -125,50 +125,52 @@ def test_extract_calls():
 	calls = parser.extract_calls()
 
 	src_calls = {
-		'DataFormatter.formatData': True,
-		'FileSerializer.getPropertiesList': True,
-		'PostProcessor.postProcess': True,
-		'FileOutputStream.write': True,
-		'FileOutputStream.close': True,
-		'HashMap': True,		
-		'Object.getClass': True,
-		'Class.getMethods': True,
-		'FileSerializer.isAllowedGetter': True,
-		'Method.invoke': True,
-		'Method.getName': True,
-		'Method.getName': True,
-		'Method.getName': True,
-		'String.substring': True,
-		'String.substring': True,
+		'DataFormatter.formatData': {'caller': 'df'},
+		'FileSerializer.getPropertiesList': {'caller': ''},
+		'PostProcessor.postProcess': {'caller': 'pp'},
+		'FileOutputStream': {'caller': 'new'},
+		'FileOutputStream.write': {'caller': 'fileout'},
+		'FileOutputStream.close': {'caller': 'fileout'},
+		'RuntimeException': {'caller': 'new'},
+		'HashMap': {'caller': 'new'},
+		'Object.getClass': {'caller': 'obj'},
+		'Class.getMethods': {'caller': 'clas'},
+		'FileSerializer.isAllowedGetter': {'caller': ''},
+		'Method.invoke': {'caller': 'm'},
+		'Method.getName': {'caller': 'm'},
+		'String.substring': {'caller': 'getterName'},
+		'String.substring': {'caller': 'getterName'},
+		'FileSerializer.formatValue': {'caller': ''},
+		'Map.put': {'caller': 'props'},
+		'RuntimeException': {'caller': 'new'},
+		'InstantiationException': {'caller': 'throws'},
+		'IllegalAccessException': {'caller': 'throws'},
+		'Method.getAnnotations': {'caller': 'm'},
+		'Annotation.annotationType': {'caller': 'an'},
+		'Class.isAnnotationPresent': {'caller': 'anType'},
+		'Class.getAnnotation': {'caller': 'anType'},
+		'FormatterImplementation.value': {'caller': 'fi'},
+		'Class.newInstance': {'caller': 'c'},
+		'ValueFormatter.readAnnotation': {'caller': 'vf'},
+		'ValueFormatter.formatValue': {'caller': 'vf'},
+		'Method.getName': {'caller': 'm'},
+		'Method.getParameterTypes': {'caller': 'm'},
+		'Method.getReturnType': {'caller': 'm'},
+		'Method.getName': {'caller': 'm'},
+		'Method.isAnnotationPresent': {'caller': 'm'},
+		'Override': {'caller': '@'},
+		'Override': {'caller': '@'},
+		'implements.Serializer': {'caller': 'implements'},
 		#'toLowerCase': True, # method chaining doesn't work
-		'ValueFormatter.formatValue': True,
-		'FileSerializer.formatValue': True,
-		'Map.put': True,
-		'Method.getAnnotations': True,
-		'Annotation.annotationType': True,
-		'Class.isAnnotationPresent': True,
-		'Class.getAnnotation': True,
-		'FormatterImplementation.value': True,
-		'Class.newInstance': True,
-		'ValueFormatter.readAnnotation': True,
 		#'startsWith': True, # method chaining doesn't work
-		'Method.getParameterTypes': True,
-		'Method.getReturnType': True,
-		'Method.isAnnotationPresent': True,
 		# 'equals': True, # method chaining doesn't work
-		'Override': True, #TODO: Annotation call
-		'Override': True,
-		'implements.Serializer': True,
-		'FileOutputStream': True,
-		'RuntimeException': True,
-		'RuntimeException': True,
-		'InstantiationException': True,
-		'IllegalAccessException': True,
+		# 'Override': True, #TODO: Annotation call
 	}
 
 	for call in calls:
-		assert src_calls[call]
-		# print(f'\'{call}\': True,')
+		assert src_calls[call['ref']]
+		assert src_calls[call['ref']]['caller'] != None
+		#print(f'\'{call["call"]}\': {{\'caller\': \'{call["caller"]}\'}},')
 
 	assert len(calls) == 36 == len(src_calls) + 5 # 5 repeated calls	
 

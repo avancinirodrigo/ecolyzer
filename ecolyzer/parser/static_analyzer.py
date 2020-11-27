@@ -33,10 +33,12 @@ class StaticAnalyzer:
 					code_elements.append(Operation(op, src_file))		
 
 			calls = parser.extract_calls()
-			self._remove_inner_calls(calls, operations)
-			self._remove_duplicated(calls)		
+			self._remove_inner_calls_java(calls, operations)
+			self._remove_duplicated_java(calls)		
 			for call in calls:
-				code_elements.append(Call(call, src_file))			
+				cal = Call(call['ref'], src_file)
+				cal.caller = call['caller']
+				code_elements.append(cal)
 
 			associations = parser.extract_associations()
 			self._remove_duplicated(associations)
@@ -108,13 +110,21 @@ class StaticAnalyzer:
 
 	# 	calls[:] = external_calls
 
+	def _remove_inner_calls_java(self, calls, functions):
+		external_calls = []
+		for call in calls:
+			if call['ref'] not in functions:
+				external_calls.append(call)
+
+		calls[:] = external_calls
+
 	def _remove_inner_calls(self, calls, functions):
 		external_calls = []
 		for call in calls:
 			if call not in functions:
 				external_calls.append(call)
 
-		calls[:] = external_calls
+		calls[:] = external_calls		
 
 	def _remove_methods_duplicated(self, methods):
 		methods_map = {}
@@ -134,8 +144,16 @@ class StaticAnalyzer:
 			if call not in calls_aux:
 				calls_aux[call] = call
 				result.append(call)
-
 		calls[:] = result
+
+	def _remove_duplicated_java(self, calls):
+		calls_aux = {}
+		result = []
+		for call in calls:
+			if call['ref'] not in calls_aux:
+				calls_aux[call['ref']] = call
+				result.append(call)
+		calls[:] = result		
 
 	def number_of_calls(self, source_file, source_code, code_element):
 		parser = None
@@ -143,15 +161,33 @@ class StaticAnalyzer:
 			parser = LuaParser()
 			parser.parser(source_code)
 			calls = parser.extract_calls() + parser.extract_global_calls()
+			return calls.count(code_element)
 		elif source_file.ext == 'java':
 			parser = JavaParser()
 			parser.parser(source_code)
 			calls = parser.extract_calls() 
+			count = 0
+			for call in calls:
+				if call['ref'] == code_element:
+					count += 1
+			return count
 		else:
 			raise SourceFileNotSupportedException('Source file \'{0}\' not supported.'.\
 				format(source_file.ext))
-		
-		return calls.count(code_element)
+
+	def references(self, source_file, source_code):
+		parser = None
+		if source_file.ext == 'lua':
+			parser = LuaParser()
+			parser.parser(source_code)
+			return parser.extract_calls() + parser.extract_global_calls()
+		elif source_file.ext == 'java':
+			parser = JavaParser()
+			parser.parser(source_code)
+			return parser.extract_calls() 
+		else:
+			raise SourceFileNotSupportedException('Source file \'{0}\' not supported.'.\
+				format(source_file.ext))		
 			
 class SourceFileNotSupportedException(Exception):
 	pass			

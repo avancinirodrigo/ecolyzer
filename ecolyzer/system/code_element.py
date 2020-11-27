@@ -16,8 +16,8 @@ class CodeElement(Base):
 	modification_id = Column(Integer, ForeignKey('modification.id'))
 	modification = relationship('Modification', backref=backref('code_element',
 		 									cascade='all,delete'))
-	__table_args__ = (UniqueConstraint('id', 'key'),)
-	__mapper_args__ = {'polymorphic_on':type}	
+	__table_args__ = (UniqueConstraint('source_file_id', 'key'),)
+	__mapper_args__ = {'polymorphic_on': type}	
 
 	def __init__(self, name, source_file, modification=None):
 		self.name = name

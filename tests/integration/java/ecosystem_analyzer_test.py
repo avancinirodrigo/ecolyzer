@@ -50,8 +50,9 @@ def test_relations_last_commits():
 	assert rel1.to_author.name == 'David Gilbert'	
 	assert rel1.to_author.email == 'dave@jfree.org'	
 	assert rel1.from_code_element.name == rel1.to_code_element.name == 'Day'
+	assert rel1.from_code_element.caller == 'new'
 	assert rel1.from_code_element_count == 2
-	
+
 	assert rel2.from_system.name == 'ProjectForge'
 	assert rel2.from_author.name == 'Florian Blumenstein'
 	assert rel2.from_author.email == 'f.blumenstein@micromata.de'	
@@ -59,6 +60,7 @@ def test_relations_last_commits():
 	assert rel2.to_author.name == 'David Gilbert'	
 	assert rel2.to_author.email == 'dave@jfree.org'	
 	assert rel2.from_code_element.name == rel2.to_code_element.name == 'TimeSeries.add'	
+	assert rel2.from_code_element.caller == 'sollSeries'
 	assert rel2.from_code_element_count == 6
 
 	assert rel3.from_system.name == 'ProjectForge'
@@ -68,6 +70,7 @@ def test_relations_last_commits():
 	assert rel3.to_author.name == 'David Gilbert'	
 	assert rel3.to_author.email == 'dave@jfree.org'	
 	assert rel3.from_code_element.name == rel3.to_code_element.name == 'TimeSeriesCollection.addSeries'	
+	assert rel3.from_code_element.caller == 'dataset'
 	assert rel3.from_code_element_count == 6	
 
 	session.close()
