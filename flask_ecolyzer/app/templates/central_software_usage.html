@@ -240,6 +240,8 @@
                 tip.style("display", "none");
             });
 
+    var dependentsCount = {{dependents_count}}
+
 	svg.append("text")
 		  .attr("x", 0)
 		  .attr("y", 0)
@@ -257,6 +259,7 @@
                 			+ "<br>total of operations: " + numOfOperations
                 			+ "<br>total of coverage: " + numOfCoverage + " ("
 		                	+ Math.round(numOfCoverage*100/numOfOperations) + "%)"
+		                	+ "<br>total of dependents: " + dependentsCount
                 			+ "<br>total of loc: " + numOfLoc);
             })
             .on("mouseout", function (d) {

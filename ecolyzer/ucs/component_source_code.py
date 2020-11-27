@@ -13,7 +13,7 @@ class ComponentSourceCode():
 					filter_by(id=self._source_id).one()
 		source_code = dataaccess.query(Modification.source_code).\
 						filter_by(file_id = self._source_id).one()					
-		system = source_file.get_system().name
+		system = source_file.system.name
 		language = ''
 		if source_file.ext == 'lua':
 			language = 'lua'
@@ -21,6 +21,7 @@ class ComponentSourceCode():
 			language = 'java'	
 
 		return {'source_code': source_code[0], 
+				'name': source_file.name,
 				'fullpath': source_file.fullpath, 
 				'system': system,
 				'language': language}

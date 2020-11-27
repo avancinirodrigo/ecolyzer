@@ -25,7 +25,8 @@ def relationships():
 	return render_template('central_software_usage.html', 
 						relations=central_software_info['components'],
 						system=central_software_info['central_software'].name, 
-						paths=central_software_info['component_paths'])
+						paths=central_software_info['component_paths'],
+						dependents_count=central_software_info['dependents_count'])
 
 @app.route('/relationships/<int:id>', methods=['GET'])
 def component_usage(id):
@@ -67,6 +68,7 @@ def component_source_code(id):
 	component_info = uc.execute(dataaccess)
 	return render_template('component_source_code.html', 
 						source_code=component_info['source_code'],
+						name=component_info['name'], 
 						fullpath=component_info['fullpath'], 
 						system_name=component_info['system'], 
 						language=component_info['language'])	

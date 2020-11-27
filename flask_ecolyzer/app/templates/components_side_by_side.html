@@ -185,7 +185,7 @@
 	if(language == "lua") {
 		for(var i = 0; i < code_elements.length; i++) {
 			to_operations += "<option value=\"#to_" + code_elements[i] + "\">"
-							+ code_elements[i] + "</option>";
+							+ (i + 1) + code_elements[i] + "</option>";
 		}
 	}
 	else if(language == "java") {
@@ -196,15 +196,15 @@
 				processed_ref_map[dependentRefs[i]] = true;
 				if(dependentRefs[i].includes("extends")) {
 					to_operations += "<option value=\"#to_class_" + ref[1] + "\">"
-									+ ref[1] + "</option>";
+									+ (i + 1) + ". " + ref[1] + "</option>";
 				}
 				else {
 					if(ref.length > 1)
 						to_operations += "<option value=\"#to_" + ref[1] + "\">"
-										+ ref[1] + "</option>";	
+										+ (i + 1) + ". " + ref[1] + "</option>";	
 					else {
 						to_operations += "<option value=\"#to_" + ref[0] + "\">"
-										+ ref[0] + "</option>";	
+										+ (i + 1) + ". " + ref[0] + "</option>";	
 					}			
 				}
 			}
@@ -251,7 +251,7 @@
 								+ "<i class=\"arrow up\"></i>"	
 								+ "</a>\n";
 			from_operations += "<option value=\"#" + from_ref + "\">"
-								+ from_operations_count + ".\t" + code_element_ref[1] 
+								+ from_operations_count + ". " + code_element_ref[1] 
 								+ "</option>";
 		}
 		else
