@@ -21,10 +21,9 @@ class ComponentsSideBySide():
 		to_file = relations[0].to_source_file.file
 		from_system = relations[0].from_system.name
 		to_system = relations[0].to_system.name
-		from_source = dataaccess.query(Modification.source_code).\
-						filter_by(file_id = from_file.id).one()
-		to_source = dataaccess.query(Modification.source_code).\
-						filter_by(file_id = to_file.id).one()					
+		from_source = relations[0].from_code_element.modification.source_code 
+		to_source = relations[0].to_code_element.modification.source_code 
+				
 		code_elements = []
 		code_elements_map = {}
 		for rel in relations:
@@ -45,11 +44,11 @@ class ComponentsSideBySide():
 		#references = self._references(from_file, from_source[0], code_elements_map)
 		references = self._references(from_id, code_elements_map, dataaccess)
 
-		central = {'source_code': to_source[0], 
+		central = {'source_code': to_source, 
 					'fullpath': to_file.fullpath, 
 					'system': to_system,
 					'code_elements': code_elements}			
-		dependent = {'source_code': from_source[0], 
+		dependent = {'source_code': from_source, 
 					'fullpath': from_file.fullpath, 
 					'system': from_system,
 					'code_elements': references}

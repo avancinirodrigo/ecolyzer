@@ -47,8 +47,7 @@ class ComponentUsage:
 			from_source_pos[from_source_id] = len(source_relations)
 			from_systems[rel.from_system_id] = rel.from_system.name
 			from_source_file = rel.from_source_file
-			file_mod = dataaccess.query(Modification).\
-						filter_by(file_id = from_source_file.file_id).one()	
+			file_mod = rel.from_code_element.modification
 			info = {
 				'id': from_source_id,
 				'from': from_source_file.name,
