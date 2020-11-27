@@ -54,8 +54,13 @@ class SourceFile(Base):
 	def fullpath(self):
 		return self.file.fullpath		
 
+	@property
+	def system(self):
+		return self.file.system
+
+	@system.setter
 	def system(self, system):
-		self.file.system = system
+		self.file.system = system		
 	
 	@property
 	def source_code(self): #TODO: source code is in Modification		

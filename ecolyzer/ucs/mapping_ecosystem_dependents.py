@@ -25,8 +25,7 @@ class MappingEcosystemDependents:
 		central_system = None
 		ecosystem = None
 		if central_repo_path in existing_repos:
-			central_repo = dataaccess.query(Repository).\
-						filter_by(path=central_repo_path).one()
+			central_repo = existing_repos[central_repo_path]
 			if not self._system_name:
 				self._system_name = central_repo.name			
 			central_system = dataaccess.query(System).\
@@ -74,5 +73,5 @@ class MappingEcosystemDependents:
 		repos = dataaccess.query(Repository).all()
 		repos_dict = {}
 		for repo in repos:
-			repos_dict[repo.path] = repo.path
+			repos_dict[repo.path] = repo
 		return repos_dict
