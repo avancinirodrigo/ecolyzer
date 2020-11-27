@@ -9,7 +9,7 @@ def db_connection():
     db_url = 'postgresql://postgres:postgres@localhost:5432/flask_test'
     db = SQLAlchemyORM(db_url)
 
-    if db.existsdb():
+    if db.existsdb(): # Comment it for create database
         yield db_connection
         return
 
