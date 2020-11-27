@@ -134,7 +134,8 @@ class JavaParser():
 			self._process_switch(elem, decl, calls, method_vars)
 		elif isinstance(elem, javalang.tree.ThrowStatement): 		
 			self._add_declaration(elem.expression, decl, calls, method_vars)		
-		elif isinstance(elem, javalang.tree.ClassCreator):
+		elif (isinstance(elem, javalang.tree.ClassCreator)
+				or isinstance(elem, javalang.tree.InnerClassCreator)):
 			self._process_class_creator(elem, decl, calls, method_vars)
 		elif isinstance(elem, javalang.tree.SuperConstructorInvocation):
 			self._process_super_constructor_invocation(elem, decl, calls, method_vars)
@@ -228,7 +229,8 @@ class JavaParser():
 
 	def _process_this(self, this_node, decl, calls, method_vars):
 		for sel in this_node.selectors:
-			sel.qualifier = this_node.selectors[0].member		
+			if not isinstance(sel, javalang.tree.InnerClassCreator):
+				sel.qualifier = this_node.selectors[0].member		
 			self._add_declaration(sel, decl, calls, method_vars)			
 
 	def _add_parameters(self, method_vars, declaration):
@@ -250,6 +252,7 @@ class JavaParser():
 			caller = node.qualifier
 			if isinstance(node, javalang.tree.SuperMethodInvocation):
 				typeof = 'Object'
+				caller = 'super'
 				if not isinstance(clas, javalang.tree.EnumDeclaration):
 					if clas.extends:
 						typeof = clas.extends.name	

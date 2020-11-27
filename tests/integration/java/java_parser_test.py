@@ -195,3 +195,106 @@ def test_extract_associations():
 	for assoc in assocs:
 		assert src_assocs[assoc]		
 		#print('\'' + assoc + '\': ' + 'True,')
+
+def test_extract_inner_class_creator(): # TODO: review inner class declarations and how they work
+	javafile = os.path.join(os.path.dirname(__file__), '../data', 'InspectInvitationsPage.java')
+	src = open(javafile).read()
+	parser = JavaParser()
+	parser.parser(src)
+	class_operations = parser.extract_operations()
+	calls = parser.extract_calls()		
+
+	expected_operations = {
+		'InspectInvitationsPage.extends.InspectInvitationsPage': True,
+		'InspectInvitationsPage.InspectInvitationsPage.getTable': True,
+		'InspectInvitationsPage.InspectInvitationsPage.getFooter': True,
+		'InspectInvitationsPage.InspectInvitationsPage.getStatusAndMemo': True,
+		'InspectInvitationsPage.InspectInvitationsPage.getMessageWhere': True,
+		'InspectInvitationsPage.InspectInvitationsPage.clickMessageHistory': True,
+		'InspectInvitationsPage.InspectInvitationsPage.getMessage': True,
+		'InspectInvitationsPage.InspectInvitationsPage.notSpam': True,
+		'InspectInvitationsPage.InspectInvitationsPage.cancel': True,
+		'InspectInvitationsPage.InspectInvitationsPage.getStatusAndMemo': True,
+		'InspectInvitationsPage.InspectInvitationsPage.clickMessageHistory': True,
+		'InspectInvitationsPage.InspectInvitationsPage.getMessageWhere': True,
+		'InspectInvitationsPage.InspectInvitationsPage.getMessage': True,
+		'InspectInvitationsPage.InspectInvitationsPage.clickMessageHistory': True,
+		'InspectInvitationsPage.InspectInvitationsPage.cancel': True,
+		'InspectInvitationsPage.InspectInvitationsPage.notSpam': True,
+		'InspectInvitationsPage.InspectInvitationsPage.getMessageWhere': True,
+		'InspectInvitationsPage.InspectInvitationsPage.getMessage': True,
+		'InspectInvitationsPage.InspectInvitationsPage.clickMessageHistory': True,
+		'InspectInvitationsPage.InspectInvitationsPage.cancel': True,
+		'InspectInvitationsPage.InspectInvitationsPage.notSpam': True,
+		'InspectInvitationsPage.InspectInvitationsPage': True,
+	}
+
+	expected_calls = {
+		'new.TableElement': True,
+		'.InspectInvitationsPage.getDriver': True,
+		'elements.List.size': True,
+		'elements.List.get': True,
+		'new.ArrayList': True,
+		'.InspectInvitationsPage.getTable': True,
+		'cell.WebElement.getText': True,
+		'.InspectInvitationsPage.getDriver': True,
+		'link.WebElement.click': True,
+		'columnEntries.List.add': True,
+		'cell.WebElement.getText': True,
+		'new.WebDriverException': True,
+		'columnEntries.List.toString': True,
+		'.InspectInvitationsPage.getTable': True,
+		'new.TableElement': True,
+		'.InspectInvitationsPage.getDriver': True,
+		'super.InspectInvitationsPage.getMessageWhere': True,
+		'new.OneMessage': True,
+		'super.InspectInvitationsPage.getMessageWhere': True,
+		'new.OneMessage': True,
+		'new.InvitationMessageDisplayElement': True,
+		'super.AsAdmin.clickMessageHistory': True,
+		'new.WebDriverException': True,
+		'notSpamButton.WebElement.click': True,
+		'new.InvitationActionConfirmationElement': True,
+		'confirm.InvitationActionConfirmationElement.getLabel': True,
+		'new.WebDriverException': True,
+		'confirm.InvitationActionConfirmationElement.getLabel': True,
+		'confirm.InvitationActionConfirmationElement.setMemo': True,
+		'confirm.InvitationActionConfirmationElement.confirm': True,
+		'new.InvitationMessageDisplayElement': True,
+		'super.AsUser.clickMessageHistory': True,
+		'cancelButton.WebElement.click': True,
+		'new.InvitationActionConfirmationElement': True,
+		'new.WebDriverException': True,
+		'new.InvitationFooterElement': True,
+		'@.FindBy': True,
+		'@.Override': True,
+		'@.FindBy': True,
+		'@.FindBy': True,
+		'@.Override': True,
+		'@.Override': True,
+		'@.Override': True,
+		'@.Override': True,
+		'@.FindBy': True,
+		'@.Override': True,
+		'@.FindBy': True,
+		'@.Override': True,
+		'@.Override': True,
+		'@.Override': True,
+		'@.Override': True,
+		'extends.extends.BasePage': True,
+		'extends.extends.InspectInvitationsPage': True,
+		'extends.extends.InspectInvitationsPage': True,
+		'extends.extends.AsAdmin': True,
+		'implements.implements.InspectInvitationsPage': True,
+		'extends.extends.AsUser': True,
+		'implements.implements.InspectInvitationsPage': True,
+	}
+
+	for clas in class_operations:
+		for op in clas['operations']:
+			#print(f'\'{clas["name"]}.{op["name"]}\': True,')
+			assert expected_operations[f'{clas["name"]}.{op["name"]}']
+
+	for call in calls:
+		#print(f'\'{call["caller"]}.{call["ref"]}\': True,')
+		assert expected_calls[f'{call["caller"]}.{call["ref"]}']

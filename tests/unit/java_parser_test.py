@@ -32,6 +32,39 @@ def test_annotations():
 
 	calls = parser.extract_calls()
 	assert len(calls) == 3
-	assert calls[0] == 'Retention'
-	assert calls[1] == 'AnnotationReadingConfig'
-	assert calls[2] == 'SearchOnEnclosingElements'
+	assert calls[0]['ref'] == 'Retention'
+	assert calls[1]['ref'] == 'AnnotationReadingConfig'
+	assert calls[2]['ref'] == 'SearchOnEnclosingElements'
+
+def test_parse_cast():
+	src = """
+		public class EyeCandySixtiesChartTheme extends GenericChartTheme {
+
+			@Override
+			protected JFreeChart createCandlestickChart() throws JRException
+			{
+				JFreeChart jfreeChart = super.createCandlestickChart();
+				XYPlot xyPlot = (XYPlot) jfreeChart.getPlot();
+				CandlestickRenderer renderer = (CandlestickRenderer)xyPlot.getRenderer();  
+				DefaultHighLowDataset dataset = (DefaultHighLowDataset)xyPlot.getDataset();  
+				if (dataset != null)
+				{
+					for (int i = 0; i < dataset.getSeriesCount(); i++)
+					{
+						renderer.setSeriesFillPaint(i, ChartThemesConstants.EYE_CANDY_SIXTIES_COLORS.get(i));
+						renderer.setSeriesPaint(i, Color.DARK_GRAY);
+					}
+				}
+				return jfreeChart;
+			}
+		}
+	"""
+
+	parser = JavaParser()
+	parser.parser(src)
+	calls = parser.extract_calls()
+	calls_map = {}
+	for call in calls:
+		calls_map[call['ref']] = True		
+	assert calls_map['XYPlot.getRenderer']
+	assert calls_map['XYPlot.getDataset']
