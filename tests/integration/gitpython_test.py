@@ -6,7 +6,7 @@ from ecolyzer.repository import GitPython
 
 def test_clone():
 	git = GitPython()
-	to_path = 'repo/calibration'
+	to_path = 'calibration'
 	if path.exists(to_path):
 		shutil.rmtree(to_path, ignore_errors=True)
 
@@ -14,4 +14,12 @@ def test_clone():
 	assert GitPython.IsGitRepo(to_path)
 	shutil.rmtree(to_path)
 
+def test_clone_branch_default_not_master():
+	git = GitPython()
+	to_path = 'openhtmltopdf'
+	if path.exists(to_path):
+		shutil.rmtree(to_path, ignore_errors=True)
 
+	git.clone('https://github.com/danfickle/openhtmltopdf', to_path)
+	assert GitPython.IsGitRepo(to_path)
+	shutil.rmtree(to_path)

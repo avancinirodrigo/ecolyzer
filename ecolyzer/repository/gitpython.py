@@ -45,4 +45,8 @@ class GitPython:
 		except:
 			return False
 		return True		
+
+	@staticmethod
+	def CurrentBranch(path):
+		return Repo(path).active_branch.name		
 		

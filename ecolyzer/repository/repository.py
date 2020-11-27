@@ -1,6 +1,7 @@
 from sqlalchemy import Column, String, Integer
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.collections import attribute_mapped_collection
+from sqlalchemy.ext.hybrid import hybrid_property
 from ecolyzer.dataaccess import Base
 from ecolyzer.utils import FileUtils
 from .author import Author
@@ -26,7 +27,7 @@ class Repository(Base):
 		else:
 			raise Exception('Invalid repository path \'{0}\''.format(path))
 
-	@property
+	@hybrid_property
 	def path(self):
 		return self._path
 

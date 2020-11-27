@@ -19,6 +19,7 @@ def test_repository_crud():
 	repodb = session.query(Repository).get(1)
 	sysdb = session.query(System).get(1)
 	assert repo.path == repodb.path	
+	assert repo.branch == 'master'
 	assert sysdb.repo_id == repodb.id
 	#sys2 = System('ca', repo) < TODO: review
 	#session.add(sys2)
@@ -62,8 +63,10 @@ def test_two_repos():
 
 	assert sys1db.name == sys1.name
 	assert sys1db.repository.path == repo1.path 
+	assert sys1db.repository.branch == 'master'
 	assert sys2db.name == sys2.name
 	assert sys2db.repository.path == repo2.path
+	assert sys2db.repository.branch == 'master'
 	assert sys1db.name != sys2db.name
 
 	session.close()
