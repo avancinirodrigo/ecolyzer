@@ -98,8 +98,19 @@
     </body>
 </html>
 <script type="text/javascript">
+	function isJavaSuper(ref) {
+		return ref[0] == "super";
+	}
 
-	function hasCodeTo(line, code_elements, language) {
+	function isJavaNew(ref, line) {
+		return line.includes("new " + ref[1])
+	}
+
+	function isJavaExtends(ref, line) {
+		return line.includes("extends " + ref[1])
+	}	
+
+	function hasCodeTo(line, code_elements, dependentRefs, language) {
 		if(language == 'lua') {
 			for(var i = 0; i < code_elements.length; i++) {
 				if((line.search(code_elements[i] + " = function") >= 0)
@@ -108,22 +119,54 @@
 			}
 		}
 		else if(language == 'java') {
-			for(var i = 0; i < code_elements.length; i++) {
-				if(line.search("[a-zA-Z]+ " + code_elements[i] + "[(]") >= 0)
-					return code_elements[i];
+			for(var i = 0; i < dependentRefs.length; i++) {
+				let ref = dependentRefs[i].split(".");
+				if(ref.length > 1) {
+					console.log(dependentRefs[i])
+					if(((ref[0] == "new") || (ref[0] == "super")) 
+						&& (line.search("(public|protect) " + ref[1] + "[(]") >= 0))
+						return ref[1];
+					else if(line.search("(public|protect) .+ " + ref[1] + "[(]") >= 0)
+						return ref[1];
+					else if(line.search("class " + ref[1]) >= 0)
+						return "class_" + ref[1];
+					else if(line.search("enum " + ref[1]) >= 0)
+						return "enum_" + ref[1];
+					else if(line.search("interface " + ref[1]) >= 0)
+						return "interface_" + ref[1];
+				}
 			}
 		}
 		return "";		
 	}
 
-	function hasCodeFrom(line, code_elements) {
+	function hasCodeFrom(line, code_elements, dependentRefs, language) {
 		if(line.search("^[\\s]*[--]+") >= 0)
 			return ""
-		var regex = "[\\w]+[.:]";
-		for(var i = 0; i < code_elements.length; i++) {
-			if((line.search(regex + code_elements[i] + "[({]") >= 0)
-					|| (line.search(code_elements[i] + "[({]") >= 0))
-				return code_elements[i];
+		if(language == "lua") {
+			var regex = "[\\w]+[.:]";
+			for(var i = 0; i < code_elements.length; i++) {
+				if((line.search(regex + code_elements[i] + "[({]") >= 0)
+						|| (line.search(code_elements[i] + "[({]") >= 0))
+					return [code_elements[i], code_elements[i]];
+			}
+		}
+		else if(language == "java") {
+			for(var i = 0; i < dependentRefs.length; i++) {
+				let ref = dependentRefs[i].split(".");
+				if(line.includes(dependentRefs[i] + "(")
+						|| (line.includes(ref[0]) 
+							&& (isJavaSuper(ref) || isJavaNew(ref, line) 
+									|| isJavaExtends(ref, line)))) {
+					if(ref.length > 1) {
+						if(ref[0] == "extends") {
+							return [("class_" + ref[1]), ref[1]];
+						}
+						return [ref[1], ref[1]];
+					}
+					return [ref[0], ref[0]];
+				}
+			}			
 		}
 		return "";		
 	}
@@ -132,15 +175,40 @@
 	var from_source = {{ from_source|tojson }}
 
 	var to_source_lines = to_source.split("\n");
-	console.log(to_source_lines);
 	var from_source_lines = from_source.split("\n");	
 
 	var to_operations = "<select name=\"to_relations\" onchange=\"location=this.value;\">";
 	to_operations += "<option selected disabled> {{ to_system }} relationships</option>";
-	var code_elements = {{ code_elements|safe }}
-	for(var i = 0; i < code_elements.length; i++) {
-		to_operations += "<option value=\"#to_" + code_elements[i] + "\">"
-						+ code_elements[i] + "</option>";
+	var code_elements = {{ code_elements|safe }};
+	var dependentRefs = {{ dependent_refs|safe }};
+	var language = "{{ language }}";
+	if(language == "lua") {
+		for(var i = 0; i < code_elements.length; i++) {
+			to_operations += "<option value=\"#to_" + code_elements[i] + "\">"
+							+ code_elements[i] + "</option>";
+		}
+	}
+	else if(language == "java") {
+		processed_ref_map = {};
+		for(var i = 0; i < dependentRefs.length; i++) {
+			ref = dependentRefs[i].split(".")
+			if(!(dependentRefs[i] in processed_ref_map)) {
+				processed_ref_map[dependentRefs[i]] = true;
+				if(dependentRefs[i].includes("extends")) {
+					to_operations += "<option value=\"#to_class_" + ref[1] + "\">"
+									+ ref[1] + "</option>";
+				}
+				else {
+					if(ref.length > 1)
+						to_operations += "<option value=\"#to_" + ref[1] + "\">"
+										+ ref[1] + "</option>";	
+					else {
+						to_operations += "<option value=\"#to_" + ref[0] + "\">"
+										+ ref[0] + "</option>";	
+					}			
+				}
+			}
+		}
 	}
 
 	to_operations += "</select>"
@@ -150,7 +218,7 @@
 
 	for(var i = 0; i < to_source_lines.length; i++) {
 		var line = to_source_lines[i].replace(/</g,"&lt;").replace(/>/g,"&gt;") ;
-		var code_element = hasCodeTo(line, code_elements, "{{language}}");
+		var code_element = hasCodeTo(line, code_elements, dependentRefs, "{{language}}");
 		if(code_element != "") {
 			to_source_view += "<a name=\"to_" + code_element + "\"></a><mark>" + line + "</mark>"
 								+ "  <a href=\"#to_top\">" 
@@ -173,17 +241,17 @@
 
 	for(var i = 0; i < from_source_lines.length; i++) {
 		var line = from_source_lines[i];
-		var code_element = hasCodeFrom(line, code_elements);
-		if(code_element != "") {
+		var code_element_ref = hasCodeFrom(line, code_elements, dependentRefs, "{{language}}");
+		if(code_element_ref != "") {
 			from_operations_count += 1;
-			var from_ref = "from_" + from_operations_count + code_element;
+			var from_ref = "from_" + from_operations_count + code_element_ref[0];
 			from_source_view += "<a name=\"" + from_ref + "\"></a>"
-								+ "<a href=\"#to_" + code_element + "\"><mark>" + line + "</mark></a>"
+								+ "<a href=\"#to_" + code_element_ref[0] + "\"><mark>" + line + "</mark></a>"
 								+ "  <a href=\"#from_top\">" 
 								+ "<i class=\"arrow up\"></i>"	
 								+ "</a>\n";
 			from_operations += "<option value=\"#" + from_ref + "\">"
-								+ from_operations_count + ".\t" + code_element 
+								+ from_operations_count + ".\t" + code_element_ref[1] 
 								+ "</option>";
 		}
 		else

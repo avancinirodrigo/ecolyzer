@@ -5,7 +5,8 @@ from . import bp as app
 from ecolyzer.repository import Author, Modification
 from ecolyzer.ecosystem import Relationship
 from ecolyzer.system import Operation, SourceFile
-from ecolyzer.ucs import CentralSoftwareUsage, ComponentUsage
+from ecolyzer.ucs import (CentralSoftwareUsage, ComponentUsage,
+						ComponentsSideBySide, ComponentSourceCode)
 
 
 @app.route('/', methods=['GET'])
@@ -18,6 +19,8 @@ def relationships():
 	for comp in components:
 		if comp['count'] > 0:
 			comp['url'] = url_for('.component_usage', id=comp['id'])
+		else:
+			comp['url'] = url_for('.component_source_code', id=comp['id'])
 	dataaccess.close()
 	return render_template('central_software_usage.html', 
 						relations=central_software_info['components'],
@@ -45,29 +48,25 @@ def component_usage(id):
 
 @app.route('/relationships/<int:from_id>/<int:to_id>', methods=['GET'])
 def source_codes(from_id, to_id):
-	relations = db.session.query(Relationship)\
-					.filter_by(to_source_file_id = to_id,\
-					from_source_file_id = from_id).all()
-	from_file = relations[0].from_source_file.file
-	to_file = relations[0].to_source_file.file
-	from_system = relations[0].from_system.name
-	to_system = relations[0].to_system.name
-	from_source = db.session.query(Modification.source_code).\
-					filter_by(file_id = from_file.id).one()
-	to_source = db.session.query(Modification.source_code).\
-					filter_by(file_id = to_file.id).one()					
-	code_elements = []
-	for rel in relations:
-		# print(rel.to_code_element.name)
-		code_elements.append(rel.to_code_element.name)
+	dataaccess = db.session
+	uc = ComponentsSideBySide(to_id, from_id)
+	components_info = uc.execute(dataaccess)
+	central = components_info['central']
+	dependent = components_info['dependent']
+	return render_template('components_side_by_side.html', from_source=dependent['source_code'], 
+						to_source=central['source_code'], code_elements=central['code_elements'],
+						dependent_refs=dependent['code_elements'],
+						from_fullpath=dependent['fullpath'], to_fullpath=central['fullpath'],
+						from_system=dependent['system'], to_system=central['system'], 
+						language=components_info['language'])
 
-	language = ''
-	if to_file.ext == 'lua':
-		language = 'lua'
-	elif to_file.ext == 'java':
-		language = 'java'
-
-	return render_template('source_codes.html', from_source=from_source[0], 
-						to_source=to_source[0], code_elements=code_elements,
-						from_fullpath=from_file.fullpath, to_fullpath=to_file.fullpath,
-						from_system=from_system, to_system=to_system, language=language)
+@app.route('/source_code/<int:id>', methods=['GET'])	
+def component_source_code(id):
+	dataaccess = db.session
+	uc = ComponentSourceCode(id)
+	component_info = uc.execute(dataaccess)
+	return render_template('component_source_code.html', 
+						source_code=component_info['source_code'],
+						fullpath=component_info['fullpath'], 
+						system_name=component_info['system'], 
+						language=component_info['language'])	
