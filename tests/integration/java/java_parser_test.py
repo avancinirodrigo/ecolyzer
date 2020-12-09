@@ -9,7 +9,9 @@ def test_extract_operations():
 	operations = parser.extract_operations()[0]['operations']
 
 	src_operations = {
-		'extends.FileSerializer': True,	
+		'extends.FileSerializer': True,
+		'FileSerializer.pp': True,
+		'FileSerializer.df': True,
 		'FileSerializer': True,
 		'FileSerializer.getPostProcessor': True,
 		'FileSerializer.setPostProcessor': True,
@@ -17,12 +19,14 @@ def test_extract_operations():
 		'FileSerializer.getPropertiesList': True,
 		'FileSerializer.formatValue': True,
 		'FileSerializer.isAllowedGetter': True,
+
 	}
 
 	assert len(operations) == len(src_operations)
 
 	for op in operations:
 		assert src_operations[op['name']]
+		#print(f'\'{op["name"]}\': True,')
 
 def test_internal_class_operations():
 	javafile = os.path.join(os.path.dirname(__file__), '../data', 'JFreeChartJFreeChartInfo.java')
@@ -36,8 +40,33 @@ def test_internal_class_operations():
 	operations = classes[0]['operations']
 	src_operations = {
 		'extends.JFreeChart': True,
-		'JFreeChart': True,
+		'JFreeChart.serialVersionUID': True,
+		'JFreeChart.INFO': True,
+		'JFreeChart.DEFAULT_TITLE_FONT': True,
+		'JFreeChart.DEFAULT_BACKGROUND_PAINT': True,
+		'JFreeChart.DEFAULT_BACKGROUND_IMAGE': True,
+		'JFreeChart.DEFAULT_BACKGROUND_IMAGE_ALIGNMENT': True,
+		'JFreeChart.DEFAULT_BACKGROUND_IMAGE_ALPHA': True,
+		'JFreeChart.KEY_SUPPRESS_SHADOW_GENERATION': True,
 		'JFreeChart.isCompatibleValue': True,
+		'JFreeChart.renderingHints': True,
+		'JFreeChart.borderVisible': True,
+		'JFreeChart.borderStroke': True,
+		'JFreeChart.borderPaint': True,
+		'JFreeChart.padding': True,
+		'JFreeChart.title': True,
+		'JFreeChart.subtitles': True,
+		'JFreeChart.plot': True,
+		'JFreeChart.backgroundPaint': True,
+		'JFreeChart.backgroundImage': True,
+		'JFreeChart.backgroundImageAlignment': True,
+		'JFreeChart.backgroundImageAlpha': True,
+		'JFreeChart.changeListeners': True,
+		'JFreeChart.progressListeners': True,
+		'JFreeChart.notify': True,
+		'JFreeChart': True,
+		'JFreeChart': True,
+		'JFreeChart': True,
 		'JFreeChart.getRenderingHints': True,
 		'JFreeChart.setRenderingHints': True,
 		'JFreeChart.isBorderVisible': True,
@@ -50,13 +79,16 @@ def test_internal_class_operations():
 		'JFreeChart.setPadding': True,
 		'JFreeChart.getTitle': True,
 		'JFreeChart.setTitle': True,
+		'JFreeChart.setTitle': True,
 		'JFreeChart.addLegend': True,
 		'JFreeChart.getLegend': True,
+		'JFreeChart.getLegend': True,
 		'JFreeChart.removeLegend': True,
-		'JFreeChart.setSubtitles': True,
 		'JFreeChart.getSubtitles': True,
+		'JFreeChart.setSubtitles': True,
 		'JFreeChart.getSubtitleCount': True,
 		'JFreeChart.getSubtitle': True,
+		'JFreeChart.addSubtitle': True,
 		'JFreeChart.addSubtitle': True,
 		'JFreeChart.clearSubtitles': True,
 		'JFreeChart.removeSubtitle': True,
@@ -66,6 +98,7 @@ def test_internal_class_operations():
 		'JFreeChart.getAntiAlias': True,
 		'JFreeChart.setAntiAlias': True,
 		'JFreeChart.getTextAntiAlias': True,
+		'JFreeChart.setTextAntiAlias': True,
 		'JFreeChart.setTextAntiAlias': True,
 		'JFreeChart.getBackgroundPaint': True,
 		'JFreeChart.setBackgroundPaint': True,
@@ -78,8 +111,13 @@ def test_internal_class_operations():
 		'JFreeChart.isNotify': True,
 		'JFreeChart.setNotify': True,
 		'JFreeChart.draw': True,
+		'JFreeChart.draw': True,
+		'JFreeChart.draw': True,
 		'JFreeChart.createAlignedRectangle2D': True,
 		'JFreeChart.drawTitle': True,
+		'JFreeChart.createBufferedImage': True,
+		'JFreeChart.createBufferedImage': True,
+		'JFreeChart.createBufferedImage': True,
 		'JFreeChart.createBufferedImage': True,
 		'JFreeChart.handleClick': True,
 		'JFreeChart.addChangeListener': True,
@@ -96,9 +134,10 @@ def test_internal_class_operations():
 		'JFreeChart.readObject': True,
 		'JFreeChart.main': True,
 		'JFreeChart.clone': True,
+
 	}
 
-	assert len(operations) == 72 == len(src_operations) + 12 
+	assert len(operations) == 95 == len(src_operations) + 12 
 
 	for op in operations:
 		assert src_operations[op['name']]		
@@ -227,6 +266,11 @@ def test_extract_inner_class_creator(): # TODO: review inner class declarations 
 		'InspectInvitationsPage.InspectInvitationsPage.cancel': True,
 		'InspectInvitationsPage.InspectInvitationsPage.notSpam': True,
 		'InspectInvitationsPage.InspectInvitationsPage': True,
+		'InspectInvitationsPage.InspectInvitationsPage.footer': True,
+		'InspectInvitationsPage.InspectInvitationsPage.tableWebEl': True,
+		'InspectInvitationsPage.InspectInvitationsPage.preview': True,
+		'InspectInvitationsPage.InspectInvitationsPage.notSpamButton': True,
+		'InspectInvitationsPage.InspectInvitationsPage.cancelButton': True,
 	}
 
 	expected_calls = {
@@ -298,3 +342,38 @@ def test_extract_inner_class_creator(): # TODO: review inner class declarations 
 	for call in calls:
 		#print(f'\'{call["caller"]}.{call["ref"]}\': True,')
 		assert expected_calls[f'{call["caller"]}.{call["ref"]}']
+
+def test_extract_public_static_constants(): 
+	javafile = os.path.join(os.path.dirname(__file__), '../data', 'Align.java')
+	src = open(javafile).read()
+	parser = JavaParser()
+	parser.parser(src)
+	class_operations = parser.extract_operations()
+	expected_operations = {
+		'Align.Align.CENTER': True,
+		'Align.Align.TOP': True,
+		'Align.Align.BOTTOM': True,
+		'Align.Align.LEFT': True,
+		'Align.Align.RIGHT': True,
+		'Align.Align.TOP_LEFT': True,
+		'Align.Align.TOP_RIGHT': True,
+		'Align.Align.BOTTOM_LEFT': True,
+		'Align.Align.BOTTOM_RIGHT': True,
+		'Align.Align.FIT_HORIZONTAL': True,
+		'Align.Align.FIT_VERTICAL': True,
+		'Align.Align.FIT': True,
+		'Align.Align.NORTH': True,
+		'Align.Align.SOUTH': True,
+		'Align.Align.WEST': True,
+		'Align.Align.EAST': True,
+		'Align.Align.NORTH_WEST': True,
+		'Align.Align.NORTH_EAST': True,
+		'Align.Align.SOUTH_WEST': True,
+		'Align.Align.SOUTH_EAST': True,
+		'Align.Align': True,
+		'Align.Align.align': True,	
+	}
+	for clas in class_operations:
+		for op in clas['operations']:
+			#print(f'\'{clas["name"]}.{op["name"]}\': True,')	
+			assert expected_operations[f'{clas["name"]}.{op["name"]}']

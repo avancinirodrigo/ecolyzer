@@ -66,7 +66,13 @@ def test_reverse_engineering():
 		#TODO: the class doen't use these methods
 		# 'writeObject': True,
 		# 'readObject': True,
-		'JFreeChart.clone': True
+		'JFreeChart.clone': True,
+		'JFreeChart.DEFAULT_TITLE_FONT': True,
+		'JFreeChart.DEFAULT_BACKGROUND_PAINT': True,
+		'JFreeChart.DEFAULT_BACKGROUND_IMAGE': True,
+		'JFreeChart.DEFAULT_BACKGROUND_IMAGE_ALIGNMENT': True,
+		'JFreeChart.DEFAULT_BACKGROUND_IMAGE_ALPHA': True,
+		'JFreeChart.KEY_SUPPRESS_SHADOW_GENERATION': True,
 	}
 
 	calls = {
@@ -281,7 +287,7 @@ def test_reverse_engineering():
 	for k in associations.keys():
 		assert code_elements_dict[k]				 
 
-	assert len(code_elements) == 243 == len(operations) + len(calls) + len(associations)
+	assert len(code_elements) == 249 == len(operations) + len(calls) + len(associations)
 	
 	for element in code_elements:
 		if element.type == 'call':

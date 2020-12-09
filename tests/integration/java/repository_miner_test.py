@@ -673,7 +673,13 @@ def test_extract_first_commit():
 	operationsdb = session.query(Operation).filter_by(source_file_id = srcfiledb.id).all()
 
 	operations = {
-		'extends.JFreeChart': True,	
+		'extends.JFreeChart': True,
+		'JFreeChart.INFO': True,
+		'JFreeChart.DEFAULT_TITLE_FONT': True,
+		'JFreeChart.DEFAULT_BACKGROUND_PAINT': True,
+		'JFreeChart.DEFAULT_BACKGROUND_IMAGE': True,
+		'JFreeChart.DEFAULT_BACKGROUND_IMAGE_ALIGNMENT': True,
+		'JFreeChart.DEFAULT_BACKGROUND_IMAGE_ALPHA': True,
 		'JFreeChart': True,
 		'JFreeChart.getRenderingHints': True,
 		'JFreeChart.setRenderingHints': True,
@@ -728,11 +734,12 @@ def test_extract_first_commit():
 		'JFreeChart.plotChanged': True,
 		'JFreeChart.equals': True,
 		'JFreeChart.main': True,
-		'JFreeChart.clone': True
+		'JFreeChart.clone': True,
 	}
 
-	# for op in operationsdb:
-	# 	print(f'\'{op.name}\': True,')
+	for op in operationsdb:
+		print(f'\'{op.name}\': True,')
+
 	operationsdb_dict = {}
 	for op in operationsdb:
 		operationsdb_dict[op.name] = True
@@ -1008,12 +1015,12 @@ def test_get_commit_source_file():
 	srcfiledb = session.query(SourceFile).filter_by(file_id = afile.id).first()
 	assert srcfiledb.ext == 'java'
 	assert srcfiledb.name == 'JFreeChart'
-	assert srcfiledb.code_elements_len() == 261
+	assert srcfiledb.code_elements_len() == 267
 
 	functions = session.query(Operation).filter_by(source_file_id = srcfiledb.id).all()	
 	assert srcfiledb.code_element_exists(functions[0])
 	assert functions[0].name == 'extends.JFreeChart'
-	assert functions[1].name == 'JFreeChart'
+	assert functions[1].name == 'JFreeChart.INFO'
 
 	session.close()
 	db.drop_all()

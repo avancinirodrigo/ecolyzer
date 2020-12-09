@@ -315,7 +315,12 @@ class JavaParser():
 					if clas.name != node.name:
 						enum_name = f'{clas.name}.{node.name}'
 					declarations.append({'name': f'{enum_name}.{const.name}', 
-									'modifiers': mods})					
+									'modifiers': mods})		
+			elif isinstance(node, javalang.tree.FieldDeclaration):
+				name = node.declarators[0].name	
+				modifiers = self._get_modifier(node)
+				declarations.append({'name': f'{clas.name}.{name}', 'modifiers': modifiers})
+	
 		if not has_constructor and (not isinstance(clas, 
 				javalang.tree.InterfaceDeclaration)):
 			declarations.append(self._default_constructor(clas))	
