@@ -24,7 +24,7 @@ def relationships():
 	dataaccess.close()
 	return render_template('central_software_usage.html', 
 						relations=central_software_info['components'],
-						system=central_software_info['central_software'].name, 
+						system=central_software_info['central_software'], 
 						paths=central_software_info['component_paths'],
 						dependents_count=central_software_info['dependents_count'])
 

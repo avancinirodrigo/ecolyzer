@@ -1,4 +1,4 @@
-from ecolyzer.ecosystem import Relationship
+from ecolyzer.ecosystem import Relationship, Ecosystem
 from ecolyzer.system import Operation, SourceFile
 from ecolyzer.repository import Modification
 
@@ -7,8 +7,12 @@ class CentralSoftwareUsage:
 	"""CentralSoftwareUsage"""
 		
 	def execute(self, dataaccess):
+		ecosystem = dataaccess.query(Ecosystem).one() #TODO: associate system to ecosystem
 		relations = dataaccess.query(Relationship).all()
 		to_system = relations[0].to_system
+		ecosystem_name = to_system.name
+		if ecosystem:
+			ecosystem_name = ecosystem.name
 		components = []
 		source_pos = {}
 		paths = {}
@@ -79,7 +83,7 @@ class CentralSoftwareUsage:
 		components = components + sources_without_relation_info	
 
 		return {'components': components, 
-				'central_software': to_system,
+				'central_software': ecosystem_name,
 				'component_paths': paths,
 				'dependents_count': len(dependent_systems_map)}	
 
