@@ -7,7 +7,7 @@ class Commit(Base):
 	__tablename__ = 'commit'
 
 	id = Column(Integer, primary_key=True)
-	hash = Column(String, nullable=False, unique=True)
+	hash = Column(String, nullable=False)
 	date = Column(DateTime, nullable=False)
 	msg = Column(String)
 	repo_id = Column(Integer, ForeignKey('repository.id'))
