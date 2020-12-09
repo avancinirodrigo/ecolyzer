@@ -91,6 +91,9 @@ class RepositoryMiner:
 					file_count = 0
 			except FileNoExistsOnRevException:
 				pass
+			except ValueError as e:
+				print(blob.path)
+				raise e
 		session.commit()
 
 	def _get_commit_info_from_gitpython(self, commit):
@@ -177,7 +180,7 @@ class RepositoryMiner:
 
 	def _get_blob_source_code(self, blob):
 		data = blob.data_stream.read()
-		return data.decode('utf-8', errors='ignore') #TODO: handle instead ignore
+		return data.decode('utf-8', errors='replace').replace('\x00', '\uFFFD')
 
 	def _create_modification(self, source_file, source_code): #TODO: use in extract_current_files		
 		mod = ModificationInfo(mod.filename)

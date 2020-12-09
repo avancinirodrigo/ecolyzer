@@ -1132,3 +1132,36 @@ def test_extract_last_commits():
 
 	session.close()
 	db.drop_all()
+
+def test_string_cannot_contain_nul_characters():
+	db_url = 'postgresql://postgres:postgres@localhost:5432/string_nul'
+	db = SQLAlchemyORM(db_url)
+	db.create_all(True)
+
+	file_nul_chars = os.path.join(os.getcwd(), 
+		'repo/VideoOptimzer/ARO.Core/src/test/java/com/att/aro/core/bestpractice/impl', 
+		'MinificationImplTest.java')
+	source_code_nul_chars = open(file_nul_chars).read()
+	assert '\x00' in source_code_nul_chars
+
+	repo = Repository('repo/VideoOptimzer')
+	sys = System('VideoOptimzer', repo)
+	miner = RepositoryMiner(repo, sys)
+	miner.add_ignore_dir_with('ARO.Analytics')
+	miner.add_ignore_dir_with('ARO.Console')
+	miner.add_ignore_dir_with('ARO.Parent')
+	miner.add_ignore_dir_with('ARO.UI')
+	miner.add_ignore_dir_with('DataCollectors')
+	miner.add_ignore_dir_with('DataCollectorsClients')
+	miner.add_ignore_dir_with('rulesets')
+	miner.add_ignore_dir_with('lib')
+	session = db.create_session()		
+	miner.extract_last_commits(session)
+	source_file = sys.get_source_file(
+		'ARO.Core/src/test/java/com/att/aro/core/bestpractice/impl/MinificationImplTest.java')
+	code_elements = list(source_file.code_elements().values())
+	source_file_mod = code_elements[0].modification
+	source_code_clean = source_file_mod.source_code
+	assert '\x00' not in source_code_clean
+	session.close()
+	db.drop_all()
