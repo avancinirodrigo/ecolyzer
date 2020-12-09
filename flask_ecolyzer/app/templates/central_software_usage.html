@@ -206,7 +206,8 @@
 				.attr("xlink:href", function(d) {
 					if(d.data.url)
 						return d.data.url; 
-				})		
+				})	
+				.attr("target", "_blank")	
 				.append("rect")
 					.attr('x', function(d) { return d.x0; })
 					.attr('y', function(d) { return d.y0; })
@@ -233,6 +234,7 @@
 				if(d.data.count > minCount)
 					return d.data.source; 
 			})
+			.on("click", function(d) {window.open(d.data.url);})
 			.on("mousemove", function(d) {
 				componentTooltipMouseMove(d);
 		    })
@@ -328,7 +330,7 @@
         .attr("x", (width - colorTicks.length*blockWidth - blockWidth + (blockWidth/2)))
         .attr("y", (margin.bottom/3 + 3) + blockHeight + 7 -15)
         .text(function(d, i) {
-        	if((i == 0) || (i == 1) || (i == 3)
+        	if((i == 0) || (i == 1) //|| (i == 3)
         			|| (i == Math.trunc((colorTicks.length)/2))
         			|| (i == (colorTicks.length - 1)))
  				return colorTicks[i];
