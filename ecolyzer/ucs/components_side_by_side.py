@@ -28,6 +28,7 @@ class ComponentsSideBySide():
 		code_elements_map = {}
 		for rel in relations:
 			name = rel.to_code_element.name.split('.')
+			print('   ', rel.to_code_element.name, rel.from_code_element_count)
 			if len(name) > 1:
 				name = name[1]
 			else:
@@ -41,8 +42,8 @@ class ComponentsSideBySide():
 		elif to_file.ext == 'java':
 			language = 'java'	
 
-		#references = self._references(from_file, from_source[0], code_elements_map)
-		references = self._references(from_id, code_elements_map, dataaccess)
+		references = self._references(from_file, from_source, code_elements_map)
+		#references = self._references(from_id, code_elements_map, dataaccess)
 
 		central = {'source_code': to_source, 
 					'fullpath': to_file.fullpath, 
@@ -60,28 +61,30 @@ class ComponentsSideBySide():
 				'dependent': dependent,
 				'language': language}
 
-	# TODO: remove after some acceptance tests
-	# def _references(self, source_file, source_code, code_elements_map):
-	# 	analyzer = StaticAnalyzer()
-	# 	refs = analyzer.references(source_file, source_code)	
-	# 	references = []	
-	# 	for ref in refs:
-	# 		if ref['ref'] in code_elements_map:
-	# 			name = code_elements_map[ref['ref']]
-	# 			references.append(self._get_reference(ref['caller'], name))
-	# 	return references
-
-	def _references(self, dependent_source_id, code_elements_map, dataaccess):
-		refs = dataaccess.query(Call).\
-				filter_by(source_file_id = dependent_source_id).all()
+	def _references(self, source_file, source_code, code_elements_map):
+		analyzer = StaticAnalyzer()
+		refs = analyzer.references(source_file, source_code)	
 		references = []	
 		for ref in refs:
-			if ref.name in code_elements_map:
-				name = code_elements_map[ref.name]
-				references.append(self._get_reference(ref.caller, name))
-		return references		
+			if ref['ref'] in code_elements_map:
+				name = code_elements_map[ref['ref']]
+				references.append(self._get_reference(ref['caller'], name))
+		return references
+
+	# TODO: remove after some acceptance tests
+	# def _references(self, dependent_source_id, code_elements_map, dataaccess):
+	# 	refs = dataaccess.query(Call).\
+	# 			filter_by(source_file_id = dependent_source_id).all()
+	# 	references = []	
+	# 	for ref in refs:
+	# 		if ref.name in code_elements_map:
+	# 			name = code_elements_map[ref.name]
+	# 			references.append(self._get_reference(ref.caller, name))
+	# 	return references		
 
 	def _get_reference(self, caller, name):
 		if caller:
+			if caller == 'extends': # TODO: standarlize reference for aways two fields class.ref
+				return f'{name}.{caller}' 
 			return f'{caller}.{name}' 	
 		return f'{name}'			
