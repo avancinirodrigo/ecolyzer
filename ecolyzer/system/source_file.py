@@ -33,7 +33,7 @@ class SourceFile(Base):
 	 	return self._elements[key]
 
 	def code_elements(self):
-		return self._elements	
+		return self._elements.copy()	
 
 	def code_elements_len(self):
 		return len(self._elements)

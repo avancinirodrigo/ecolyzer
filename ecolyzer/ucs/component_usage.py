@@ -42,7 +42,6 @@ class ComponentUsage:
 			pos = from_source_pos[from_source_id]
 			source_relations[pos]['count'] += 1
 			source_relations[pos]['ncalls'] += rel.from_code_element_count
-
 		else: # enter here just in the first time
 			from_source_pos[from_source_id] = len(source_relations)
 			from_systems[rel.from_system_id] = rel.from_system.name

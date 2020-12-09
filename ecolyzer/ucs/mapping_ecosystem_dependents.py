@@ -60,6 +60,7 @@ class MappingEcosystemDependents:
 				miner.extract_last_commits(dataaccess)	
 				FileUtils.rmdir(gp.path)
 				ecolyzer.make_relations(sys, central_system, dataaccess)
+				existing_repos[repo.path] = repo
 
 	def _get_dependents(self):
 		gh = GitHub()
