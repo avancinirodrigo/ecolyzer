@@ -107,7 +107,7 @@ class JavaParser():
 	def _add_throws(self, calls, decl):
 		if decl.throws:
 			for throw in decl.throws:
-				calls.append({'ref': throw, 'caller': 'throws'})
+				calls.append({'ref': f'{throw}.{throw}', 'caller': 'throws'})
 
 	def _add_declaration(self, elem, decl, calls, method_vars):
 		if isinstance(elem, javalang.tree.StatementExpression):
@@ -140,15 +140,27 @@ class JavaParser():
 		elif isinstance(elem, javalang.tree.SuperConstructorInvocation):
 			self._process_super_constructor_invocation(elem, decl, calls, method_vars)
 		elif isinstance(elem, javalang.tree.MemberReference):
-			self._add_reference(elem, decl['class'], calls, method_vars)	
+			self._process_member_reference(elem, calls, method_vars)
 		elif isinstance(elem, javalang.tree.TernaryExpression):
 			self._process_ternary_expression(elem, decl, calls, method_vars)
 		elif isinstance(elem, javalang.tree.Cast): 
 			self._process_cast(elem, decl, calls, method_vars)
 		elif isinstance(elem, javalang.tree.SuperMethodInvocation): 
-			self._process_super_method_invocation(elem, decl, calls, method_vars)			
+			self._process_super_method_invocation(elem, decl, calls, method_vars)	
+		elif isinstance(elem, javalang.tree.ExplicitConstructorInvocation)	:
+			self._process_explicit_constructor_invocation(elem, decl, calls, method_vars)		
 		# else:
 		# 	print('  --INVOCATIONS--  ', elem)	
+
+	def _process_member_reference(self, node, calls, method_vars):
+		if node.qualifier == node.member:
+			return
+		typeof = node.qualifier 
+		if node.qualifier in method_vars:
+			typeof = method_vars[node.qualifier]
+			calls.append({'ref': f'{typeof}.{node.member}', 'caller': node.qualifier})
+		elif typeof:
+			calls.append({'ref': f'{typeof}.{node.member}', 'caller': typeof})		
 
 	def _process_super_method_invocation(self, node, decl, calls, method_vars):
 		self._add_reference(node, decl['class'], calls, method_vars)
@@ -158,10 +170,15 @@ class JavaParser():
 
 	def _process_super_constructor_invocation(self, node, decl, calls, method_vars):
 		if decl['class'].extends: # avoiding super Object, maybe a exception here
-			calls.append({'ref': decl['class'].extends.name, 'caller': 'super'})
+			parent = decl['class'].extends.name
+			calls.append({'ref': f'{parent}.{parent}', 'caller': 'super'})
 
 	def _process_class_creator(self, node, decl, calls, method_vars):
-		calls.append({'ref': node.type.name, 'caller': 'new'})
+		classname = node.type.name
+		calls.append({'ref': f'{classname}.{classname}', 'caller': 'new'})
+		if node.type.sub_type:
+			sub_type = node.type.sub_type
+			calls.append({'ref': f'{classname}.{sub_type.name}', 'caller': classname})
 		for arg in node.arguments:
 			self._add_declaration(arg, decl, calls, method_vars)	
 
@@ -186,6 +203,11 @@ class JavaParser():
 		if isinstance(control, javalang.tree.EnhancedForControl):
 			self._add_declaration(control.var, decl, calls, method_vars)
 			self._add_declaration(control.iterable, decl, calls, method_vars)
+		else: # javalang.tree.ForControl
+			self._add_declaration(control.init, decl, calls, method_vars)
+			self._add_declaration(control.condition, decl, calls, method_vars)
+			self._add_declaration(control.update, decl, calls, method_vars)
+
 		if hasattr(node.body, 'statements'):
 			for stat in node.body.statements:
 				self._add_declaration(stat, decl, calls, method_vars)	
@@ -230,12 +252,22 @@ class JavaParser():
 	def _process_this(self, this_node, decl, calls, method_vars):
 		for sel in this_node.selectors:
 			if not isinstance(sel, javalang.tree.InnerClassCreator):
-				sel.qualifier = this_node.selectors[0].member		
-			self._add_declaration(sel, decl, calls, method_vars)			
+				qualifier = this_node.selectors[0].member
+				sel.qualifier = qualifier
+				if f'this.{qualifier}' in method_vars:
+					local_qualifier = method_vars[qualifier]
+					method_vars[qualifier] = method_vars[f'this.{qualifier}']		
+					self._add_declaration(sel, decl, calls, method_vars)	
+					method_vars[qualifier] = local_qualifier
+				else:
+					self._add_declaration(sel, decl, calls, method_vars)
 
 	def _add_parameters(self, method_vars, declaration):
 		if hasattr(declaration, 'parameters'):
 			for param in declaration.parameters:
+				if param.name in method_vars:
+					if param.type.name != method_vars[param.name]:
+						method_vars[f'this.{param.name}'] = method_vars[param.name]
 				method_vars[param.name] = param.type.name
 
 	def _binary_operation(self, node, decl, calls, method_vars):
@@ -250,6 +282,7 @@ class JavaParser():
 				and not isinstance(node, javalang.tree.MemberReference)): 
 			typeof = node.qualifier
 			caller = node.qualifier
+			member = node.member
 			if isinstance(node, javalang.tree.SuperMethodInvocation):
 				typeof = 'Object'
 				caller = 'super'
@@ -260,15 +293,24 @@ class JavaParser():
 				if node.qualifier in method_vars:
 					typeof = method_vars[node.qualifier]
 			if typeof:
+				if '.' in typeof: #https://github.com/c2nes/javalang/issues/89
+					caller_const = typeof.split('.')
+					typeof = caller_const[0]
+					caller = caller_const[1]
+					if caller in method_vars:
+						typeof = method_vars[caller]
+					else:
+						member = caller_const[1]
+						caller = typeof		
 				typeof = f'{typeof}.'
 			else:
 				typeof = f'{clas.name}.'
-			calls.append({'ref': f'{typeof}{node.member}', 'caller': caller})	
+			calls.append({'ref': f'{typeof}{member}', 'caller': caller})	
 
 	def _extract_annotations(self):
 		annotations = []
 		for path, node in self.tree.filter(javalang.tree.Annotation):
-			annotations.append({'ref': node.name, 'caller': '@'})
+			annotations.append({'ref': f'{node.name}.@', 'caller': '@'})
 		return annotations
 
 	def _extract_inheritance(self, classes):
@@ -301,11 +343,14 @@ class JavaParser():
 					modifiers = {'public': 'public'}
 				declarations.append({'name': f'{clas.name}.{node.name}', 
 									'modifiers': modifiers})
-			elif (isinstance(node, javalang.tree.ConstructorDeclaration)
-					or isinstance(node, javalang.tree.AnnotationDeclaration)):
+			elif isinstance(node, javalang.tree.ConstructorDeclaration):
 				has_constructor = True
 				modifiers = self._get_modifier(node)
-				declarations.append({'name': node.name, 'modifiers': modifiers})
+				declarations.append({'name': f'{node.name}.{node.name}', 'modifiers': modifiers})
+			elif isinstance(node, javalang.tree.AnnotationDeclaration):
+				has_constructor = True
+				modifiers = self._get_modifier(node)
+				declarations.append({'name': f'{node.name}.@', 'modifiers': modifiers})				
 			elif isinstance(node, javalang.tree.EnumDeclaration):
 				modifiers = self._get_modifier(node)
 				declarations.append({'name': node.name, 'modifiers': modifiers})
@@ -339,7 +384,7 @@ class JavaParser():
 		return operations
 
 	def _default_constructor(self, clas):
-		return {'name': clas.name, 'modifiers': {'public': 'public'}}
+		return {'name': f'{clas.name}.{clas.name}', 'modifiers': {'public': 'public'}}
 
 	def _walk_to_classes(self, children, classes):
 		if isinstance(children, list):

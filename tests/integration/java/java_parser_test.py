@@ -12,14 +12,13 @@ def test_extract_operations():
 		'extends.FileSerializer': True,
 		'FileSerializer.pp': True,
 		'FileSerializer.df': True,
-		'FileSerializer': True,
+		'FileSerializer.FileSerializer': True,
 		'FileSerializer.getPostProcessor': True,
 		'FileSerializer.setPostProcessor': True,
 		'FileSerializer.generateFile': True,
 		'FileSerializer.getPropertiesList': True,
 		'FileSerializer.formatValue': True,
 		'FileSerializer.isAllowedGetter': True,
-
 	}
 
 	assert len(operations) == len(src_operations)
@@ -64,9 +63,9 @@ def test_internal_class_operations():
 		'JFreeChart.changeListeners': True,
 		'JFreeChart.progressListeners': True,
 		'JFreeChart.notify': True,
-		'JFreeChart': True,
-		'JFreeChart': True,
-		'JFreeChart': True,
+		'JFreeChart.JFreeChart': True,
+		'JFreeChart.JFreeChart': True,
+		'JFreeChart.JFreeChart': True,
 		'JFreeChart.getRenderingHints': True,
 		'JFreeChart.setRenderingHints': True,
 		'JFreeChart.isBorderVisible': True,
@@ -146,7 +145,7 @@ def test_internal_class_operations():
 	operations = classes[1]['operations']	
 	src_operations = {
 		'extends.JFreeChartInfo': True,
-		'JFreeChartInfo': True,
+		'JFreeChartInfo.JFreeChartInfo': True,
 		'JFreeChartInfo.getLogo': True
 	}
 	
@@ -167,11 +166,11 @@ def test_extract_calls():
 		'DataFormatter.formatData': {'caller': 'df'},
 		'FileSerializer.getPropertiesList': {'caller': ''},
 		'PostProcessor.postProcess': {'caller': 'pp'},
-		'FileOutputStream': {'caller': 'new'},
+		'FileOutputStream.FileOutputStream': {'caller': 'new'},
 		'FileOutputStream.write': {'caller': 'fileout'},
 		'FileOutputStream.close': {'caller': 'fileout'},
-		'RuntimeException': {'caller': 'new'},
-		'HashMap': {'caller': 'new'},
+		'RuntimeException.RuntimeException': {'caller': 'new'},
+		'HashMap.HashMap': {'caller': 'new'},
 		'Object.getClass': {'caller': 'obj'},
 		'Class.getMethods': {'caller': 'clas'},
 		'FileSerializer.isAllowedGetter': {'caller': ''},
@@ -181,9 +180,9 @@ def test_extract_calls():
 		'String.substring': {'caller': 'getterName'},
 		'FileSerializer.formatValue': {'caller': ''},
 		'Map.put': {'caller': 'props'},
-		'RuntimeException': {'caller': 'new'},
-		'InstantiationException': {'caller': 'throws'},
-		'IllegalAccessException': {'caller': 'throws'},
+		'RuntimeException.RuntimeException': {'caller': 'new'},
+		'InstantiationException.InstantiationException': {'caller': 'throws'},
+		'IllegalAccessException.IllegalAccessException': {'caller': 'throws'},
 		'Method.getAnnotations': {'caller': 'm'},
 		'Annotation.annotationType': {'caller': 'an'},
 		'Class.isAnnotationPresent': {'caller': 'anType'},
@@ -197,21 +196,20 @@ def test_extract_calls():
 		'Method.getReturnType': {'caller': 'm'},
 		'Method.getName': {'caller': 'm'},
 		'Method.isAnnotationPresent': {'caller': 'm'},
-		'Override': {'caller': '@'},
-		'Override': {'caller': '@'},
+		'Override.@': {'caller': '@'},
+		'Override.@': {'caller': '@'},
 		'implements.Serializer': {'caller': 'implements'},
 		#'toLowerCase': True, # method chaining doesn't work
 		#'startsWith': True, # method chaining doesn't work
 		# 'equals': True, # method chaining doesn't work
-		# 'Override': True, #TODO: Annotation call
 	}
 
 	for call in calls:
 		assert src_calls[call['ref']]
 		assert src_calls[call['ref']]['caller'] != None
-		#print(f'\'{call["call"]}\': {{\'caller\': \'{call["caller"]}\'}},')
+		# print(f'\'{call["ref"]}\': {{\'caller\': \'{call["caller"]}\'}},')
 
-	assert len(calls) == 36 == len(src_calls) + 5 # 5 repeated calls	
+	assert len(calls) == 36 == len(src_calls) + 5 # repeated calls	
 
 def test_extract_associations():
 	javafile = os.path.join(os.path.dirname(__file__), '../data', 'FileSerializer.java')
@@ -265,7 +263,7 @@ def test_extract_inner_class_creator(): # TODO: review inner class declarations 
 		'InspectInvitationsPage.InspectInvitationsPage.clickMessageHistory': True,
 		'InspectInvitationsPage.InspectInvitationsPage.cancel': True,
 		'InspectInvitationsPage.InspectInvitationsPage.notSpam': True,
-		'InspectInvitationsPage.InspectInvitationsPage': True,
+		'InspectInvitationsPage.InspectInvitationsPage.InspectInvitationsPage': True,
 		'InspectInvitationsPage.InspectInvitationsPage.footer': True,
 		'InspectInvitationsPage.InspectInvitationsPage.tableWebEl': True,
 		'InspectInvitationsPage.InspectInvitationsPage.preview': True,
@@ -274,57 +272,57 @@ def test_extract_inner_class_creator(): # TODO: review inner class declarations 
 	}
 
 	expected_calls = {
-		'new.TableElement': True,
+		'new.TableElement.TableElement': True,
 		'.InspectInvitationsPage.getDriver': True,
 		'elements.List.size': True,
 		'elements.List.get': True,
-		'new.ArrayList': True,
+		'new.ArrayList.ArrayList': True,
 		'.InspectInvitationsPage.getTable': True,
 		'cell.WebElement.getText': True,
 		'.InspectInvitationsPage.getDriver': True,
 		'link.WebElement.click': True,
 		'columnEntries.List.add': True,
 		'cell.WebElement.getText': True,
-		'new.WebDriverException': True,
+		'new.WebDriverException.WebDriverException': True,
 		'columnEntries.List.toString': True,
 		'.InspectInvitationsPage.getTable': True,
-		'new.TableElement': True,
+		'new.TableElement.TableElement': True,
 		'.InspectInvitationsPage.getDriver': True,
 		'super.InspectInvitationsPage.getMessageWhere': True,
-		'new.OneMessage': True,
+		'new.OneMessage.OneMessage': True,
 		'super.InspectInvitationsPage.getMessageWhere': True,
-		'new.OneMessage': True,
-		'new.InvitationMessageDisplayElement': True,
+		'new.OneMessage.OneMessage': True,
+		'new.InvitationMessageDisplayElement.InvitationMessageDisplayElement': True,
 		'super.AsAdmin.clickMessageHistory': True,
-		'new.WebDriverException': True,
+		'new.WebDriverException.WebDriverException': True,
 		'notSpamButton.WebElement.click': True,
-		'new.InvitationActionConfirmationElement': True,
+		'new.InvitationActionConfirmationElement.InvitationActionConfirmationElement': True,
 		'confirm.InvitationActionConfirmationElement.getLabel': True,
-		'new.WebDriverException': True,
+		'new.WebDriverException.WebDriverException': True,
 		'confirm.InvitationActionConfirmationElement.getLabel': True,
 		'confirm.InvitationActionConfirmationElement.setMemo': True,
 		'confirm.InvitationActionConfirmationElement.confirm': True,
-		'new.InvitationMessageDisplayElement': True,
+		'new.InvitationMessageDisplayElement.InvitationMessageDisplayElement': True,
 		'super.AsUser.clickMessageHistory': True,
 		'cancelButton.WebElement.click': True,
-		'new.InvitationActionConfirmationElement': True,
-		'new.WebDriverException': True,
-		'new.InvitationFooterElement': True,
-		'@.FindBy': True,
-		'@.Override': True,
-		'@.FindBy': True,
-		'@.FindBy': True,
-		'@.Override': True,
-		'@.Override': True,
-		'@.Override': True,
-		'@.Override': True,
-		'@.FindBy': True,
-		'@.Override': True,
-		'@.FindBy': True,
-		'@.Override': True,
-		'@.Override': True,
-		'@.Override': True,
-		'@.Override': True,
+		'new.InvitationActionConfirmationElement.InvitationActionConfirmationElement': True,
+		'new.WebDriverException.WebDriverException': True,
+		'new.InvitationFooterElement.InvitationFooterElement': True,
+		'@.FindBy.@': True,
+		'@.Override.@': True,
+		'@.FindBy.@': True,
+		'@.FindBy.@': True,
+		'@.Override.@': True,
+		'@.Override.@': True,
+		'@.Override.@': True,
+		'@.Override.@': True,
+		'@.FindBy.@': True,
+		'@.Override.@': True,
+		'@.FindBy.@': True,
+		'@.Override.@': True,
+		'@.Override.@': True,
+		'@.Override.@': True,
+		'@.Override.@': True,
 		'extends.extends.BasePage': True,
 		'extends.extends.InspectInvitationsPage': True,
 		'extends.extends.InspectInvitationsPage': True,
@@ -340,7 +338,7 @@ def test_extract_inner_class_creator(): # TODO: review inner class declarations 
 			assert expected_operations[f'{clas["name"]}.{op["name"]}']
 
 	for call in calls:
-		#print(f'\'{call["caller"]}.{call["ref"]}\': True,')
+		# print(f'\'{call["caller"]}.{call["ref"]}\': True,')
 		assert expected_calls[f'{call["caller"]}.{call["ref"]}']
 
 def test_extract_public_static_constants(): 
@@ -370,10 +368,10 @@ def test_extract_public_static_constants():
 		'Align.Align.NORTH_EAST': True,
 		'Align.Align.SOUTH_WEST': True,
 		'Align.Align.SOUTH_EAST': True,
-		'Align.Align': True,
-		'Align.Align.align': True,	
+		'Align.Align.Align': True,
+		'Align.Align.align': True,
 	}
 	for clas in class_operations:
 		for op in clas['operations']:
-			#print(f'\'{clas["name"]}.{op["name"]}\': True,')	
+			# print(f'\'{clas["name"]}.{op["name"]}\': True,')	
 			assert expected_operations[f'{clas["name"]}.{op["name"]}']

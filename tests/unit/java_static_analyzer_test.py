@@ -1,147 +1,7 @@
-from ecolyzer.parser import JavaParser
+from ecolyzer.repository import Repository #TODO: why?
+from ecolyzer.parser import StaticAnalyzer
+from ecolyzer.system import File, SourceFile, Call, Operation
 
-
-def test_annotations():
-	src = """
-		package net.sf.esfinge.metadata.annotation.container;
-
-		import java.lang.annotation.Annotation;
-		import java.lang.annotation.Retention;
-		import java.lang.annotation.RetentionPolicy;
-
-		import net.sf.esfinge.metadata.annotation.finder.SearchOnEnclosingElements;
-		import net.sf.esfinge.metadata.container.reading.MethodProcessorsReadingProcessor;
-
-		@Retention(RetentionPolicy.RUNTIME)
-		@AnnotationReadingConfig(MethodProcessorsReadingProcessor.class)
-		@SearchOnEnclosingElements
-
-		public @interface ProcessorPerMethod {
-			Class<? extends Annotation> configAnnotation();
-			ProcessorType type() default ProcessorType.READER_ADDS_METADATA;
-
-		}
-	"""
-
-	parser = JavaParser()
-	parser.parser(src)
-	annotations = parser.extract_operations()[0]['operations']
-	assert len(annotations) == 1
-	assert annotations[0]['name'] == 'ProcessorPerMethod.@'
-	assert 'public' in annotations[0]['modifiers']
-
-	calls = parser.extract_calls()
-	assert len(calls) == 3
-	assert calls[0]['ref'] == 'Retention.@'
-	assert calls[1]['ref'] == 'AnnotationReadingConfig.@'
-	assert calls[2]['ref'] == 'SearchOnEnclosingElements.@'
-
-def test_parse_cast():
-	src = """
-		public class EyeCandySixtiesChartTheme extends GenericChartTheme {
-
-			@Override
-			protected JFreeChart createCandlestickChart() throws JRException
-			{
-				JFreeChart jfreeChart = super.createCandlestickChart();
-				XYPlot xyPlot = (XYPlot) jfreeChart.getPlot();
-				CandlestickRenderer renderer = (CandlestickRenderer)xyPlot.getRenderer();  
-				DefaultHighLowDataset dataset = (DefaultHighLowDataset)xyPlot.getDataset();  
-				if (dataset != null)
-				{
-					for (int i = 0; i < dataset.getSeriesCount(); i++)
-					{
-						renderer.setSeriesFillPaint(i, ChartThemesConstants.EYE_CANDY_SIXTIES_COLORS.get(i));
-						renderer.setSeriesPaint(i, Color.DARK_GRAY);
-					}
-				}
-				return jfreeChart;
-			}
-		}
-	"""
-
-	parser = JavaParser()
-	parser.parser(src)
-	calls = parser.extract_calls()
-	calls_map = {}
-	for call in calls:
-		calls_map[call['ref']] = True		
-	assert calls_map['XYPlot.getRenderer']
-	assert calls_map['XYPlot.getDataset']
-
-def test_for_calls():
-	src = """
-		public class ChartsUtils {
-		    private static XYDataset regress(XYSeriesCollection data) {
-		        // Determine bounds
-		        double xMin = XYSeries.MAX_VALUE, xMax = 0;
-		        for (int i = 0; i < data.getSeriesCount(); i++) {
-		            XYSeries ser = data.getSeries(i);
-		            for (int j = 0; j < ser.getItemCount(); j++) {  
-		                double x = ser.getX(j).doubleValue();  
-		                if (x < xMin) {
-		                    xMin = x;
-		                }
-		                if (x > xMax) {
-		                    xMax = x;
-		                }
-		            }
-		        }
-		        // Create 2-point series for each of the original series
-		        XYSeriesCollection coll = new XYSeriesCollection();
-		        for (int i = 0; i < data.getSeriesCount(); i++) {
-		            XYSeries ser = data.getSeries(i);
-		            int n = ser.getItemCount();  
-		            double sx = 0, sy = 0, sxx = 0, sxy = 0, syy = 0;
-		            for (int j = 0; j < n; j++) {
-		                double x = ser.getX(j).doubleValue();  
-		                double y = ser.getY(j).doubleValue();  
-		                sx += x;
-		                sy += y;
-		                sxx += x * x;
-		                sxy += x * y;
-		                syy += y * y;
-		            }
-		            double b = (n * sxy - sx * sy) / (n * sxx - sx * sx);
-		            double a = sy / n - b * sx / n;
-		            XYSeries regr = new XYSeries(ser.getKey());  
-		            regr.add(xMin, a + b * xMin);  
-		            regr.add(xMax, a + b * xMax);  
-		            coll.addSeries(regr);
-		        }
-		        return coll;
-		    }	
-		}
-	"""
-
-	parser = JavaParser()
-	parser.parser(src)
-	calls = parser.extract_calls()
-	
-	expected_calls = {
-		'XYSeriesCollection.getSeriesCount': 0,
-		'XYSeriesCollection.getSeries': 0,
-		'XYSeries.getItemCount': 0,
-		'XYSeries.getX': 0,
-		'XYSeriesCollection.XYSeriesCollection': 0,
-		'XYSeriesCollection.getSeriesCount': 0,
-		'XYSeriesCollection.getSeries': 0,
-		'XYSeries.getItemCount': 0,
-		'XYSeries.getX': 0,
-		'XYSeries.getY': 0,
-		'XYSeries.XYSeries': 0,
-		'XYSeries.getKey': 0,
-		'XYSeries.add': 0,
-		'XYSeries.add': 0,
-		'XYSeriesCollection.addSeries': 0,	
-		'XYSeries.MAX_VALUE': 0,
-	}
-
-	for call in calls:
-		# print(f'\'{call["ref"]}\': 0,')
-		expected_calls[call['ref']] += 1		
-
-	assert expected_calls['XYSeries.getItemCount'] == 2
 
 def test_all_code_elements():
 	src = """
@@ -987,23 +847,27 @@ public class JFreeChart implements Drawable, TitleChangeListener,
         return chart;
     }               		        	    		     	    	    	
 }
-	"""
+    """
 
-	parser = JavaParser()
-	parser.parser(src)
-	calls = parser.extract_calls()	
-	class_operations = parser.extract_operations()
+	file = File('JFreeChart.java')
+	src_file = SourceFile(file)
+	analyzer = StaticAnalyzer()
+	code_elements = analyzer.reverse_engineering(src_file, src)    
+	
+	calls = []
+	operations = []
+	for c in code_elements:
+	    if isinstance(c, Call):
+	        calls.append(c)
+	    elif isinstance(c, Operation):
+	        operations.append(c)
 
-	# for c in calls:
-	# 	print(f'\'{c["caller"]}.{c["ref"]}\': 1,')
-
-	expected_calls = {
+	parser_expected_calls = {
 		'plot.Plot.clone': 1,
 		'title.TextTitle.clone': 1,
 		'renderingHints.RenderingHints.clone': 1,
 		'super.Object.clone': 1,
 		'throws.CloneNotSupportedException.CloneNotSupportedException': 1,
-		'JFreeChart.getSubtitle': 2,
 		'SerialUtils.SerialUtils.readPaint': 2,
 		'SerialUtils.SerialUtils.readStroke': 1,
 		'stream.ObjectInputStream.defaultReadObject': 1,
@@ -1013,22 +877,9 @@ public class JFreeChart implements Drawable, TitleChangeListener,
 		'SerialUtils.SerialUtils.writeStroke': 1,
 		'stream.ObjectOutputStream.defaultWriteObject': 1,
 		'throws.IOException.IOException': 2,
-		'that.JFreeChart.notify': 1,
-		'that.JFreeChart.backgroundImageAlpha': 1,
-		'that.JFreeChart.backgroundImageAlignment': 1,
-		'that.JFreeChart.backgroundImage': 1,
-		'that.JFreeChart.backgroundPaint': 1,
-		'that.JFreeChart.plot': 1,
-		'that.JFreeChart.subtitles': 1,
-		'that.JFreeChart.title': 1,
-		'that.JFreeChart.padding': 1,
 		'padding.RectangleInsets.equals': 1,
-		'that.JFreeChart.borderPaint': 1,
 		'PaintUtils.PaintUtils.equal': 2,
-		'that.JFreeChart.borderStroke': 1,
 		'ObjectUtils.ObjectUtils.equal': 5,
-		'that.JFreeChart.borderVisible': 1,
-		'that.JFreeChart.renderingHints': 1,
 		'renderingHints.RenderingHints.equals': 1,
 		'event.PlotChangeEvent.setChart': 1,
 		'event.TitleChangeEvent.setChart': 1,
@@ -1046,7 +897,6 @@ public class JFreeChart implements Drawable, TitleChangeListener,
 		'image.BufferedImage.createGraphics': 2,
 		'new.BufferedImage.BufferedImage': 2,
 		'BufferedImage.BufferedImage.TYPE_INT_ARGB': 2,
-		'JFreeChart.createBufferedImage': 2,
 		'ebr.EntityBlockResult.getEntityCollection': 1,
 		'new.RuntimeException.RuntimeException': 1,
 		'HorizontalAlignment.HorizontalAlignment.LEFT': 1,
@@ -1066,7 +916,6 @@ public class JFreeChart implements Drawable, TitleChangeListener,
 		't.Title.draw': 4,
 		'VerticalAlignment.VerticalAlignment.TOP': 1,
 		't.Title.getHorizontalAlignment': 2,
-		'JFreeChart.createAlignedRectangle2D': 4,
 		't.Title.arrange': 4,
 		'RectangleEdge.RectangleEdge.TOP': 1,
 		'p.BlockParams.setGenerateEntities': 1,
@@ -1095,7 +944,6 @@ public class JFreeChart implements Drawable, TitleChangeListener,
 		'info.ChartRenderingInfo.getPlotInfo': 2,
 		'currentTitle.Title.isVisible': 1,
 		'entities.EntityCollection.addAll': 2,
-		'JFreeChart.drawTitle': 2,
 		'title.TextTitle.isVisible': 1,
 		'padding.RectangleInsets.trim': 1,
 		'nonTitleArea.Rectangle2D.setRect': 1,
@@ -1106,9 +954,6 @@ public class JFreeChart implements Drawable, TitleChangeListener,
 		'chartArea.Rectangle2D.getY': 1,
 		'chartArea.Rectangle2D.getX': 1,
 		'Rectangle2D.Rectangle2D.Double': 6,
-		'JFreeChart.getBorderStroke': 1,
-		'JFreeChart.getBorderPaint': 1,
-		'JFreeChart.isBorderVisible': 1,
 		'dest.Rectangle2D.getHeight': 1,
 		'dest.Rectangle2D.getWidth': 1,
 		'dest.Rectangle2D.getY': 1,
@@ -1139,12 +984,10 @@ public class JFreeChart implements Drawable, TitleChangeListener,
 		'new.HashMap.HashMap': 1,
 		'ChartProgressEventType.ChartProgressEventType.DRAWING_STARTED': 1,
 		'new.ChartProgressEvent.ChartProgressEvent': 2,
-		'JFreeChart.draw': 4,
 		'backgroundImage.Image.equals': 1,
 		'backgroundPaint.Paint.equals': 1,
 		'RenderingHints.RenderingHints.VALUE_TEXT_ANTIALIAS_OFF': 1,
 		'RenderingHints.RenderingHints.VALUE_TEXT_ANTIALIAS_ON': 1,
-		'JFreeChart.setTextAntiAlias': 2,
 		'RenderingHints.RenderingHints.KEY_TEXT_ANTIALIASING': 2,
 		'RenderingHints.RenderingHints.VALUE_ANTIALIAS_OFF': 1,
 		'renderingHints.RenderingHints.get': 2,
@@ -1154,17 +997,9 @@ public class JFreeChart implements Drawable, TitleChangeListener,
 		'subtitle.Title.addChangeListener': 3,
 		'subtitles.List.get': 1,
 		'new.IllegalArgumentException.IllegalArgumentException': 2,
-		'JFreeChart.getSubtitleCount': 4,
 		'subtitles.List.size': 1,
-		'JFreeChart.clearSubtitles': 1,
-		'JFreeChart.setNotify': 2,
-		'JFreeChart.removeSubtitle': 1,
-		'JFreeChart.getLegend': 2,
-		'JFreeChart.addSubtitle': 2,
 		'title.TextTitle.removeChangeListener': 1,
 		'new.ChartChangeEvent.ChartChangeEvent': 4,
-		'JFreeChart.notifyListeners': 8,
-		'JFreeChart.fireChartChanged': 16,
 		'title.TextTitle.addChangeListener': 4,
 		'new.TextTitle.TextTitle': 1,
 		'legend.LegendTitle.addChangeListener': 1,
@@ -1189,7 +1024,6 @@ public class JFreeChart implements Drawable, TitleChangeListener,
 		'new.EventListenerList.EventListenerList': 6,
 		'plot.Plot.setChart': 1,
 		'Objects.Objects.requireNonNull': 12,
-		'JFreeChart.JFreeChart.DEFAULT_TITLE_FONT': 1,
 		'@.Override.@': 5,
 		'RenderingHints.RenderingHints.Key': 1,
 		'new.RenderingHints.RenderingHints': 3,
@@ -1204,10 +1038,17 @@ public class JFreeChart implements Drawable, TitleChangeListener,
 		'implements.implements.Drawable': 1,
 	}
 
-	expected_operations = {
+	expected_calls = {}
+	for c in parser_expected_calls:
+		call_caller = c.split('.')
+		if len(call_caller) > 2:
+			key = f'{call_caller[1]}.{call_caller[2]}'
+			expected_calls[key] = 1;
+		else:
+			expected_calls[c] = 1;
+
+	parser_expected_operations = {
 		'public.JFreeChart.clone': 1,
-		'private.JFreeChart.readObject': 1,
-		'private.JFreeChart.writeObject': 1,
 		'public.JFreeChart.equals': 1,
 		'public.JFreeChart.plotChanged': 1,
 		'public.JFreeChart.titleChanged': 1,
@@ -1220,7 +1061,6 @@ public class JFreeChart implements Drawable, TitleChangeListener,
 		'public.JFreeChart.handleClick': 1,
 		'public.JFreeChart.createBufferedImage': 4,
 		'protected.JFreeChart.drawTitle': 1,
-		'private.JFreeChart.createAlignedRectangle2D': 1,
 		'public.JFreeChart.draw': 3,
 		'public.JFreeChart.setNotify': 1,
 		'public.JFreeChart.isNotify': 1,
@@ -1263,23 +1103,6 @@ public class JFreeChart implements Drawable, TitleChangeListener,
 		'public.JFreeChart.getElementHinting': 1,
 		'public.JFreeChart.setID': 1,
 		'public.JFreeChart.getID': 1,
-		'private.JFreeChart.elementHinting': 1,
-		'private.JFreeChart.notify': 1,
-		'private.transient.JFreeChart.progressListeners': 1,
-		'private.transient.JFreeChart.changeListeners': 1,
-		'private.JFreeChart.backgroundImageAlpha': 1,
-		'private.JFreeChart.backgroundImageAlignment': 1,
-		'private.transient.JFreeChart.backgroundImage': 1,
-		'private.transient.JFreeChart.backgroundPaint': 1,
-		'private.JFreeChart.plot': 1,
-		'private.JFreeChart.subtitles': 1,
-		'private.JFreeChart.title': 1,
-		'private.JFreeChart.padding': 1,
-		'private.transient.JFreeChart.borderPaint': 1,
-		'private.transient.JFreeChart.borderStroke': 1,
-		'private.JFreeChart.borderVisible': 1,
-		'private.JFreeChart.id': 1,
-		'private.transient.JFreeChart.renderingHints': 1,
 		'public.JFreeChart.isCompatibleValue': 1,
 		'final.public.static.JFreeChart.KEY_SUPPRESS_SHADOW_GENERATION': 1,
 		'final.public.static.JFreeChart.DEFAULT_BACKGROUND_IMAGE_ALPHA': 1,
@@ -1287,197 +1110,36 @@ public class JFreeChart implements Drawable, TitleChangeListener,
 		'final.public.static.JFreeChart.DEFAULT_BACKGROUND_IMAGE': 1,
 		'final.public.static.JFreeChart.DEFAULT_BACKGROUND_PAINT': 1,
 		'final.public.static.JFreeChart.DEFAULT_TITLE_FONT': 1,
-		'final.private.static.JFreeChart.serialVersionUID': 1,
 		'public.JFreeChart.JFreeChart': 3,
 		'public.extends.JFreeChart': 1,
 	}	
 
+	expected_operations = {}
+	for c in parser_expected_operations:
+		operation_modifiers = c.split('.')
+		key = f'{operation_modifiers[-2]}.{operation_modifiers[-1]}'
+		expected_operations[key] = 1
+
 	calls_dict = {}
 	for c in calls:
-		key = c['ref']
-		caller = c['caller']
-		if caller:
-			key = f'{caller}.{key}'
+		key = c.name
 		if key not in calls_dict:
 			calls_dict[key] = 0 
 		calls_dict[key] += 1
 
-	for c in calls:
-		key = c['ref']
-		caller = c['caller']
-		if caller:
-			key = f'{caller}.{key}'
-		#print(key, expected_calls[key])
-		if calls_dict[key] != expected_calls[key]:
-			assert key == calls_dict[key]
+	for key in expected_calls:
 		assert key in calls_dict
 		assert key in expected_calls
 		assert calls_dict[key] == expected_calls[key]
 
-	# for clas in class_operations:
-	# 	for o in clas['operations']:
-	# 		mod = ''
-	# 		for m in sorted(o['modifiers']):
-	# 			mod += m + "."
-	# 		print(f'\'{mod}{o["name"]}\': 1,')
-
 	operations_dict = {}
-	for clas in class_operations:
-		for o in clas['operations']:
-			mod = ''
-			for m in sorted(o['modifiers']):
-				mod += m + "."
-			key = f'{mod}{o["name"]}'
-			if key not in operations_dict:
-				operations_dict[key] = 0
-			operations_dict[key] += 1
+	for o in operations:
+		key = o.name
+		if key not in operations_dict:
+			operations_dict[key] = 0 
+		operations_dict[key] += 1
 
-	for clas in class_operations:
-		for o in clas['operations']:
-			mod = ''
-			for m in sorted(o['modifiers']):
-				mod += m + "."
-			key = f'{mod}{o["name"]}'
-			# print(key, expected_operations[key])
-			assert key in expected_operations
-			assert key in operations_dict
-			assert operations_dict[key] == expected_operations[key]	
-
-def test_chaining_method_call():
-	src = """
-public class JFreeChart {	
-    private transient RenderingHints renderingHints;
-    public boolean getAntiAlias() {
-        Object val = this.renderingHints.get(RenderingHints.KEY_ANTIALIASING);
-        return RenderingHints.VALUE_ANTIALIAS_ON.equals(val);
-    }
-}
-	"""		
-
-	parser = JavaParser()
-	parser.parser(src)
-	calls = parser.extract_calls()	
-
-	expected_calls = {
-		'renderingHints.RenderingHints.get': True,
-		'RenderingHints.RenderingHints.KEY_ANTIALIASING': True,
-		'RenderingHints.RenderingHints.VALUE_ANTIALIAS_ON': True,
-	}
-
-	for c in calls:
-		key = f'{c["caller"]}.{c["ref"]}'
-		assert expected_calls[key]
-		#print(f'\'{c["caller"]}.{c["ref"]}\': True,')	
-
-def test_class_creator_method_call():
-	src = """
-public class JFreeChart {	
-    public boolean getAntiAlias() {
-        Rectangle2D nonTitleArea = new Rectangle2D.Double();
-    }
-}
-	"""		
-
-	parser = JavaParser()
-	parser.parser(src)
-	calls = parser.extract_calls()	
-
-	expected_calls = {
-		'new.Rectangle2D.Rectangle2D': True,
-		'Rectangle2D.Rectangle2D.Double': True,
-	}
-
-	for c in calls:
-		key = f'{c["caller"]}.{c["ref"]}'
-		assert expected_calls[key]
-		# print(f'\'{c["caller"]}.{c["ref"]}\': True,')	
-
-def test_member_reference():
-	src = """
-public class JFreeChart {	
-    private Rectangle2D createAlignedRectangle2D(Size2D dimensions) {
-        switch (hAlign) {
-            case CENTER:
-                x = Frame.CENTER_X - (dimensions.width / 2.0);	
-        }
-    }
-}
-	"""		
-
-	parser = JavaParser()
-	parser.parser(src)
-	calls = parser.extract_calls()	
-
-	expected_calls = {
-		'Frame.Frame.CENTER_X': True,
-		'dimensions.Size2D.width': True,
-	}
-
-	for c in calls:
-		key = f'{c["caller"]}.{c["ref"]}'
-		assert expected_calls[key]
-		# print(f'\'{c["caller"]}.{c["ref"]}\': True,')		
-
-def test_for_if(): # TODO
-	src = """
-public class JFreeChart {	
-	private transient EventListenerList changeListeners;
-    protected void notifyListeners(ChartChangeEvent event) {
-        if (this.notify) {
-            Object[] listeners = this.changeListeners.getListenerList();
-            for (int i = listeners.length - 2; i >= 0; i -= 2) {
-                if (listeners[i] == ChartChangeListener.class) {			// it is not extracted
-                    ((ChartChangeListener) listeners[i + 1]).chartChanged(	// also here
-                            event);
-                }
-            }
-        }
-    } 
-}
-	"""		
-
-	parser = JavaParser()
-	parser.parser(src)
-	calls = parser.extract_calls()	
-
-	expected_calls = {
-		'changeListeners.EventListenerList.getListenerList': True,
-		'listeners.Object.length': True,
-	}
-
-	for c in calls:
-		key = f'{c["caller"]}.{c["ref"]}'
-		assert expected_calls[key]
-		# print(f'\'{c["caller"]}.{c["ref"]}\': True,')		 	
-
-def test_local_variable():
-	src = """
-public class JFreeChart {	
-	private RenderingHints renderingHints;
-	private Title title;
-    public Object clone() {
-        JFreeChart chart = (JFreeChart) super.clone();
-        chart.renderingHints = (RenderingHints) this.renderingHints.clone();
-        if (this.title != null) {
-            chart.title = (TextTitle) this.title.clone();
-            chart.title.addChangeListener(chart);
-        }
-    }
-}
-	"""		
-
-	parser = JavaParser()
-	parser.parser(src)
-	calls = parser.extract_calls()	
-
-	expected_calls = {
-		'super.Object.clone': True,
-		'renderingHints.RenderingHints.clone': True,
-		'title.Title.clone': True,
-		'title.Title.addChangeListener': True,
-	}
-
-	for c in calls:
-		key = f'{c["caller"]}.{c["ref"]}'
-		assert expected_calls[key]
-		# print(f'\'{c["caller"]}.{c["ref"]}\': True,')		
+	for key in expected_operations:
+		assert key in operations_dict
+		assert key in expected_operations
+		assert operations_dict[key] == expected_operations[key]		

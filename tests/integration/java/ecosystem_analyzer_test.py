@@ -40,8 +40,25 @@ def test_relations_last_commits():
 	assert len(relationships) == 11
 
 	rel1 = relationships[0]
-	rel2 = relationships[8]
-	rel3 = relationships[10]
+	rel2 = relationships[7]
+	rel3 = relationships[9]
+
+	expected_code_elements = {
+		'Day.Day': True,
+		'TimeSeries.add': True,
+		'TimeSeries.TimeSeries': True,
+		'TimeSeriesCollection.addSeries': True,
+		'TimeSeriesCollection.TimeSeriesCollection': True,
+		'DateRange.DateRange': True,
+		'Day.Day': True,
+		'TimeSeries.add': True,
+		'TimeSeries.TimeSeries': True,
+		'TimeSeriesCollection.addSeries': True,
+		'TimeSeriesCollection.TimeSeriesCollection': True,
+	} 
+
+	for i in range(len(relationships)):
+		assert expected_code_elements[relationships[i].to_code_element.name]
 
 	assert rel1.from_system.name == 'ProjectForge'
 	assert rel1.from_author.name == 'Florian Blumenstein'
@@ -49,7 +66,7 @@ def test_relations_last_commits():
 	assert rel1.to_system.name == 'JFreeChart'
 	assert rel1.to_author.name == 'David Gilbert'	
 	assert rel1.to_author.email == 'dave@jfree.org'	
-	assert rel1.from_code_element.name == rel1.to_code_element.name == 'Day'
+	assert rel1.from_code_element.name == rel1.to_code_element.name == 'Day.Day'
 	assert rel1.from_code_element.caller == 'new'
 	assert rel1.from_code_element_count == 2
 
