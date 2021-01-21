@@ -54,9 +54,6 @@ class ComponentsSideBySide():
 					'system': from_system,
 					'code_elements': references}
 
-		for ref in references:
-			print('    ', ref)
-
 		return {'central': central,
 				'dependent': dependent,
 				'language': language}
@@ -64,12 +61,15 @@ class ComponentsSideBySide():
 	def _references(self, source_file, source_code, code_elements_map):
 		analyzer = StaticAnalyzer()
 		refs = analyzer.references(source_file, source_code)	
-		references = []	
-		for ref in refs:
-			if ref['ref'] in code_elements_map:
-				name = code_elements_map[ref['ref']]
-				references.append(self._get_reference(ref['caller'], name))
-		return references
+		references = []
+		if(source_file.ext == 'java'):
+			for ref in refs:
+				if ref['ref'] in code_elements_map:
+					name = code_elements_map[ref['ref']]
+					references.append(self._get_reference(ref['caller'], name))
+			return references
+		elif(source_file.ext == 'lua'):
+			return refs
 
 	# TODO: remove after some acceptance tests
 	# def _references(self, dependent_source_id, code_elements_map, dataaccess):
@@ -84,7 +84,5 @@ class ComponentsSideBySide():
 
 	def _get_reference(self, caller, name):
 		if caller:
-			if caller == 'extends': # TODO: standarlize reference for aways two fields class.ref
-				return f'{name}.{caller}' 
 			return f'{caller}.{name}' 	
 		return f'{name}'			
