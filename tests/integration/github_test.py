@@ -24,6 +24,7 @@ def test_dependents_stars():
 		assert dep.url != repo_url
 		assert dep.forks >= 0
 
+
 def test_dependents_forks():
 	repo_url = 'https://github.com/apache/hadoop'
 	gh = GitHub(repo_url)
@@ -35,8 +36,34 @@ def test_dependents_forks():
 		assert dep.url != repo_url
 		assert dep.forks >= 0		
 
-def test_dependents_withou_next_url():
+
+def test_dependents_without_next_url():
 	repo_url = 'https://github.com/scribejava/scribejava'
 	gh = GitHub(repo_url)	
 	dependents = gh.dependents()
 	assert len(dependents) >= 8
+
+def test_remove_duplicated():
+	repo_url = 'https://github.com/apache/hadoop'
+	gh = GitHub(repo_url)
+	dependents = gh.dependents()
+
+	deps_dict = {}
+	for d in dependents:
+		deps_dict[d.repo] = d	
+
+	deps_forks = gh.remove_duplicated(dependents, by_forks=True)
+	assert len(deps_forks) == len(deps_dict)
+	for d in deps_forks:
+		assert d.url != None
+		assert d.forks != None
+		assert d.stars != None
+	
+	deps_stars = gh.remove_duplicated(dependents, by_stars=True)
+	assert len(deps_stars) == len(deps_dict)
+	for d in deps_stars:
+		assert d.url != None
+		assert d.forks != None
+		assert d.stars != None
+
+		
