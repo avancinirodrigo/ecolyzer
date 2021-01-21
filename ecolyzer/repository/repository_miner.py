@@ -90,6 +90,7 @@ class RepositoryMiner:
 					session.commit()
 					file_count = 0
 			except FileNoExistsOnRevException:
+				print('FileNoExistsOnRevException', blob.path)
 				pass
 			except ValueError as e:
 				print(blob.path)

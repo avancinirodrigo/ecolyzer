@@ -48,14 +48,18 @@ class MappingEcosystemDependents:
 			ecosystem = Ecosystem(self._ecosystem_name)
 			dataaccess.add(ecosystem)
 			dataaccess.commit()
+			existing_repos[central_repo.path] = central_repo
 
 		ecolyzer = EcosystemAnalyzer(ecosystem)
+		count = 0
 		for dep in dependents:
 			if dep.repo not in existing_repos:
 				gp = GitPython()
 				gp.clone(dep.url, dep.repo)
 				repo = Repository(gp.path)
 				sys = System(repo.name, repo)
+				count += 1
+				print(count, 'Analysing', sys.name, dep.url)
 				miner = RepositoryMiner(repo, sys)
 				miner.extract_last_commits(dataaccess)	
 				FileUtils.rmdir(gp.path)
