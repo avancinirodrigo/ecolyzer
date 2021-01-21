@@ -60,7 +60,7 @@ class ComponentUsage:
 
 		self._add_dependent_coverage(rel.from_system.name, 
 								rel.from_code_element.name,
-								dependents_coverage)
+								dependents_coverage, rel.from_code_element_count)
 
 	def _get_operations(self, dataaccess):
 		operations_list = dataaccess.query(Operation).\
@@ -71,8 +71,9 @@ class ComponentUsage:
 		return operations
 
 	def _add_dependent_coverage(self, dependent_name, curr_call, 
-								dependents_coverage):
+								dependents_coverage, call_count):
 		if dependent_name not in dependents_coverage:
 			dependents_coverage[dependent_name] = {}
 		if curr_call not in dependents_coverage[dependent_name]:
-			dependents_coverage[dependent_name][curr_call] = 1
+			dependents_coverage[dependent_name][curr_call] = 0
+		dependents_coverage[dependent_name][curr_call] += call_count

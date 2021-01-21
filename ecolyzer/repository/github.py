@@ -30,14 +30,29 @@ class GitHub():
 			self._rate_limit_constraint()
 		
 		self._remove_self_dependency(deps)
+
 		return deps 
+
+	def remove_duplicated(self, dependents, by_stars: bool=False, by_forks: bool=False):
+		deps_dict = {}
+		for d in dependents:
+			if d.repo in deps_dict:
+				a = d
+				b = deps_dict[d.repo]
+				if by_forks and (a.forks > b.forks):
+					deps_dict[d.repo] = a
+				elif by_stars and (a.stars > b.stars):
+					deps_dict[d.repo] = a
+			else:
+				deps_dict[d.repo] = d
+		return deps_dict.values()
 
 	#TODO: repo depends on self - problem
 	def _remove_self_dependency(self, dependents): 
 		for i in range(len(dependents)):
 			if dependents[i].url == self._repo_url:
 				dependents.pop(i)
-				return
+				return self._remove_self_dependency(dependents)
 
 	def _create_dependent(self, tag):
 		user_org = self._user_or_org(tag)

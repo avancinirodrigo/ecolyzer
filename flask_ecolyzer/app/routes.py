@@ -26,7 +26,8 @@ def relationships():
 						relations=central_software_info['components'],
 						system=central_software_info['central_software'], 
 						paths=central_software_info['component_paths'],
-						dependents_count=central_software_info['dependents_count'])
+						dependents_count=central_software_info['dependents_count'],
+						dependents_by_package=central_software_info['dependents_by_package'])
 
 @app.route('/relationships/<int:id>', methods=['GET'])
 def component_usage(id):

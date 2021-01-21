@@ -7,7 +7,7 @@ class CentralSoftwareUsage:
 	"""CentralSoftwareUsage"""
 		
 	def execute(self, dataaccess):
-		ecosystem = dataaccess.query(Ecosystem).one() #TODO: associate system to ecosystem
+		ecosystem = dataaccess.query(Ecosystem).first() #TODO: associate system to ecosystem
 		relations = dataaccess.query(Relationship).all()
 		to_system = relations[0].to_system
 		ecosystem_name = to_system.name
@@ -24,13 +24,20 @@ class CentralSoftwareUsage:
 		operations_map = self._get_operations_map(to_source_files,
 												 to_system.id, dataaccess)
 		dependent_systems_map = {}
+		dependent_systems_by_package = {}
 		for rel in relations:
 			source_id = rel.to_source_file_id
 			curr_operation = rel.to_code_element
 			dependent_systems_map[rel.from_system.name] = True
+			if rel.from_system.name not in dependent_systems_by_package:
+				dependent_systems_by_package[rel.from_system.name] = {}
+			if rel.to_source_file.path not in dependent_systems_by_package[rel.from_system.name]:
+				dependent_systems_by_package[rel.from_system.name][rel.to_source_file.path] = 0
+			dependent_systems_by_package[rel.from_system.name][rel.to_source_file.path] += 1
 			if source_id in source_pos:
 				pos = source_pos[source_id]
 				components[pos]['count'] += 1
+				components[pos]['total'] += rel.from_code_element_count
 				if component_operations[source_id][curr_operation.name]:
 					component_operations[source_id][curr_operation.name] = False
 					components[pos]['coverage'] += 1
@@ -51,7 +58,8 @@ class CentralSoftwareUsage:
 					'operations': len(operations),
 					'nloc': file_mod.nloc,
 					'coverage': 1,
-					'count': 1
+					'count': 1,
+					'total': rel.from_code_element_count
 				}
 				components.append(info)
 				paths[rel.to_source_file.path] = 0
@@ -75,7 +83,8 @@ class CentralSoftwareUsage:
 					'operations': len(operations),
 					'nloc': file_mod.nloc,
 					'coverage': 0,
-					'count': 0
+					'count': 0,
+					'total': 0
 				}
 				sources_without_relation_info.append(info)
 				paths[src.path] = 0
@@ -85,7 +94,8 @@ class CentralSoftwareUsage:
 		return {'components': components, 
 				'central_software': ecosystem_name,
 				'component_paths': paths,
-				'dependents_count': len(dependent_systems_map)}	
+				'dependents_count': len(dependent_systems_map),
+				'dependents_by_package': dependent_systems_by_package}	
 
 	def _get_operations_map(self, source_files, system_id, dataaccess):
 		operations = []
