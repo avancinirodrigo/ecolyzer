@@ -29,7 +29,7 @@ class LuaParser:
 		 			and not isinstance(node, astnodes.LocalAssign)):	
 		 		for target in node.targets:
 		 			if isinstance(target, astnodes.Index):
-		 				globals.append(target.value.id + '.' + target.idx.s)
+		 				globals.append(target.value.id + '.' + target.idx.id)
 		 			elif isinstance(target, astnodes.Name):
 		 				globals.append(target.id)
 		 			else:
