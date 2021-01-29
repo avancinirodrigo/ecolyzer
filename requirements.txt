@@ -9,3 +9,4 @@ sqlalchemy
 sqlalchemy-utils
 javalang
 bs4
+flake8-tabs
