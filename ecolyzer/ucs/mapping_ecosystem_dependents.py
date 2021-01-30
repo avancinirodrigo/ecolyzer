@@ -33,7 +33,7 @@ class MappingEcosystemDependents:
 			ecosystem = dataaccess.query(Ecosystem).\
 						filter_by(name=self._ecosystem_name).one()
 		else:
-			git.clone(self._repo_url, branch=self._branch) #TODO: check if it exists
+			git.clone(self._repo_url, branch=self._branch)  # TODO: check if it exists
 			central_repo = Repository(git.path)
 			if not self._system_name:
 				self._system_name = central_repo.name

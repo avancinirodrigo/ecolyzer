@@ -1,13 +1,12 @@
 from ecolyzer.ecosystem import Relationship, Ecosystem
-from ecolyzer.system import Operation, SourceFile
-from ecolyzer.repository import Modification
+from ecolyzer.system import Operation
 
 
 class CentralSoftwareUsage:
 	"""CentralSoftwareUsage"""
-		
+
 	def execute(self, dataaccess):
-		ecosystem = dataaccess.query(Ecosystem).first() #TODO: associate system to ecosystem
+		ecosystem = dataaccess.query(Ecosystem).first()  # TODO: associate system to ecosystem
 		relations = dataaccess.query(Relationship).all()
 		to_system = relations[0].to_system
 		ecosystem_name = to_system.name
@@ -98,7 +97,6 @@ class CentralSoftwareUsage:
 				'dependents_by_package': dependent_systems_by_package}	
 
 	def _get_operations_map(self, source_files, system_id, dataaccess):
-		operations = []
 		operations_map = {}
 		for source_file in source_files.values():
 			for ce in source_file.code_elements().values():

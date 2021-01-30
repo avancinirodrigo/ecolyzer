@@ -1,5 +1,5 @@
 [flake8]
-ignore = WT291 ET128 W503 ET127
+ignore = WT291 ET128 W503 ET127 ET126
 use-flake8-tabs = true
 max-line-length = 100
 # TODO(review __init.py):

@@ -1,7 +1,5 @@
 from ecolyzer.ecosystem import Relationship
-from ecolyzer.repository import Modification
 from ecolyzer.parser import StaticAnalyzer
-from ecolyzer.system import Call
 
 
 class ComponentsSideBySide():
@@ -10,20 +8,20 @@ class ComponentsSideBySide():
 	def __init__(self, central_source_id, dependent_source_id):
 		self._central_source_id = central_source_id
 		self._dependent_source_id = dependent_source_id
-		
+
 	def execute(self, dataaccess):
 		from_id = self._dependent_source_id
 		to_id = self._central_source_id 
 		relations = dataaccess.query(Relationship)\
-						.filter_by(to_source_file_id = to_id,\
-						from_source_file_id = from_id).all()
+					.filter_by(to_source_file_id=to_id,
+					from_source_file_id=from_id).all()
 		from_file = relations[0].from_source_file.file
 		to_file = relations[0].to_source_file.file
 		from_system = relations[0].from_system.name
 		to_system = relations[0].to_system.name
 		from_source = relations[0].from_code_element.modification.source_code 
 		to_source = relations[0].to_code_element.modification.source_code 
-				
+
 		code_elements = []
 		code_elements_map = {}
 		for rel in relations:
@@ -43,7 +41,7 @@ class ComponentsSideBySide():
 			language = 'java'	
 
 		references = self._references(from_file, from_source, code_elements_map)
-		#references = self._references(from_id, code_elements_map, dataaccess)
+		# references = self._references(from_id, code_elements_map, dataaccess)
 
 		central = {'source_code': to_source, 
 					'fullpath': to_file.fullpath, 

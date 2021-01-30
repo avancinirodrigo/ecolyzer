@@ -1,6 +1,5 @@
 from ecolyzer.ecosystem import Relationship
-from ecolyzer.repository import Modification
-from ecolyzer.system import CodeElement, Operation
+from ecolyzer.system import Operation
 
 
 class ComponentUsage:
@@ -9,7 +8,7 @@ class ComponentUsage:
 	def __init__(self, component_id: int, operation: str = None):
 		self._component_id = component_id
 		self._operation = operation
-				
+
 	def execute(self, dataaccess, url_for):
 		relations = dataaccess.query(Relationship).filter(
 				Relationship.to_source_file_id == self._component_id).all()
@@ -42,7 +41,7 @@ class ComponentUsage:
 			pos = from_source_pos[from_source_id]
 			source_relations[pos]['count'] += 1
 			source_relations[pos]['ncalls'] += rel.from_code_element_count
-		else: # enter here just in the first time
+		else:  # enter here just in the first time
 			from_source_pos[from_source_id] = len(source_relations)
 			from_systems[rel.from_system_id] = rel.from_system.name
 			from_source_file = rel.from_source_file
@@ -64,10 +63,10 @@ class ComponentUsage:
 
 	def _get_operations(self, dataaccess):
 		operations_list = dataaccess.query(Operation).\
-					filter_by(source_file_id = self._component_id).all()		
+					filter_by(source_file_id=self._component_id).all()		
 		operations = {}
 		for op in operations_list:
-			operations[op.name]	= 0
+			operations[op.name] = 0
 		return operations
 
 	def _add_dependent_coverage(self, dependent_name, curr_call, 
