@@ -1,10 +1,6 @@
-from flask import jsonify, render_template, url_for, request
-import json
+from flask import render_template, url_for, request
 from . import db
 from . import bp as app
-from ecolyzer.repository import Author, Modification
-from ecolyzer.ecosystem import Relationship
-from ecolyzer.system import Operation, SourceFile
 from ecolyzer.ucs import (CentralSoftwareUsage, ComponentUsage,
 						ComponentsSideBySide, ComponentSourceCode)
 
@@ -29,16 +25,17 @@ def relationships():
 						dependents_count=central_software_info['dependents_count'],
 						dependents_by_package=central_software_info['dependents_by_package'])
 
+
 @app.route('/relationships/<int:id>', methods=['GET'])
 def component_usage(id):
-	operation = request.args.get('operation', default = None, type = str)
+	operation = request.args.get('operation', default=None, type=str)
 	dataaccess = db.session
 	uc = ComponentUsage(id, operation)
 	component_info = uc.execute(dataaccess, url_for)
 	dependents = component_info['dependents']['info']
 	for dep in dependents:
-		dep['url'] = url_for('.source_codes', from_id = dep['id'], to_id = id)
-	component_url = url_for('.component_usage', id = id)
+		dep['url'] = url_for('.source_codes', from_id=dep['id'], to_id=id)
+	component_url = url_for('.component_usage', id=id)
 	return render_template('component_usage.html', 
 						relations=component_info['dependents']['info'],
 						source_file=component_info['component']['name'], 
@@ -47,6 +44,7 @@ def component_usage(id):
 						dependents_coverage=component_info['dependents']['coverage'],
 						component_url=component_url,
 						selected_operation=operation)
+
 
 @app.route('/relationships/<int:from_id>/<int:to_id>', methods=['GET'])
 def source_codes(from_id, to_id):
@@ -61,6 +59,7 @@ def source_codes(from_id, to_id):
 						from_fullpath=dependent['fullpath'], to_fullpath=central['fullpath'],
 						from_system=dependent['system'], to_system=central['system'], 
 						language=components_info['language'])
+
 
 @app.route('/source_code/<int:id>', methods=['GET'])	
 def component_source_code(id):
