@@ -1,6 +1,7 @@
-from sqlalchemy import Column, String, Integer, ForeignKey
+from sqlalchemy import Column, Integer, ForeignKey
 from sqlalchemy.orm import relationship, backref
 from ecolyzer.dataaccess import Base
+
 
 class CentralSystem(Base):
 	"""CentralSystem"""
