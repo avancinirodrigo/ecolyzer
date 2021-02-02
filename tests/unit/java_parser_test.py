@@ -36,6 +36,7 @@ def test_annotations():
 	assert calls[1]['ref'] == 'AnnotationReadingConfig.@'
 	assert calls[2]['ref'] == 'SearchOnEnclosingElements.@'
 
+
 def test_parse_cast():
 	src = """
 		public class EyeCandySixtiesChartTheme extends GenericChartTheme {
@@ -68,6 +69,7 @@ def test_parse_cast():
 		calls_map[call['ref']] = True		
 	assert calls_map['XYPlot.getRenderer']
 	assert calls_map['XYPlot.getDataset']
+
 
 def test_for_calls():
 	src = """
@@ -142,6 +144,7 @@ def test_for_calls():
 		expected_calls[call['ref']] += 1		
 
 	assert expected_calls['XYSeries.getItemCount'] == 2
+
 
 def test_all_code_elements():
 	src = """
@@ -1307,7 +1310,7 @@ public class JFreeChart implements Drawable, TitleChangeListener,
 		caller = c['caller']
 		if caller:
 			key = f'{caller}.{key}'
-		#print(key, expected_calls[key])
+		# print(key, expected_calls[key])
 		if calls_dict[key] != expected_calls[key]:
 			assert key == calls_dict[key]
 		assert key in calls_dict
@@ -1343,6 +1346,7 @@ public class JFreeChart implements Drawable, TitleChangeListener,
 			assert key in operations_dict
 			assert operations_dict[key] == expected_operations[key]	
 
+
 def test_chaining_method_call():
 	src = """
 public class JFreeChart {	
@@ -1367,7 +1371,8 @@ public class JFreeChart {
 	for c in calls:
 		key = f'{c["caller"]}.{c["ref"]}'
 		assert expected_calls[key]
-		#print(f'\'{c["caller"]}.{c["ref"]}\': True,')	
+		# print(f'\'{c["caller"]}.{c["ref"]}\': True,')	
+
 
 def test_class_creator_method_call():
 	src = """
@@ -1391,6 +1396,7 @@ public class JFreeChart {
 		key = f'{c["caller"]}.{c["ref"]}'
 		assert expected_calls[key]
 		# print(f'\'{c["caller"]}.{c["ref"]}\': True,')	
+
 
 def test_member_reference():
 	src = """
@@ -1418,7 +1424,8 @@ public class JFreeChart {
 		assert expected_calls[key]
 		# print(f'\'{c["caller"]}.{c["ref"]}\': True,')		
 
-def test_for_if(): # TODO
+
+def test_for_if():  # TODO
 	src = """
 public class JFreeChart {	
 	private transient EventListenerList changeListeners;
@@ -1449,6 +1456,7 @@ public class JFreeChart {
 		key = f'{c["caller"]}.{c["ref"]}'
 		assert expected_calls[key]
 		# print(f'\'{c["caller"]}.{c["ref"]}\': True,')		 	
+
 
 def test_local_variable():
 	src = """

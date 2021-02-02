@@ -2,6 +2,7 @@ import pytest
 from ecolyzer.system import System, File
 from ecolyzer.repository import Repository, GitPython
 
+
 def test_add_file_same_fullpath(mocker):
 	mocker.patch.object(GitPython, 'IsGitRepo', return_value=True)
 	mocker.patch.object(GitPython, 'CurrentBranch', return_value='master')
@@ -17,6 +18,7 @@ def test_add_file_same_fullpath(mocker):
 	assert (('File \'path/file.ext\' is already present')
 			in str(e.value))		
 
+
 def test_file_exists(mocker):
 	mocker.patch.object(GitPython, 'IsGitRepo', return_value=True)
 	mocker.patch.object(GitPython, 'CurrentBranch', return_value='master')
@@ -27,4 +29,3 @@ def test_file_exists(mocker):
 	sys.add_file(file)	
 
 	assert sys.file_exists(file.fullpath)
-	

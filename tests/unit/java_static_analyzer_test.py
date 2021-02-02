@@ -1,4 +1,4 @@
-from ecolyzer.repository import Repository #TODO: why?
+from ecolyzer.repository import Repository  # TODO: why?
 from ecolyzer.parser import StaticAnalyzer
 from ecolyzer.system import File, SourceFile, Call, Operation
 
@@ -1043,9 +1043,9 @@ public class JFreeChart implements Drawable, TitleChangeListener,
 		call_caller = c.split('.')
 		if len(call_caller) > 2:
 			key = f'{call_caller[1]}.{call_caller[2]}'
-			expected_calls[key] = 1;
+			expected_calls[key] = 1
 		else:
-			expected_calls[c] = 1;
+			expected_calls[c] = 1
 
 	parser_expected_operations = {
 		'public.JFreeChart.clone': 1,

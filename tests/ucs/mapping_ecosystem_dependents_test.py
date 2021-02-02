@@ -15,11 +15,12 @@ def test_uc():
 	uc.execute(session)
 
 	ecosystem = session.query(Ecosystem).\
-			filter(Ecosystem.name=='ScribeJava').first()
+			filter(Ecosystem.name == 'ScribeJava').first()
 	assert len(ecosystem.relationships) >= 37
 
 	session.close()
 	db.drop_all()
+
 
 def test_repo_exists():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/scribejava_ecosystem_exists'
@@ -40,11 +41,12 @@ def test_repo_exists():
 	uc.execute(session)	
 
 	ecosystem = session.query(Ecosystem).\
-			filter(Ecosystem.name=='ScribeJava').first()
+			filter(Ecosystem.name == 'ScribeJava').first()
 	assert len(ecosystem.relationships) >= 37	
 
 	session.close()	
 	db.drop_all()
+
 
 def test_no_relationships():	
 	db_url = 'postgresql://postgres:postgres@localhost:5432/scribejava_ecosystem'
@@ -58,7 +60,7 @@ def test_no_relationships():
 	uc.execute(session)
 
 	ecosystem = session.query(Ecosystem).\
-			filter(Ecosystem.name=='ScribeJava').first()
+			filter(Ecosystem.name == 'ScribeJava').first()
 	assert len(ecosystem.relationships) == 0
 
 	session.close()

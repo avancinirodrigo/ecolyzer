@@ -199,17 +199,18 @@ def test_extract_calls():
 		'Override.@': {'caller': '@'},
 		'Override.@': {'caller': '@'},
 		'implements.Serializer': {'caller': 'implements'},
-		#'toLowerCase': True, # method chaining doesn't work
-		#'startsWith': True, # method chaining doesn't work
+		# 'toLowerCase': True, # method chaining doesn't work
+		# 'startsWith': True, # method chaining doesn't work
 		# 'equals': True, # method chaining doesn't work
 	}
 
 	for call in calls:
 		assert src_calls[call['ref']]
-		assert src_calls[call['ref']]['caller'] != None
+		assert src_calls[call['ref']]['caller'] is not None
 		# print(f'\'{call["ref"]}\': {{\'caller\': \'{call["caller"]}\'}},')
 
-	assert len(calls) == 36 == len(src_calls) + 5 # repeated calls	
+	assert len(calls) == 36 == len(src_calls) + 5  # repeated calls	
+
 
 def test_extract_associations():
 	javafile = os.path.join(os.path.dirname(__file__), '../data', 'FileSerializer.java')
@@ -231,9 +232,10 @@ def test_extract_associations():
 
 	for assoc in assocs:
 		assert src_assocs[assoc]		
-		#print('\'' + assoc + '\': ' + 'True,')
+		# print('\'' + assoc + '\': ' + 'True,')
 
-def test_extract_inner_class_creator(): # TODO: review inner class declarations and how they work
+
+def test_extract_inner_class_creator():  # TODO: review inner class declarations and how they work
 	javafile = os.path.join(os.path.dirname(__file__), '../data', 'InspectInvitationsPage.java')
 	src = open(javafile).read()
 	parser = JavaParser()
@@ -334,12 +336,13 @@ def test_extract_inner_class_creator(): # TODO: review inner class declarations 
 
 	for clas in class_operations:
 		for op in clas['operations']:
-			#print(f'\'{clas["name"]}.{op["name"]}\': True,')
+			# print(f'\'{clas["name"]}.{op["name"]}\': True,')
 			assert expected_operations[f'{clas["name"]}.{op["name"]}']
 
 	for call in calls:
 		# print(f'\'{call["caller"]}.{call["ref"]}\': True,')
 		assert expected_calls[f'{call["caller"]}.{call["ref"]}']
+
 
 def test_extract_public_static_constants(): 
 	javafile = os.path.join(os.path.dirname(__file__), '../data', 'Align.java')

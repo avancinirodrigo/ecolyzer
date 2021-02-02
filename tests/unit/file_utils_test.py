@@ -7,6 +7,7 @@ def test_split():
 	assert name == 'file'
 	assert ext == 'ext'
 
+
 def test_extension():
 	assert FileUtils.extension('some/path/file.ext') == 'ext'
 	assert FileUtils.extension('file') == ''	
