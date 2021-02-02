@@ -1,4 +1,3 @@
-import csv
 from ecolyzer.repository import GitHub
 
 

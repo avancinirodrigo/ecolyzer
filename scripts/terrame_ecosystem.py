@@ -1,7 +1,6 @@
-import os
 from ecolyzer.ecosystem import EcosystemAnalyzer
 from ecolyzer.system import System
-from ecolyzer.repository import Repository, Person, Author, RepositoryMiner, GitPython
+from ecolyzer.repository import Repository, RepositoryMiner
 from ecolyzer.dataaccess import SQLAlchemyORM
 from ecolyzer.ecosystem import Ecosystem
 
