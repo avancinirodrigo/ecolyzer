@@ -5,6 +5,7 @@ from javalang import parser
 from javalang import tokenizer
 from .parse_exceptions import SyntaxException, LexerException
 
+
 class JavaParser():
 	"""JavaParser"""
 	def parser(self, src):
@@ -102,7 +103,7 @@ class JavaParser():
 				declarations.append({'declaration': elem, 'class': clas})		
 
 	def _is_method_abstract(self, method):
-		return method.body == None
+		return method.body is None
 
 	def _add_throws(self, calls, decl):
 		if decl.throws:
@@ -169,7 +170,7 @@ class JavaParser():
 		self._add_declaration(node.expression, decl, calls, method_vars)
 
 	def _process_super_constructor_invocation(self, node, decl, calls, method_vars):
-		if decl['class'].extends: # avoiding super Object, maybe a exception here
+		if decl['class'].extends:  # avoiding super Object, maybe a exception here
 			parent = decl['class'].extends.name
 			calls.append({'ref': f'{parent}.{parent}', 'caller': 'super'})
 
@@ -203,7 +204,7 @@ class JavaParser():
 		if isinstance(control, javalang.tree.EnhancedForControl):
 			self._add_declaration(control.var, decl, calls, method_vars)
 			self._add_declaration(control.iterable, decl, calls, method_vars)
-		else: # javalang.tree.ForControl
+		else:  # javalang.tree.ForControl
 			self._add_declaration(control.init, decl, calls, method_vars)
 			self._add_declaration(control.condition, decl, calls, method_vars)
 			self._add_declaration(control.update, decl, calls, method_vars)
@@ -293,7 +294,7 @@ class JavaParser():
 				if node.qualifier in method_vars:
 					typeof = method_vars[node.qualifier]
 			if typeof:
-				if '.' in typeof: #https://github.com/c2nes/javalang/issues/89
+				if '.' in typeof:  # https://github.com/c2nes/javalang/issues/89
 					caller_const = typeof.split('.')
 					typeof = caller_const[0]
 					caller = caller_const[1]
@@ -365,7 +366,7 @@ class JavaParser():
 				name = node.declarators[0].name	
 				modifiers = self._get_modifier(node)
 				declarations.append({'name': f'{clas.name}.{name}', 'modifiers': modifiers})
-	
+
 		if not has_constructor and (not isinstance(clas, 
 				javalang.tree.InterfaceDeclaration)):
 			declarations.append(self._default_constructor(clas))	

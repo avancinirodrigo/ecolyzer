@@ -25,15 +25,15 @@ class LuaParser:
 	def extract_globals(self):
 		globals = []
 		for node in self.tree.body.body:
-		 	if (isinstance(node, astnodes.Assign) 
-		 			and not isinstance(node, astnodes.LocalAssign)):	
-		 		for target in node.targets:
-		 			if isinstance(target, astnodes.Index):
-		 				globals.append(target.value.id + '.' + target.idx.id)
-		 			elif isinstance(target, astnodes.Name):
-		 				globals.append(target.id)
-		 			else:
-		 				raise Exception('Target not mapped\n', target.__dict__)
+			if (isinstance(node, astnodes.Assign) 
+					and not isinstance(node, astnodes.LocalAssign)):	
+				for target in node.targets:
+					if isinstance(target, astnodes.Index):
+						globals.append(target.value.id + '.' + target.idx.id)
+					elif isinstance(target, astnodes.Name):
+						globals.append(target.id)
+					else:
+						raise Exception('Target not mapped\n', target.__dict__)
 		return globals
 
 	def extract_global_calls(self):
@@ -56,13 +56,15 @@ class LuaParser:
 		visitor.visit(self.tree)
 		return visitor.functions
 
+
 class FunctionVisitor(ast.ASTVisitor):
 	def __init__(self):
 		self.functions = []
-		
+
 	def visit_Function(self, node):
 		if isinstance(node.name, astnodes.Name):
 			self.functions.append(node.name.id)
+
 
 class CallVisitor(ast.ASTVisitor):
 	def __init__(self):
@@ -72,6 +74,7 @@ class CallVisitor(ast.ASTVisitor):
 		if isinstance(node.func, astnodes.Name):
 			self.globals.append(node.func.id)
 
+
 class InvokeVisitor(ast.ASTVisitor):
 	def __init__(self):
 		self.calls = []
@@ -80,19 +83,21 @@ class InvokeVisitor(ast.ASTVisitor):
 		if isinstance(node.func, astnodes.Name):
 			self.calls.append(node.func.id)
 
+
 class LocalFunctionVisitor(ast.ASTVisitor):
 	def __init__(self):
 		self.functions = []
 
 	def visit_LocalFunction(self, node):
 		self.functions.append(node.name.id)
-		
+
+
 class TableVisitor(ast.ASTVisitor):
 	def __init__(self):
 		self.functions = []
 
 	def visit_Table(self, node):
 		for field in node.fields:
-			if (isinstance(field.key, astnodes.Name) and
-					isinstance(field.value, astnodes.AnonymousFunction)):
+			if (isinstance(field.key, astnodes.Name) 
+					and isinstance(field.value, astnodes.AnonymousFunction)):
 				self.functions.append(field.key.id)

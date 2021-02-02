@@ -6,6 +6,7 @@ from .java_parser import JavaParser
 from .parse_exceptions import (SyntaxException, ChunkException,
 							LexerException)
 
+
 class StaticAnalyzer:
 	def __init__(self):
 		pass
@@ -135,7 +136,6 @@ class StaticAnalyzer:
 				result.append(method)
 
 		methods[:] = result		
-			
 
 	def _remove_duplicated(self, calls):
 		calls_aux = {}
@@ -172,7 +172,7 @@ class StaticAnalyzer:
 					count += 1
 			return count
 		else:
-			raise SourceFileNotSupportedException('Source file \'{0}\' not supported.'.\
+			raise SourceFileNotSupportedException('Source file \'{0}\' not supported.'.
 				format(source_file.ext))
 
 	def references(self, source_file, source_code):
@@ -186,8 +186,9 @@ class StaticAnalyzer:
 			parser.parser(source_code)
 			return parser.extract_calls() 
 		else:
-			raise SourceFileNotSupportedException('Source file \'{0}\' not supported.'.\
+			raise SourceFileNotSupportedException('Source file \'{0}\' not supported.'.
 				format(source_file.ext))		
-			
+
+
 class SourceFileNotSupportedException(Exception):
-	pass			
+	pass
