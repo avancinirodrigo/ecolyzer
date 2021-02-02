@@ -3,6 +3,7 @@ from sqlalchemy.orm import relationship, backref
 from sqlalchemy.orm.collections import attribute_mapped_collection
 from ecolyzer.dataaccess import Base
 
+
 class System(Base):
 	"""System"""
 	__tablename__ = 'system'
@@ -56,5 +57,4 @@ class System(Base):
 		if self.source_file_exists(fullpath):
 			return self.source_files[fullpath]
 		else:
-			raise ValueError('Source file \'{0}\' not exists'.format(fullpath))	
-			
+			raise ValueError('Source file \'{0}\' not exists'.format(fullpath))

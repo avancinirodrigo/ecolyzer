@@ -2,6 +2,7 @@ from sqlalchemy import Column, String, Integer, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship, backref
 from ecolyzer.dataaccess import Base
 
+
 class CodeElement(Base):
 	"""CodeElement"""
 	__tablename__ = 'code_element'
@@ -15,7 +16,7 @@ class CodeElement(Base):
 											cascade='all,delete'))
 	modification_id = Column(Integer, ForeignKey('modification.id'))
 	modification = relationship('Modification', backref=backref('code_element',
-		 									cascade='all,delete'))
+								cascade='all,delete'))
 	__table_args__ = (UniqueConstraint('source_file_id', 'key'),)
 	__mapper_args__ = {'polymorphic_on': type}	
 
@@ -29,5 +30,5 @@ class CodeElement(Base):
 		return self.modification.author()
 
 	@property
-	def source_code(self): #TODO: this is a hack, review
+	def source_code(self):  # TODO: this is a hack, review
 		return self.modification.source_code

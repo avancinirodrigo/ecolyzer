@@ -1,4 +1,3 @@
-import os
 from sqlalchemy import Column, String, Integer, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -31,7 +30,7 @@ class File(Base):
 	def path(self, path):
 		self._path = path
 		self.fullpath = self._make_fullpath()
-		
+
 	@property
 	def name(self):
 		return self._name
@@ -40,7 +39,7 @@ class File(Base):
 	def name(self, name):
 		self._name = name	
 		self.fullpath = self._make_fullpath()
-		
+
 	@property
 	def ext(self):
 		return self._ext
@@ -50,13 +49,13 @@ class File(Base):
 		self._ext = ext	
 		self.fullpath = self._make_fullpath()
 
-	@hybrid_property # TODO: how to handle fullpath if change it?
+	@hybrid_property  # TODO: how to handle fullpath if change it?
 	def fullpath(self):
 		return self._fullpath
-		
+
 	@fullpath.setter
 	def fullpath(self, fullpath):
-		if fullpath == None:
+		if fullpath is None:
 			return 
 		self._fullpath = None	
 		path, filename, ext = FileUtils.split(fullpath)		
@@ -66,7 +65,7 @@ class File(Base):
 		self._fullpath = fullpath
 
 	def _make_fullpath(self):
-		if self._fullpath == None:
+		if self._fullpath is None:
 			return
 		elif self.ext == '':
 			if self.path == '':

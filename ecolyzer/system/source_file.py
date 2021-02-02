@@ -1,9 +1,9 @@
 import pathlib
-from sqlalchemy import Column, String, Integer, ForeignKey
+from sqlalchemy import Column, Integer, ForeignKey
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.orm.collections import attribute_mapped_collection
 from ecolyzer.dataaccess import Base
-from .code_element import CodeElement
+
 
 class SourceFile(Base):
 	"""SourceFile"""
@@ -21,16 +21,16 @@ class SourceFile(Base):
 
 	def add_code_element(self, element):
 		if not self.code_element_exists(element): 
-	 		self._elements[element.key] = element
+			self._elements[element.key] = element
 		else:
-	 		raise ValueError('Code element \'{0}\' of type \'{1}\' is already present'
-	 						.format(element.name, type(element).__name__))	 		
+			raise ValueError('Code element \'{0}\' of type \'{1}\' is already present'
+					.format(element.name, type(element).__name__))	 		
 
 	def code_element_exists(self, element):
 		return element.key in self._elements
 
 	def code_element_by_key(self, key):
-	 	return self._elements[key]
+		return self._elements[key]
 
 	def code_elements(self):
 		return self._elements.copy()	
@@ -63,5 +63,5 @@ class SourceFile(Base):
 		self.file.system = system		
 	
 	@property
-	def source_code(self): #TODO: source code is in Modification		
+	def source_code(self):  # TODO: source code is in Modification		
 		return open(str(pathlib.Path().absolute()) + '/' + self.file.fullpath).read()
