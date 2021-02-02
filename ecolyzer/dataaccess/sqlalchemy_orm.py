@@ -7,21 +7,21 @@ from sqlalchemy.orm.session import close_all_sessions
 
 
 class SQLAlchemyORM:
-	def  __init__(self, url):
+	def __init__(self, url):
 		self.url = url
 		self.create_engine()
-		
+
 	def create_engine(self):
 		self.engine = create_engine(self.url)
 		self.session = scoped_session(sessionmaker(bind=self.engine, autoflush=False))
-		
+
 	def create_all_tables(self):
 		Base.metadata.create_all(self.engine)
 
 	def create_all(self, overwrite=False):
 		self.createdb(overwrite)
 		self.create_all_tables()		
-		
+
 	def create_session(self):
 		return self.session()
 
@@ -48,14 +48,16 @@ class SQLAlchemyORM:
 
 	def close_all(self):
 		close_all_sessions()
-				
+
+
 Base = declarative_base()
+
 
 class NullSession:
 	"""NullSession"""
 	def add(self, arg):
 		pass
-		
+
 	def commit(self):
 		pass
 
