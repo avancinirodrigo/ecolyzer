@@ -11,7 +11,7 @@ class GitHub():
 	def __init__(self, repo_url: str):
 		self._repo_url = repo_url
 
-	def dependents(self, stars: int=0, forks: int=0):
+	def dependents(self, stars: int = 0, forks: int = 0):
 		url = f'{self._repo_url}/network/dependents'
 		deps = []
 
@@ -19,13 +19,13 @@ class GitHub():
 			r = requests.get(url)
 			soup = BeautifulSoup(r.content, 'html.parser')
 			data = [
-			   	self._create_dependent(t)
-			    for t in soup.find_all('div', {'class': 'Box-row'})\
-			    	if (self._stars(t) >= stars) and (self._forks(t) >= forks)
+				self._create_dependent(t)
+				for t in soup.find_all('div', {'class': 'Box-row'})
+					if (self._stars(t) >= stars) and (self._forks(t) >= forks)
 			]
 			if len(data) > 0:
 				deps += data
-			 
+
 			url = self._next_url(soup)
 			self._rate_limit_constraint()
 		
@@ -33,7 +33,7 @@ class GitHub():
 
 		return deps 
 
-	def remove_duplicated(self, dependents, by_stars: bool=False, by_forks: bool=False):
+	def remove_duplicated(self, dependents, by_stars: bool = False, by_forks: bool = False):
 		deps_dict = {}
 		for d in dependents:
 			if d.repo in deps_dict:
@@ -47,7 +47,7 @@ class GitHub():
 				deps_dict[d.repo] = d
 		return deps_dict.values()
 
-	#TODO: repo depends on self - problem
+	# TODO: repo depends on self - problem
 	def _remove_self_dependency(self, dependents): 
 		for i in range(len(dependents)):
 			if dependents[i].url == self._repo_url:
@@ -62,24 +62,24 @@ class GitHub():
 		return Dependent(user_org, repo, stars, forks)
 
 	def _user_or_org(self, tag):
-		return tag.find('a', {'data-repository-hovercards-enabled':''}).string
-		
+		return tag.find('a', {'data-repository-hovercards-enabled': ''}).string
+
 	def _repository(self, tag):
-		return tag.find('a', {'data-hovercard-type':'repository'}).string
+		return tag.find('a', {'data-hovercard-type': 'repository'}).string
 
 	def _stars(self, tag):
-		stars_text = tag.find('svg', {'class':'octicon octicon-star'}).parent.text
+		stars_text = tag.find('svg', {'class': 'octicon octicon-star'}).parent.text
 		return self._to_number(stars_text)
 
 	def _forks(self, tag):
-		forks_text = tag.find('svg', {'class':'octicon octicon-repo-forked'}).parent.text
+		forks_text = tag.find('svg', {'class': 'octicon octicon-repo-forked'}).parent.text
 		return self._to_number(forks_text)		
 
 	def _to_number(self, text):
 		return int(''.join(filter(str.isdigit, text)))
 
 	def _next_url(self, soup):
-		anchors = soup.find('div', {'class':'paginate-container'}).find_all('a')
+		anchors = soup.find('div', {'class': 'paginate-container'}).find_all('a')
 		if len(anchors) > 0:
 			if anchors[-1].string == 'Next':
 				return anchors[-1]['href']
@@ -116,6 +116,3 @@ class Dependent():
 	@property
 	def url(self) -> str:
 		return f'{GitHub.base_url}{self._user_org}/{self._repo}'
-	
-
-		

@@ -2,6 +2,7 @@ from sqlalchemy import Column, String, Integer, DateTime, ForeignKey
 from sqlalchemy.orm import relationship, backref
 from ecolyzer.dataaccess import Base
 
+
 class Commit(Base):
 	"""Commit"""
 	__tablename__ = 'commit'
@@ -21,6 +22,7 @@ class Commit(Base):
 		self.msg = commit_info.msg
 		self.author = author
 		self.repository = repository
+
 
 class CommitInfo:
 	def __init__(self, hash):

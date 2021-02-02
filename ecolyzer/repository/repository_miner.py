@@ -1,9 +1,8 @@
 import sys
 from sqlalchemy.orm.exc import NoResultFound
 from pydriller import RepositoryMining, GitRepository
-from pydriller.domain.commit import ModificationType
 from git import Repo
-from ecolyzer.system import File, SourceFile, Operation
+from ecolyzer.system import File, SourceFile
 from ecolyzer.parser import StaticAnalyzer
 from ecolyzer.dataaccess import NullSession
 from ecolyzer.utils import FileUtils
@@ -12,13 +11,14 @@ from .modification import ModificationInfo, Modification
 from .person import Person
 from .author import Author
 
+
 class RepositoryMiner:
 	"""RepositoryMiner"""
 	def __init__(self, repo, system):
 		self.repo = repo
 		self.system = system
 		self.source_file_extensions = {}
-		self.source_file_extensions = {'lua':'lua', 'java':'java'}
+		self.source_file_extensions = {'lua': 'lua', 'java': 'java'}
 		self.ignore_dir_with = {}
 		self.from_commit = None
 		self.to_commit = None
@@ -39,9 +39,9 @@ class RepositoryMiner:
 		for commit_driller in RepositoryMining(path_to_repo=[self.repo.path],
 							only_modifications_with_file_types=self.source_file_extensions,
 							single=hash,
-							#from_commit=self.from_commit, to_commit=self.to_commit,
+							# from_commit=self.from_commit, to_commit=self.to_commit,
 							from_tag=self.from_tag, to_tag=self.to_tag,
-							#filepath='CellularSpace.lua',
+							# filepath='CellularSpace.lua',
 							only_in_branch=['master'],
 							only_no_merge=self.only_no_merge).traverse_commits():
 			self._extract_from_driller(commit_driller, session)
@@ -64,7 +64,7 @@ class RepositoryMiner:
 					srcfile = self._check_source_file(file)
 					code_elements = self._extract_code_elements(srcfile, mod.source_code)
 					for element in code_elements:
-						code_element = self._check_code_element(session, srcfile, element, mod)
+						self._check_code_element(session, srcfile, element, mod)
 				session.add(mod)
 
 	def extract_last_commits(self, session=NullSession(), rev=None):
@@ -83,7 +83,7 @@ class RepositoryMiner:
 				srcfile = self._check_source_file(file)
 				code_elements = self._extract_code_elements(srcfile, mod.source_code)
 				for element in code_elements:
-					code_element = self._check_code_element(session, srcfile, element, mod)
+					self._check_code_element(session, srcfile, element, mod)
 				session.add(mod)
 				file_count += 1
 				if file_count == 50:
@@ -108,9 +108,9 @@ class RepositoryMiner:
 
 	def _get_modification_from_gitpython(self, blob):
 		file_mod = ModificationInfo(blob.path)
-		#file_mod.old_path = mod.old_path
+		# file_mod.old_path = mod.old_path
 		file_mod.new_path = blob.path
-		#file_mod.status = mod.change_type.name 
+		# file_mod.status = mod.change_type.name 
 		source_code = self._get_blob_source_code(blob)
 		file_mod.source_code = source_code
 		file_mod.added = self._count_lines_of_code(blob.path, source_code)
@@ -130,7 +130,6 @@ class RepositoryMiner:
 
 	def extract_current_files(self, session=NullSession()):
 		repo = Repo(self.repo.path)
-		tree = repo.tree()
 		blobs = self._repo_file_blobs(repo)
 		self._extract_current_files(blobs, session)
 
@@ -175,7 +174,7 @@ class RepositoryMiner:
 				srccode = self._get_blob_source_code(blob)
 				code_elements = self._extract_code_elements(srcfile, srccode)
 				for element in code_elements:
-					code_element = self._check_code_element(session, srcfile, element)
+					self._check_code_element(session, srcfile, element)
 				session.add(srcfile)
 		session.commit()
 
@@ -183,11 +182,6 @@ class RepositoryMiner:
 		data = blob.data_stream.read()
 		return data.decode('utf-8', errors='replace').replace('\x00', '\uFFFD')
 
-	def _create_modification(self, source_file, source_code): #TODO: use in extract_current_files		
-		mod = ModificationInfo(mod.filename)
-		mod.new_path = source_file.fullpath()
-		mod.source_code = source_code
-					
 	def _check_code_element(self, session, source_file, element, modification=None):
 		if not source_file.code_element_exists(element):
 			source_file.add_code_element(element)
@@ -206,11 +200,11 @@ class RepositoryMiner:
 
 	def _check_filepath(self, mod_info):
 		fullpath = mod_info.new_path
-		if fullpath == None:
+		if fullpath is None:
 			fullpath = mod_info.old_path
 		return fullpath		
 
-	def _check_file(self, mod_info): #TODO: running reverse seems not work
+	def _check_file(self, mod_info):  # TODO: running reverse seems not work
 		if self.system.file_exists(mod_info.new_path):
 			return self.system.get_file(mod_info.new_path)
 		elif mod_info.status == 'DELETE':
@@ -268,10 +262,10 @@ class RepositoryMiner:
 		commit_info.author_name = author_driller.name
 		commit_info.author_email = author_driller.email
 		commit_info.modifications = self._get_modifications_info(commit_driller.modifications)
-		#commit_info.project_name = commit_driller.project_name
-		#commit_info.project_path = commit_driller.project_path
-		#commit_info.merge = commit_driller.merge
-		#commit_info.in_main_branch = commit_driller.in_main_branch
+		# commit_info.project_name = commit_driller.project_name
+		# commit_info.project_path = commit_driller.project_path
+		# commit_info.merge = commit_driller.merge
+		# commit_info.in_main_branch = commit_driller.in_main_branch
 		return commit_info
 
 	def _get_modifications_info(self, modifications):

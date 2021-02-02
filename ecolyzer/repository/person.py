@@ -1,6 +1,6 @@
-from sqlalchemy import Column, String, Integer, ForeignKey
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy import Column, String, Integer
 from ecolyzer.dataaccess import Base
+
 
 class Person(Base):
 	"""Person"""

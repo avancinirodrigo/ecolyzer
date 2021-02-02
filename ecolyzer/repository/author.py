@@ -1,8 +1,8 @@
-from sqlalchemy import Column, String, Integer, ForeignKey
+from sqlalchemy import Column, Integer, ForeignKey
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.hybrid import hybrid_property
 from ecolyzer.dataaccess import Base
-from .person import Person
+
 
 class Author(Base):
 	"""Author"""

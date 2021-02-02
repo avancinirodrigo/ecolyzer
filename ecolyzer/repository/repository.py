@@ -8,6 +8,7 @@ from .author import Author
 from .commit import Commit
 from .gitpython import GitPython
 
+
 class Repository(Base):
 	"""Repository"""
 	__tablename__ = 'repository'
@@ -73,4 +74,3 @@ class Repository(Base):
 	@property
 	def name(self) -> str:
 		return FileUtils.last_dir(self._path)
-	
