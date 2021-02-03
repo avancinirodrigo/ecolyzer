@@ -127,7 +127,7 @@ def test_extract():
 	miner = RepositoryMiner(repo, sys)
 	miner.extract(session, '082dff5e822ea1b4491911b7bf434a7f47a4be26')
 	filedb = session.query(File).filter_by(fullpath = 'base/lua/CellularSpace.lua').first()
-	srcfiledb = session.query(SourceFile).filter_by(file_id = filedb.id).first()
+	srcfiledb = session.query(SourceFile).filter_by(file_id=filedb.id).first()
 	commitdb = session.query(Commit).filter(Commit.hash == '082dff5e822ea1b4491911b7bf434a7f47a4be26').one()
 	assert commitdb.msg == ('* New structure for directories.\n'
 							'* Function require already implemented.\n'
@@ -135,102 +135,102 @@ def test_extract():
 							'* Function -test already moved to terrame.lua, but still having problems when executing the tests.')
 	authordb = session.query(Author).filter(Author.id == commitdb.author_id).one()
 	assert authordb.name == 'rvmaretto'
-	modificationsdb = session.query(Modification).filter_by(commit_id = commitdb.id).all()
+	modificationsdb = session.query(Modification).filter_by(commit_id=commitdb.id).all()
 
 	files_mod = {
-		'base/description.lua' : True,
-		'base/load.lua' : True,
-		'base/lua/Action.lua' : True,
-		'base/lua/Agent.lua' : True,
-		'base/lua/Automaton.lua' : True,
-		'base/lua/Cell.lua' : True,
-		'base/lua/CellularSpace.lua' : True,
-		'base/lua/Coord.lua' : True,
-		'base/lua/Environment.lua' : True,
-		'base/lua/Event.lua' : True,
-		'base/lua/Flow.lua' : True,
-		'base/lua/Group.lua' : True,
-		'base/lua/Jump.lua' : True,
-		'base/lua/Legend.lua' : True,
-		'base/lua/Model.lua' : True,
-		'base/lua/Neighborhood.lua' : True,
-		'base/lua/Observer.lua' : True,
-		'base/lua/Pair.lua' : True,
-		'base/lua/Random.lua' : True,
-		'base/lua/SocialNetwork.lua' : True,
-		'base/lua/Society.lua' : True,
-		'base/lua/State.lua' : True,
-		'base/lua/Timer.lua' : True,
-		'base/lua/Trajectory.lua' : True,
-		'base/lua/UnitTest.lua' : True,
-		'base/lua/Utils.lua' : True,
-		'base/tests/core/alternative/Agent.lua' : True,
-		'base/tests/core/alternative/Automaton.lua' : True,
-		'base/tests/core/alternative/Cell.lua' : True,
-		'base/tests/core/alternative/CellularSpace.lua' : True,
-		'base/tests/core/alternative/Coord.lua' : True,
-		'base/tests/core/alternative/Environment.lua' : True,
-		'base/tests/core/alternative/Event.lua' : True,
-		'base/tests/core/alternative/Flow.lua' : True,
-		'base/tests/core/alternative/Group.lua' : True,
-		'base/tests/core/alternative/Jump.lua' : True,
-		'base/tests/core/alternative/Model.lua' : True,
-		'base/tests/core/alternative/Neighborhood.lua' : True,
-		'base/tests/core/alternative/Random.lua' : True,
-		'base/tests/core/alternative/SocialNetwork.lua' : True,
-		'base/tests/core/alternative/Society.lua' : True,
-		'base/tests/core/alternative/State.lua' : True,
-		'base/tests/core/alternative/Timer.lua' : True,
-		'base/tests/core/alternative/Trajectory.lua' : True,
-		'base/tests/core/alternative/Utils.lua' : True,
-		'base/tests/core/basics/Agent.lua' : True,
-		'base/tests/core/basics/Cell.lua' : True,
-		'base/tests/core/basics/CellularSpace.lua' : True,
-		'base/tests/core/basics/Coord.lua' : True,
-		'base/tests/core/basics/Environment.lua' : True,
-		'base/tests/core/basics/Event.lua' : True,
-		'base/tests/core/basics/Group.lua' : True,
-		'base/tests/core/basics/Jump.lua' : True,
-		'base/tests/core/basics/Memory.lua' : True,
-		'base/tests/core/basics/Model.lua' : True,
-		'base/tests/core/basics/Neighborhood.lua' : True,
-		'base/tests/core/basics/Random.lua' : True,
-		'base/tests/core/basics/SocialNetwork.lua' : True,
-		'base/tests/core/basics/Society.lua' : True,
-		'base/tests/core/basics/Timer.lua' : True,
-		'base/tests/core/basics/Trajectory.lua' : True,
-		'base/tests/core/basics/Utils.lua' : True,
-		'src/lua/terrame.lua' : True	
+		'base/description.lua': True,
+		'base/load.lua': True,
+		'base/lua/Action.lua': True,
+		'base/lua/Agent.lua': True,
+		'base/lua/Automaton.lua': True,
+		'base/lua/Cell.lua': True,
+		'base/lua/CellularSpace.lua': True,
+		'base/lua/Coord.lua': True,
+		'base/lua/Environment.lua': True,
+		'base/lua/Event.lua': True,
+		'base/lua/Flow.lua': True,
+		'base/lua/Group.lua': True,
+		'base/lua/Jump.lua': True,
+		'base/lua/Legend.lua': True,
+		'base/lua/Model.lua': True,
+		'base/lua/Neighborhood.lua': True,
+		'base/lua/Observer.lua': True,
+		'base/lua/Pair.lua': True,
+		'base/lua/Random.lua': True,
+		'base/lua/SocialNetwork.lua': True,
+		'base/lua/Society.lua': True,
+		'base/lua/State.lua': True,
+		'base/lua/Timer.lua': True,
+		'base/lua/Trajectory.lua': True,
+		'base/lua/UnitTest.lua': True,
+		'base/lua/Utils.lua': True,
+		'base/tests/core/alternative/Agent.lua': True,
+		'base/tests/core/alternative/Automaton.lua': True,
+		'base/tests/core/alternative/Cell.lua': True,
+		'base/tests/core/alternative/CellularSpace.lua': True,
+		'base/tests/core/alternative/Coord.lua': True,
+		'base/tests/core/alternative/Environment.lua': True,
+		'base/tests/core/alternative/Event.lua': True,
+		'base/tests/core/alternative/Flow.lua': True,
+		'base/tests/core/alternative/Group.lua': True,
+		'base/tests/core/alternative/Jump.lua': True,
+		'base/tests/core/alternative/Model.lua': True,
+		'base/tests/core/alternative/Neighborhood.lua': True,
+		'base/tests/core/alternative/Random.lua': True,
+		'base/tests/core/alternative/SocialNetwork.lua': True,
+		'base/tests/core/alternative/Society.lua': True,
+		'base/tests/core/alternative/State.lua': True,
+		'base/tests/core/alternative/Timer.lua': True,
+		'base/tests/core/alternative/Trajectory.lua': True,
+		'base/tests/core/alternative/Utils.lua': True,
+		'base/tests/core/basics/Agent.lua': True,
+		'base/tests/core/basics/Cell.lua': True,
+		'base/tests/core/basics/CellularSpace.lua': True,
+		'base/tests/core/basics/Coord.lua': True,
+		'base/tests/core/basics/Environment.lua': True,
+		'base/tests/core/basics/Event.lua': True,
+		'base/tests/core/basics/Group.lua': True,
+		'base/tests/core/basics/Jump.lua': True,
+		'base/tests/core/basics/Memory.lua': True,
+		'base/tests/core/basics/Model.lua': True,
+		'base/tests/core/basics/Neighborhood.lua': True,
+		'base/tests/core/basics/Random.lua': True,
+		'base/tests/core/basics/SocialNetwork.lua': True,
+		'base/tests/core/basics/Society.lua': True,
+		'base/tests/core/basics/Timer.lua': True,
+		'base/tests/core/basics/Trajectory.lua': True,
+		'base/tests/core/basics/Utils.lua': True,
+		'src/lua/terrame.lua': True	
 	}
 
 	for mod in modificationsdb:
 		assert files_mod[mod.new_path]
 
-	operationsdb = session.query(Operation).filter_by(source_file_id = srcfiledb.id).all()
+	operationsdb = session.query(Operation).filter_by(source_file_id=srcfiledb.id).all()
 
 	operations = {
-		'CellularSpace' : True,
-		'createNeighborhood' : True,
-		'add' : True,
-		'getCell' : True,
-		'get' : True,
-		'getCells' : True,
-		'getCellByID' : True,
-		'load' : True,
-		'loadShape' : True,
-		'loadNeighborhood' : True,
-		'notify' : True,
-		'sample' : True,
-		'save' : True,
-		'saveShape' : True,
-		'size' : True,
-		'split' : True,
-		'synchronize' : True,
-		'moore' : True,
-		'mxn' : True,
-		'vonneumann' : True,
-		'coord' : True,
-		'__len' : True	
+		'CellularSpace': True,
+		'createNeighborhood': True,
+		'add': True,
+		'getCell': True,
+		'get': True,
+		'getCells': True,
+		'getCellByID': True,
+		'load': True,
+		'loadShape': True,
+		'loadNeighborhood': True,
+		'notify': True,
+		'sample': True,
+		'save': True,
+		'saveShape': True,
+		'size': True,
+		'split': True,
+		'synchronize': True,
+		'moore': True,
+		'mxn': True,
+		'vonneumann': True,
+		'coord': True,
+		'__len': True	
 	}
 
 	operationsdb_dict = {}
@@ -242,65 +242,65 @@ def test_extract():
 		assert operationsdb_dict[k]
 
 	calls = {
-		'addNeighborhood' : True,
-		'addCell' : True,
-		'getNeighborhood' : True,
-		'caseof' : True,
-		'clear' : True,
-		'endswith' : True,
-		'getTime' : True,
-		'integer' : True,
-		'getDBName' : True,
-		'sub' : True,
-		'setDBType' : True,
-		'setDBName' : True,
-		'len' : True,
-		'setPort' : True,
-		'setHostName' : True,
-		'setUser' : True,
-		'setPassword' : True,
-		'setTheme' : True,
-		'setLayer' : True,
-		'setWhereClause' : True,
-		'clearAttrName' : True,
-		'addAttrName' : True,
-		'setReference' : True,
-		'getLayerName' : True,
-		'init' : True,
-		'forEachCell' : True,
-		'Neighborhood' : True,
-		'ipairs' : True,
-		'weightF' : True,
-		'filterF' : True,
-		'customWarningMsg' : True,
-		'namedParametersErrorMsg' : True,
-		'type' : True,
-		'defaultValueWarningMsg' : True,
-		'incompatibleTypesErrorMsg' : True,
-		'checkUnnecessaryParameters' : True,
-		'mandatoryArgumentErrorMsg' : True,
-		'incompatibleValuesErrorMsg' : True,
-		'switch' : True,
-		'deprecatedFunctionWarningMsg' : True,
-		'Coord' : True,
-		'readCSV' : True,
-		'tostring' : True,
-		'Cell' : True,
-		'customErrorMsg' : True,
-		'pairs' : True,
-		'tableParameterErrorMsg' : True,
-		'resourceNotFoundErrorMsg' : True,
-		'print' : True,
-		'argument' : True,
-		'Trajectory' : True,
-		'getn' : True,
-		'TeCellularSpace' : True,
-		'incompatibleFileExtensionErrorMsg' : True,
-		'setmetatable' : True,
-		'forEachElement' : True
+		'addNeighborhood': True,
+		'addCell': True,
+		'getNeighborhood': True,
+		'caseof': True,
+		'clear': True,
+		'endswith': True,
+		'getTime': True,
+		'integer': True,
+		'getDBName': True,
+		'sub': True,
+		'setDBType': True,
+		'setDBName': True,
+		'len': True,
+		'setPort': True,
+		'setHostName': True,
+		'setUser': True,
+		'setPassword': True,
+		'setTheme': True,
+		'setLayer': True,
+		'setWhereClause': True,
+		'clearAttrName': True,
+		'addAttrName': True,
+		'setReference': True,
+		'getLayerName': True,
+		'init': True,
+		'forEachCell': True,
+		'Neighborhood': True,
+		'ipairs': True,
+		'weightF': True,
+		'filterF': True,
+		'customWarningMsg': True,
+		'namedParametersErrorMsg': True,
+		'type': True,
+		'defaultValueWarningMsg': True,
+		'incompatibleTypesErrorMsg': True,
+		'checkUnnecessaryParameters': True,
+		'mandatoryArgumentErrorMsg': True,
+		'incompatibleValuesErrorMsg': True,
+		'switch': True,
+		'deprecatedFunctionWarningMsg': True,
+		'Coord': True,
+		'readCSV': True,
+		'tostring': True,
+		'Cell': True,
+		'customErrorMsg': True,
+		'pairs': True,
+		'tableParameterErrorMsg': True,
+		'resourceNotFoundErrorMsg': True,
+		'print': True,
+		'argument': True,
+		'Trajectory': True,
+		'getn': True,
+		'TeCellularSpace': True,
+		'incompatibleFileExtensionErrorMsg': True,
+		'setmetatable': True,
+		'forEachElement': True
 	}
 
-	callsdb = session.query(Call).filter_by(source_file_id = srcfiledb.id).all()	
+	callsdb = session.query(Call).filter_by(source_file_id=srcfiledb.id).all()	
 	callsdb_dict = {}	
 	for call in callsdb:
 		callsdb_dict[call.name] = True
@@ -337,12 +337,12 @@ def test_get_commit_source_file():
 
 	session.commit()
 	afile = sys.get_file('base/lua/CellularSpace.lua')
-	srcfiledb = session.query(SourceFile).filter_by(file_id = afile.id).first()
+	srcfiledb = session.query(SourceFile).filter_by(file_id=afile.id).first()
 	assert srcfiledb.ext == 'lua'
 	assert srcfiledb.name == 'CellularSpace'
 	assert srcfiledb.code_elements_len() == 78
 
-	functions = session.query(Operation).filter_by(source_file_id = srcfiledb.id).all()	
+	functions = session.query(Operation).filter_by(source_file_id=srcfiledb.id).all()	
 	assert srcfiledb.code_element_exists(functions[0])
 	assert functions[0].name == 'CellularSpace'
 
@@ -386,7 +386,7 @@ def test_extract_deleted_files():
 
 	miner.extract(session, '082dff5e822ea1b4491911b7bf434a7f47a4be26')
 	file = session.query(File).filter_by(fullpath = 'src/lua/terrame.lua').one()
-	mod = session.query(Modification).filter_by(file_id = file.id).first()
+	mod = session.query(Modification).filter_by(file_id=file.id).first()
 
 	assert mod.new_path == 'src/lua/terrame.lua'
 	assert mod.old_path == None
@@ -395,7 +395,7 @@ def test_extract_deleted_files():
 
 	miner.extract(session, 'f2e117598feee9db8cabbd1c300e143199e12d92')	
 	file = session.query(File).filter_by(fullpath = 'src/lua/terrame.lua').one()
-	mod = session.query(Modification).filter_by(file_id = file.id).filter_by(status = 'DELETE').first()
+	mod = session.query(Modification).filter_by(file_id=file.id).filter_by(status = 'DELETE').first()
 	
 	assert mod.new_path == None
 	assert mod.old_path == 'src/lua/terrame.lua'	
@@ -419,7 +419,7 @@ def test_extract_renamed_files():
 	
 	miner.extract(session, '082dff5e822ea1b4491911b7bf434a7f47a4be26')
 	file = session.query(File).filter_by(fullpath = 'base/lua/Observer.lua').one()
-	mod = session.query(Modification).filter_by(file_id = file.id).first()
+	mod = session.query(Modification).filter_by(file_id=file.id).first()
 
 	assert mod.new_path == 'base/lua/Observer.lua'
 	assert mod.old_path == None
@@ -428,7 +428,7 @@ def test_extract_renamed_files():
 
 	miner.extract(session, 'c57b6d69461abf10ba5950e0577dff3c982f3ea4')	
 	file = session.query(File).filter_by(fullpath = 'src/lua/observer.lua').one()
-	mod = session.query(Modification).filter_by(file_id = file.id).filter_by(status = 'RENAME').first()
+	mod = session.query(Modification).filter_by(file_id=file.id).filter_by(status = 'RENAME').first()
 	
 	assert mod.new_path == 'src/lua/observer.lua'
 	assert mod.old_path == 'base/lua/Observer.lua'
@@ -498,46 +498,46 @@ def test_extract_last_commits():
 				.filter_by(fullpath = 'packages/base/lua/Cell.lua').one()
 
 	code_elements = {
-		'Cell' : True,
-		'addNeighborhood' : True,
-		'distance' : True,
-		'getAgent' : True,
-		'getAgents' : True,
-		'getId' : True,
-		'getNeighborhood' : True,
-		'init' : True,
-		'isEmpty' : True,
-		'notify' : True,
-		'on_synchronize' : True,
-		'sample' : True,
-		'setId' : True,
-		'synchronize' : True,
-		'area' : True,
-		'__len' : True,
-		'getID' : True,
-		'getTime' : True,
-		'setID' : True,
-		'setReference' : True,
-		'setIndex' : True,
-		'getPackage' : True,
-		'incompatibleTypeError' : True,
-		'type' : True,
-		'mandatoryArgumentError' : True,
-		'mandatoryArgument' : True,
-		'customError' : True,
-		's' : True,
-		'optionalArgument' : True,
-		'positiveArgument' : True,
-		'forEachElement' : True,
-		'Random' : True,
-		'pairs' : True,
-		'getn' : True,
-		'verifyNamedTable' : True,
-		'optionalTableArgument' : True,
-		'TeCell' : True,
-		'setmetatable' : True,
-		'mandatoryTableArgument' : True,
-		'integerTableArgument' : True
+		'Cell': True,
+		'addNeighborhood': True,
+		'distance': True,
+		'getAgent': True,
+		'getAgents': True,
+		'getId': True,
+		'getNeighborhood': True,
+		'init': True,
+		'isEmpty': True,
+		'notify': True,
+		'on_synchronize': True,
+		'sample': True,
+		'setId': True,
+		'synchronize': True,
+		'area': True,
+		'__len': True,
+		'getID': True,
+		'getTime': True,
+		'setID': True,
+		'setReference': True,
+		'setIndex': True,
+		'getPackage': True,
+		'incompatibleTypeError': True,
+		'type': True,
+		'mandatoryArgumentError': True,
+		'mandatoryArgument': True,
+		'customError': True,
+		's': True,
+		'optionalArgument': True,
+		'positiveArgument': True,
+		'forEachElement': True,
+		'Random': True,
+		'pairs': True,
+		'getn': True,
+		'verifyNamedTable': True,
+		'optionalTableArgument': True,
+		'TeCell': True,
+		'setmetatable': True,
+		'mandatoryTableArgument': True,
+		'integerTableArgument': True
 	}
 
 	src_code_elements = srcfile.code_elements()
@@ -547,7 +547,7 @@ def test_extract_last_commits():
 	assert srcfile.code_elements_len() == 40
 
 	file_mod = session.query(Modification).\
-					filter_by(file_id = srcfile.file_id).one()	
+					filter_by(file_id=srcfile.file_id).one()	
 
 	assert file_mod.nloc == file_mod.added == 165
 

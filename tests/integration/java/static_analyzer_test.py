@@ -1,7 +1,8 @@
 import os
-from ecolyzer.repository import Repository #TODO: why?
+from ecolyzer.repository import Repository  # TODO: why?
 from ecolyzer.system import File, SourceFile
 from ecolyzer.parser import StaticAnalyzer
+
 
 def test_reverse_engineering():
 	operations = {
@@ -63,7 +64,7 @@ def test_reverse_engineering():
 		'JFreeChart.titleChanged': True,
 		'JFreeChart.plotChanged': True,
 		'JFreeChart.equals': True,
-		#TODO: the class doen't use these methods
+		# TODO: the class doen't use these methods
 		# 'writeObject': True,
 		# 'readObject': True,
 		'JFreeChart.clone': True,
@@ -329,7 +330,8 @@ def test_reverse_engineering():
 			assert element.name not in calls
 		else:
 			assert associations[element.name]
-			
+
+
 def test_number_of_calls():
 	javafile = os.path.join(os.path.dirname(__file__), '../data', 'JFreeChart.java')
 	file = File(javafile)
@@ -339,6 +341,7 @@ def test_number_of_calls():
 	assert analyzer.number_of_calls(src_file, src, 'Title.getHorizontalAlignment') == 2
 	assert analyzer.number_of_calls(src_file, src, 'Rectangle2D.getX') == 7
 	assert analyzer.number_of_calls(src_file, src, 'Objects.requireNonNull') == 12
+
 
 def test_class_modifiers():
 	javafile = os.path.join(os.path.dirname(__file__), '../data', 'InternalClasses.java')
@@ -353,6 +356,7 @@ def test_class_modifiers():
 	assert code_elements[2].name == 'extends.ClassB'
 	assert code_elements[3].name == 'ClassB.ClassB'
 
+
 def test_lexer_exception():
 	javafile = os.path.join(os.path.dirname(__file__), '../data', 'HelloWorld.java')
 	file = File(javafile)
@@ -361,6 +365,7 @@ def test_lexer_exception():
 	analyzer = StaticAnalyzer()
 	code_elements = analyzer.reverse_engineering(src_file, src)	
 	assert not code_elements
+
 
 def _get_code_elements(filepath):
 	file = File(filepath)
@@ -372,6 +377,7 @@ def _get_code_elements(filepath):
 	# 	print(f'\'{ce.name}\': True,')
 	# print('--')
 	return code_elements
+
 
 def test_code_elements_checker():
 	central_class_filepath = os.path.join(os.path.dirname(__file__),

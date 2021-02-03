@@ -1,6 +1,7 @@
 from ecolyzer.parser import JavaParser
 import os
 
+
 def test_extract_operations():
 	javafile = os.path.join(os.path.dirname(__file__), '../data', 'FileSerializer.java')
 	src = open(javafile).read()
@@ -25,7 +26,8 @@ def test_extract_operations():
 
 	for op in operations:
 		assert src_operations[op['name']]
-		#print(f'\'{op["name"]}\': True,')
+		# print(f'\'{op["name"]}\': True,')
+
 
 def test_internal_class_operations():
 	javafile = os.path.join(os.path.dirname(__file__), '../data', 'JFreeChartJFreeChartInfo.java')
@@ -140,7 +142,7 @@ def test_internal_class_operations():
 
 	for op in operations:
 		assert src_operations[op['name']]		
-		#print(f'\'{op["name"]}\': True,')
+		# print(f'\'{op["name"]}\': True,')
 
 	operations = classes[1]['operations']	
 	src_operations = {
@@ -154,6 +156,7 @@ def test_internal_class_operations():
 	for op in operations:
 		assert src_operations[op['name']]		
 		# print(f'\'{op["name"]}\': True,')	
+
 
 def test_extract_calls():
 	javafile = os.path.join(os.path.dirname(__file__), '../data', 'FileSerializer.java')
@@ -176,11 +179,11 @@ def test_extract_calls():
 		'FileSerializer.isAllowedGetter': {'caller': ''},
 		'Method.invoke': {'caller': 'm'},
 		'Method.getName': {'caller': 'm'},
-		'String.substring': {'caller': 'getterName'},
-		'String.substring': {'caller': 'getterName'},
+		# 'String.substring': {'caller': 'getterName'},
+		# 'String.substring': {'caller': 'getterName'},
 		'FileSerializer.formatValue': {'caller': ''},
 		'Map.put': {'caller': 'props'},
-		'RuntimeException.RuntimeException': {'caller': 'new'},
+		# 'RuntimeException.RuntimeException': {'caller': 'new'},
 		'InstantiationException.InstantiationException': {'caller': 'throws'},
 		'IllegalAccessException.IllegalAccessException': {'caller': 'throws'},
 		'Method.getAnnotations': {'caller': 'm'},
@@ -191,13 +194,13 @@ def test_extract_calls():
 		'Class.newInstance': {'caller': 'c'},
 		'ValueFormatter.readAnnotation': {'caller': 'vf'},
 		'ValueFormatter.formatValue': {'caller': 'vf'},
-		'Method.getName': {'caller': 'm'},
+		# 'Method.getName': {'caller': 'm'},
 		'Method.getParameterTypes': {'caller': 'm'},
 		'Method.getReturnType': {'caller': 'm'},
-		'Method.getName': {'caller': 'm'},
+		# 'Method.getName': {'caller': 'm'},
 		'Method.isAnnotationPresent': {'caller': 'm'},
-		'Override.@': {'caller': '@'},
-		'Override.@': {'caller': '@'},
+		# 'Override.@': {'caller': '@'},
+		# 'Override.@': {'caller': '@'},
 		'implements.Serializer': {'caller': 'implements'},
 		# 'toLowerCase': True, # method chaining doesn't work
 		# 'startsWith': True, # method chaining doesn't work

@@ -1,10 +1,12 @@
 import os
-from ecolyzer.repository import (RepositoryMiner, Repository, CommitInfo, 
+from ecolyzer.repository import (RepositoryMiner, Repository, 
 								Commit, Author, Person, Modification,
 								GitPython)
-from ecolyzer.system import System, File, SourceFile, Operation, Call, Association
+from ecolyzer.system import (System, File, SourceFile, 
+							Operation, Call, Association)
 from ecolyzer.dataaccess import SQLAlchemyORM
-	
+
+
 def test_get_commit():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/miner_java_get_commit'
 	db = SQLAlchemyORM(db_url)
@@ -23,7 +25,7 @@ def test_get_commit():
 	assert commit_info.author_email == 'jfree@users.noreply.github.com'
 	assert len(commit_info.modifications) == 999
 	assert commit_info.modifications[0].filename == 'ChangeLog'
-	assert commit_info.modifications[0].old_path == None
+	assert commit_info.modifications[0].old_path is None
 	assert commit_info.modifications[0].new_path == 'ChangeLog'
 	assert commit_info.modifications[0].added == 5759
 	assert commit_info.modifications[0].removed == 0
@@ -52,7 +54,7 @@ def test_get_commit():
 	assert commitdb.author.name == 'David Gilbert'
 	assert commitdb.author.email == 'jfree@users.noreply.github.com'
 	assert filedb.fullpath == 'ChangeLog'
-	assert filemoddb.old_path == None
+	assert filemoddb.old_path is None
 	assert filemoddb.new_path == 'ChangeLog'
 	assert filemoddb.added == 5759
 	assert filemoddb.removed == 0
@@ -66,7 +68,7 @@ def test_get_commit():
 	assert commit_info.hash == 'a5119ef9ba0146bba26a23bffbd200e8fb7aa17b'
 	assert commit_info.author_name == 'David Gilbert'
 	assert commit_info.author_email == 'jfree@users.noreply.github.com'
-	assert len(commit_info.modifications) == 0 # Why zero?
+	assert len(commit_info.modifications) == 0  # Why zero?
 
 	t3th_hash = git.commit_hashs_reverse(23)[-1]
 	commit_info = miner.get_commit_info(t3th_hash)
@@ -117,7 +119,7 @@ def test_get_commit():
 	assert commitdb1.author.name == 'David Gilbert'
 	assert commitdb1.author.email == 'jfree@users.noreply.github.com'
 	assert filedb1.fullpath == 'ChangeLog'
-	assert filemoddb1.old_path == None
+	assert filemoddb1.old_path is None
 	assert filemoddb1.new_path == 'ChangeLog'
 	assert filemoddb1.added == 5759
 	assert filemoddb1.removed == 0
@@ -125,7 +127,8 @@ def test_get_commit():
 
 	session.close()
 	db.drop_all()
-	
+
+
 def test_extract_first_commit():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/miner_java_extract'
 	db = SQLAlchemyORM(db_url)
@@ -142,13 +145,13 @@ def test_extract_first_commit():
 	git = GitPython(repo.path)
 	first_hash = git.commit_hashs_reverse(1)[0]
 	miner.extract(session, first_hash)
-	filedb = session.query(File).filter_by(fullpath = 'source/org/jfree/chart/JFreeChart.java').first()
-	srcfiledb = session.query(SourceFile).filter_by(file_id = filedb.id).first()
+	filedb = session.query(File).filter_by(fullpath='source/org/jfree/chart/JFreeChart.java').first()
+	srcfiledb = session.query(SourceFile).filter_by(file_id=filedb.id).first()
 	commitdb = session.query(Commit).filter(Commit.hash == first_hash).one()
 	assert commitdb.msg == 'Branch for 1.0.x (starts with version 1.0.6).'
 	authordb = session.query(Author).filter(Author.id == commitdb.author_id).one()
 	assert authordb.name == 'David Gilbert'
-	modificationsdb = session.query(Modification).filter_by(commit_id = commitdb.id).all()
+	modificationsdb = session.query(Modification).filter_by(commit_id=commitdb.id).all()
 
 	files_mod = {
 		'source/org/jfree/chart/ChartColor.java': True,
@@ -665,12 +668,12 @@ def test_extract_first_commit():
 		'source/org/jfree/data/xy/YIntervalSeriesCollection.java': True,
 		'source/org/jfree/data/xy/YWithXInterval.java': True,
 		'source/org/jfree/data/xy/YisSymbolic.java': True	
- 	}
+	}
 
 	for mod in modificationsdb:
 		assert files_mod[mod.new_path]
 
-	operationsdb = session.query(Operation).filter_by(source_file_id = srcfiledb.id).all()
+	operationsdb = session.query(Operation).filter_by(source_file_id=srcfiledb.id).all()
 
 	operations = {
 		'extends.JFreeChart': True,
@@ -919,10 +922,12 @@ def test_extract_first_commit():
 		'extends.ProjectInfo': True,
 	}
 
-	callsdb = session.query(Call).filter_by(source_file_id = srcfiledb.id).all()
+	callsdb = session.query(Call).filter_by(source_file_id=srcfiledb.id).all()
 
-	# for call in callsdb:
-		# print(f'\'{call.name}\': True,')
+	'''
+	for call in callsdb:
+		print(f'\'{call.name}\': True,')
+	'''
 
 	callsdb_dict = {}	
 	for call in callsdb:
@@ -999,18 +1004,19 @@ def test_extract_first_commit():
 		'org/jfree/util/PaintUtilities': True
 	}
 
-	assocsdb = session.query(Association).filter_by(source_file_id = srcfiledb.id).all()		
+	assocsdb = session.query(Association).filter_by(source_file_id=srcfiledb.id).all()		
 	assocsdb_dict = {}	
 	for assoc in assocsdb:
 		assocsdb_dict[assoc.name] = True
 		assert associations[assoc.name]
-		#print('\'' + assoc.name + '\': ' + 'True,')
+		# print('\'' + assoc.name + '\': ' + 'True,')
 
 	for k in associations.keys():
 		assert assocsdb_dict[k]
 
 	session.close()
 	db.drop_all()
+
 
 def test_get_commit_source_file():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/miner_java_sources'
@@ -1035,24 +1041,25 @@ def test_get_commit_source_file():
 			srcfile = SourceFile(file)
 			code_elements = miner.extract_code_elements(srcfile, mod)
 			for element in code_elements:
-			 	element.modification = mod
-			 	session.add(element)		
+				element.modification = mod
+				session.add(element)		
 			session.add(mod)			
 
 	session.commit()
 	afile = sys.get_file('source/org/jfree/chart/JFreeChart.java')
-	srcfiledb = session.query(SourceFile).filter_by(file_id = afile.id).first()
+	srcfiledb = session.query(SourceFile).filter_by(file_id=afile.id).first()
 	assert srcfiledb.ext == 'java'
 	assert srcfiledb.name == 'JFreeChart'
 	assert srcfiledb.code_elements_len() == 294
 
-	functions = session.query(Operation).filter_by(source_file_id = srcfiledb.id).all()	
+	functions = session.query(Operation).filter_by(source_file_id=srcfiledb.id).all()	
 	assert srcfiledb.code_element_exists(functions[0])
 	assert functions[0].name == 'extends.JFreeChart'
 	assert functions[1].name == 'JFreeChart.INFO'
 
 	session.close()
 	db.drop_all()
+
 
 def test_extract_tag_interval():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/miner_java_tag_interval'
@@ -1077,6 +1084,7 @@ def test_extract_tag_interval():
 	session.close()
 	db.drop_all()	
 
+
 def test_extract_current_files():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/miner_java_curr_files'
 	db = SQLAlchemyORM(db_url)
@@ -1095,6 +1103,7 @@ def test_extract_current_files():
 	session.close()
 	db.drop_all()
 
+
 def test_extract_last_commits():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/miner_java_last_commits'
 	db = SQLAlchemyORM(db_url)
@@ -1111,7 +1120,7 @@ def test_extract_last_commits():
 	miner.extract_last_commits(session)
 
 	srcfile = session.query(SourceFile).join(SourceFile.file)\
-				.filter_by(fullpath = 'src/main/java/org/jfree/chart/entity/PlotEntity.java').one()
+				.filter_by(fullpath='src/main/java/org/jfree/chart/entity/PlotEntity.java').one()
 
 	code_elements = {
 		'extends.PlotEntity': True,
@@ -1162,12 +1171,13 @@ def test_extract_last_commits():
 	assert srcfile.code_elements_len() == 37
 
 	file_mod = session.query(Modification).\
-					filter_by(file_id = srcfile.file_id).one()	
+					filter_by(file_id=srcfile.file_id).one()	
 
 	assert file_mod.nloc == file_mod.added == 79
 
 	session.close()
 	db.drop_all()
+
 
 def test_string_cannot_contain_nul_characters():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/string_nul'

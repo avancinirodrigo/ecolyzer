@@ -1,8 +1,9 @@
 from ecolyzer.ecosystem import EcosystemAnalyzer
 from ecolyzer.system import System
-from ecolyzer.repository import Repository, Person, Author, RepositoryMiner, GitPython
+from ecolyzer.repository import Repository, RepositoryMiner, GitPython
 from ecolyzer.dataaccess import SQLAlchemyORM
 from ecolyzer.ecosystem import Ecosystem
+
 
 def test_make_relations():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/ecolyzer_relations'
@@ -63,6 +64,7 @@ def test_make_relations():
 
 	session.close()
 	db.drop_all()
+
 
 def test_relations_last_commits():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/ecolyzer_relations_last'
