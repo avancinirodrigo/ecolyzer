@@ -179,7 +179,7 @@ def test_extract_calls():
 		'FileSerializer.isAllowedGetter': {'caller': ''},
 		'Method.invoke': {'caller': 'm'},
 		'Method.getName': {'caller': 'm'},
-		# 'String.substring': {'caller': 'getterName'},
+		'String.substring': {'caller': 'getterName'},
 		# 'String.substring': {'caller': 'getterName'},
 		'FileSerializer.formatValue': {'caller': ''},
 		'Map.put': {'caller': 'props'},
@@ -199,7 +199,7 @@ def test_extract_calls():
 		'Method.getReturnType': {'caller': 'm'},
 		# 'Method.getName': {'caller': 'm'},
 		'Method.isAnnotationPresent': {'caller': 'm'},
-		# 'Override.@': {'caller': '@'},
+		'Override.@': {'caller': '@'},
 		# 'Override.@': {'caller': '@'},
 		'implements.Serializer': {'caller': 'implements'},
 		# 'toLowerCase': True, # method chaining doesn't work
