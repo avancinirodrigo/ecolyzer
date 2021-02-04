@@ -1,5 +1,5 @@
 import os
-from ecolyzer.repository import Repository  # TODO: why?
+from ecolyzer.repository import Repository  # noqa: F401
 from ecolyzer.system import File, SourceFile
 from ecolyzer.parser import StaticAnalyzer
 

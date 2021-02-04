@@ -1,5 +1,5 @@
 import pytest	
-from ecolyzer.repository import Repository
+from ecolyzer.repository import Repository  # noqa: F401
 from ecolyzer.system import File, SourceFile, Operation
 
 

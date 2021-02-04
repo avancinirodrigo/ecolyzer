@@ -1,4 +1,4 @@
-from ecolyzer.repository import Repository  # TODO: why?
+from ecolyzer.repository import Repository  # noqa: F401
 from ecolyzer.parser import StaticAnalyzer
 from ecolyzer.system import File, SourceFile, Call, Operation
 

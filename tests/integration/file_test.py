@@ -1,4 +1,4 @@
-from ecolyzer.repository import Repository  # TODO: why import module?
+from ecolyzer.repository import Repository  # noqa: F401
 from ecolyzer.system import File
 from ecolyzer.dataaccess import SQLAlchemyORM
 
