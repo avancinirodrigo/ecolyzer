@@ -1,12 +1,13 @@
 from ecolyzer.repository import Repository, Author, Person
 from ecolyzer.dataaccess import SQLAlchemyORM
 
+
 def test_crud():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/author_crud'
 	db = SQLAlchemyORM(db_url)
 	db.create_all(True)
 
-	#create
+	# create
 	repo = Repository('repo/terrame')
 	person = Person('dev1', 'dev1@email.com')
 	author = Author(person, repo)
@@ -22,6 +23,7 @@ def test_crud():
 	session.close()	
 	db.drop_all()
 
+
 def test_same_person_in_two_repos():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/author_two_repos'
 	db = SQLAlchemyORM(db_url)
@@ -34,9 +36,13 @@ def test_same_person_in_two_repos():
 	repo2 = Repository('repo/ca')
 	author2 = Author(person, repo2)
 
+	assert author2.id is None
+
 	session = db.create_session()
 	session.add(author1)
 	session.commit()
+
+	assert author2.id is not None
 
 	authorsdb = session.query(Author).all()
 
@@ -46,6 +52,7 @@ def test_same_person_in_two_repos():
 
 	session.close()	
 	db.drop_all()
+
 
 def test_delete_cascade():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/author_del_cascade'
@@ -59,9 +66,13 @@ def test_delete_cascade():
 	repo2 = Repository('repo/ca')
 	author2 = Author(person, repo2)
 
+	assert author2.id is None	
+
 	session = db.create_session()
 	session.add(author1)
 	session.commit()
+
+	assert author2.id is not None
 
 	authorsdb = session.query(Author).all()
 	

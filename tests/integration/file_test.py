@@ -1,13 +1,14 @@
-from ecolyzer.repository import Repository #TODO: why import module?
+from ecolyzer.repository import Repository  # TODO: why import module?
 from ecolyzer.system import File
 from ecolyzer.dataaccess import SQLAlchemyORM
+
 
 def test_file_crud():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/file_crud'
 	db = SQLAlchemyORM(db_url)
 	db.create_all(True)
 
-	#create
+	# create
 	filepath = 'some/path/file.ext'
 	file = File(filepath)
 	assert file.name == 'file'
@@ -19,14 +20,14 @@ def test_file_crud():
 	session.add(file)
 	session.commit()
 
-	#read	
+	# read	
 	filedb = session.query(File).get(1)
 	assert filedb.name == file.name
 	assert filedb.path == file.path
 	assert filedb.ext == file.ext
 	assert filedb.fullpath == file.fullpath
 
-	#update
+	# update
 	file.name = 'renamed_file'
 	assert file.fullpath == 'some/path/renamed_file.ext'
 	file.path = 'new/path'
@@ -40,12 +41,11 @@ def test_file_crud():
 	assert filedb.fullpath == file.fullpath
 	assert filedb.name == file.name
 
-	#delete
+	# delete
 	session.delete(file)
 	session.commit()
 	filedb = session.query(File).get(1)
-	assert filedb == None
+	assert filedb is None
 
 	session.close()
 	db.drop_all()
-	

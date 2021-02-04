@@ -1,7 +1,6 @@
-import os
 from os import path
 import shutil
-from ecolyzer.repository import GitPython, Repository
+from ecolyzer.repository import GitPython
 
 
 def test_clone():
@@ -13,6 +12,7 @@ def test_clone():
 	git.clone('https://github.com/TerraME/calibration.git', to_path)
 	assert GitPython.IsGitRepo(to_path)
 	shutil.rmtree(to_path)
+
 
 def test_clone_branch_default_not_master():
 	git = GitPython()

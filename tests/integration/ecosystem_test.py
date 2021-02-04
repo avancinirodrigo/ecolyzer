@@ -3,6 +3,7 @@ from ecolyzer.system import System, File, SourceFile, Operation, Call
 from ecolyzer.dataaccess import SQLAlchemyORM
 from ecolyzer.ecosystem import Relationship, RelationInfo, FromRelationInfo, Ecosystem
 
+
 def test_add_relationship(mocker):
 	db_url = 'postgresql://postgres:postgres@localhost:5432/eco_add_relation'
 	db = SQLAlchemyORM(db_url)

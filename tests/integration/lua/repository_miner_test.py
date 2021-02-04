@@ -1,8 +1,9 @@
-import os
-from ecolyzer.repository import RepositoryMiner, Repository, CommitInfo, Commit, Author, Person, Modification
+from ecolyzer.repository import (RepositoryMiner, Repository, Commit,
+								Author, Person, Modification)
 from ecolyzer.system import System, File, SourceFile, Operation, Call
 from ecolyzer.dataaccess import SQLAlchemyORM
-	
+
+
 def test_get_commit():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/miner_get_commit'
 	db = SQLAlchemyORM(db_url)
@@ -19,7 +20,7 @@ def test_get_commit():
 	assert commit_info.author_email == 'pedro.andrade@inpe.br'
 	assert len(commit_info.modifications) == 1
 	assert commit_info.modifications[0].filename == 'LICENSE'
-	assert commit_info.modifications[0].old_path == None
+	assert commit_info.modifications[0].old_path is None
 	assert commit_info.modifications[0].new_path == 'LICENSE'
 	assert commit_info.modifications[0].added == 674
 	assert commit_info.modifications[0].removed == 0
@@ -49,7 +50,7 @@ def test_get_commit():
 	assert commitdb.author.name == 'pedro-andrade-inpe'
 	assert commitdb.author.email == 'pedro.andrade@inpe.br'	
 	assert filedb.fullpath == 'LICENSE'
-	assert filemoddb.old_path == None
+	assert filemoddb.old_path is None
 	assert filemoddb.new_path == 'LICENSE'
 	assert filemoddb.added == 674
 	assert filemoddb.removed == 0
@@ -65,7 +66,7 @@ def test_get_commit():
 	assert len(commit_info.modifications) == 1
 	assert commit_info.modifications[0].filename == 'LICENSE'
 	assert commit_info.modifications[0].old_path == 'LICENSE'
-	assert commit_info.modifications[0].new_path == None
+	assert commit_info.modifications[0].new_path is None
 	assert commit_info.modifications[0].added == 0
 	assert commit_info.modifications[0].removed == 674	
 	assert commit_info.modifications[0].status == 'DELETE'
@@ -89,7 +90,7 @@ def test_get_commit():
 	assert commitdb2.author.email == 'pedro.andrade@inpe.br'		
 	assert filedb2.fullpath == 'LICENSE'
 	assert filemoddb2.old_path == 'LICENSE'
-	assert filemoddb2.new_path == None
+	assert filemoddb2.new_path is None
 	assert filemoddb2.added == 0
 	assert filemoddb2.removed == 674
 	assert filemoddb2.status == 'DELETE'	
@@ -105,7 +106,7 @@ def test_get_commit():
 	assert commitdb2.author.name == 'pedro-andrade-inpe'
 	assert commitdb2.author.email == 'pedro.andrade@inpe.br'
 	assert filedb1.fullpath == 'LICENSE'
-	assert filemoddb1.old_path == None
+	assert filemoddb1.old_path is None
 	assert filemoddb1.new_path == 'LICENSE'
 	assert filemoddb1.added == 674
 	assert filemoddb1.removed == 0
@@ -113,7 +114,8 @@ def test_get_commit():
 
 	session.close()
 	db.drop_all()
-	
+
+
 def test_extract():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/miner_extract'
 	db = SQLAlchemyORM(db_url)
@@ -126,13 +128,15 @@ def test_extract():
 	session.commit()
 	miner = RepositoryMiner(repo, sys)
 	miner.extract(session, '082dff5e822ea1b4491911b7bf434a7f47a4be26')
-	filedb = session.query(File).filter_by(fullpath = 'base/lua/CellularSpace.lua').first()
+	filedb = session.query(File).filter_by(fullpath='base/lua/CellularSpace.lua').first()
 	srcfiledb = session.query(SourceFile).filter_by(file_id=filedb.id).first()
-	commitdb = session.query(Commit).filter(Commit.hash == '082dff5e822ea1b4491911b7bf434a7f47a4be26').one()
+	commitdb = session.query(Commit)\
+				.filter(Commit.hash == '082dff5e822ea1b4491911b7bf434a7f47a4be26').one()
 	assert commitdb.msg == ('* New structure for directories.\n'
 							'* Function require already implemented.\n'
 							'* Function -config-tests already moved to terrame.lua and working.\n'
-							'* Function -test already moved to terrame.lua, but still having problems when executing the tests.')
+							'* Function -test already moved to terrame.lua, but still '
+							+ 'having problems when executing the tests.')
 	authordb = session.query(Author).filter(Author.id == commitdb.author_id).one()
 	assert authordb.name == 'rvmaretto'
 	modificationsdb = session.query(Modification).filter_by(commit_id=commitdb.id).all()
@@ -312,6 +316,7 @@ def test_extract():
 	session.close()
 	db.drop_all()
 
+
 def test_get_commit_source_file():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/miner_sources'
 	db = SQLAlchemyORM(db_url)
@@ -331,8 +336,8 @@ def test_get_commit_source_file():
 			srcfile = SourceFile(file)
 			code_elements = miner.extract_code_elements(srcfile, mod)
 			for element in code_elements:
-			 	element.modification = mod
-			 	session.add(element)		
+				element.modification = mod
+				session.add(element)		
 			session.add(mod)			
 
 	session.commit()
@@ -349,6 +354,7 @@ def test_get_commit_source_file():
 	session.close()
 	db.drop_all()
 
+
 def test_extract_tag_interval():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/miner_tag_interval'
 	db = SQLAlchemyORM(db_url)
@@ -360,8 +366,10 @@ def test_extract_tag_interval():
 	session.add(sys)
 	session.commit()
 	miner = RepositoryMiner(repo, sys)
-	#miner.commit_interval('80a562be869dbb984229f608ae9a04d05c5e1689', 
-	#					'082dff5e822ea1b4491911b7bf434a7f47a4be26') TODO: not working
+	'''
+	miner.commit_interval('80a562be869dbb984229f608ae9a04d05c5e1689', 
+						'082dff5e822ea1b4491911b7bf434a7f47a4be26') TODO: not working
+	'''
 	miner.tag_interval('2.0-RC-6', '2.0-RC-7')
 	miner.extract(session, max_count=20)
 
@@ -371,6 +379,7 @@ def test_extract_tag_interval():
 
 	session.close()
 	db.drop_all()	
+
 
 def test_extract_deleted_files():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/miner_del_files'
@@ -385,25 +394,27 @@ def test_extract_deleted_files():
 	miner = RepositoryMiner(repo, sys)
 
 	miner.extract(session, '082dff5e822ea1b4491911b7bf434a7f47a4be26')
-	file = session.query(File).filter_by(fullpath = 'src/lua/terrame.lua').one()
+	file = session.query(File).filter_by(fullpath='src/lua/terrame.lua').one()
 	mod = session.query(Modification).filter_by(file_id=file.id).first()
 
 	assert mod.new_path == 'src/lua/terrame.lua'
-	assert mod.old_path == None
+	assert mod.old_path is None
 	assert mod.status == 'ADD'
 	assert sys.file_exists('src/lua/terrame.lua')
 
 	miner.extract(session, 'f2e117598feee9db8cabbd1c300e143199e12d92')	
-	file = session.query(File).filter_by(fullpath = 'src/lua/terrame.lua').one()
-	mod = session.query(Modification).filter_by(file_id=file.id).filter_by(status = 'DELETE').first()
+	file = session.query(File).filter_by(fullpath='src/lua/terrame.lua').one()
+	mod = session.query(Modification).filter_by(file_id=file.id)\
+			.filter_by(status='DELETE').first()
 	
-	assert mod.new_path == None
+	assert mod.new_path is None
 	assert mod.old_path == 'src/lua/terrame.lua'	
 	assert mod.status == 'DELETE'
 	assert sys.file_exists('src/lua/terrame.lua')
 
 	session.close()
 	db.drop_all()
+
 
 def test_extract_renamed_files():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/miner_rename_file'
@@ -418,17 +429,18 @@ def test_extract_renamed_files():
 	miner = RepositoryMiner(repo, sys)
 	
 	miner.extract(session, '082dff5e822ea1b4491911b7bf434a7f47a4be26')
-	file = session.query(File).filter_by(fullpath = 'base/lua/Observer.lua').one()
+	file = session.query(File).filter_by(fullpath='base/lua/Observer.lua').one()
 	mod = session.query(Modification).filter_by(file_id=file.id).first()
 
 	assert mod.new_path == 'base/lua/Observer.lua'
-	assert mod.old_path == None
+	assert mod.old_path is None
 	assert mod.status == 'ADD'
 	assert sys.file_exists('base/lua/Observer.lua')
 
 	miner.extract(session, 'c57b6d69461abf10ba5950e0577dff3c982f3ea4')	
-	file = session.query(File).filter_by(fullpath = 'src/lua/observer.lua').one()
-	mod = session.query(Modification).filter_by(file_id=file.id).filter_by(status = 'RENAME').first()
+	file = session.query(File).filter_by(fullpath='src/lua/observer.lua').one()
+	mod = session.query(Modification).filter_by(file_id=file.id)\
+			.filter_by(status='RENAME').first()
 	
 	assert mod.new_path == 'src/lua/observer.lua'
 	assert mod.old_path == 'base/lua/Observer.lua'
@@ -438,6 +450,7 @@ def test_extract_renamed_files():
 
 	session.close()	
 	db.drop_all()
+
 
 def test_extract_same_commit():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/miner_rename_file'
@@ -456,7 +469,7 @@ def test_extract_same_commit():
 	srcfile_count = session.query(SourceFile).count()
 	mod_count = session.query(Modification).count()	
 
-	#TODO(#41) miner.extract(session, '082dff5e822ea1b4491911b7bf434a7f47a4be26')
+	# TODO(#41) miner.extract(session, '082dff5e822ea1b4491911b7bf434a7f47a4be26')
 
 	assert file_count == session.query(File).count()
 	assert srcfile_count == session.query(SourceFile).count()
@@ -464,6 +477,7 @@ def test_extract_same_commit():
 
 	session.close()	
 	db.drop_all()
+
 
 def test_extract_current_files():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/miner_curr_files'
@@ -481,6 +495,7 @@ def test_extract_current_files():
 	session.close()
 	db.drop_all()
 
+
 def test_extract_last_commits():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/miner_last_commits'
 	db = SQLAlchemyORM(db_url)
@@ -495,7 +510,7 @@ def test_extract_last_commits():
 	miner.extract_last_commits(session)
 
 	srcfile = session.query(SourceFile).join(SourceFile.file)\
-				.filter_by(fullpath = 'packages/base/lua/Cell.lua').one()
+				.filter_by(fullpath='packages/base/lua/Cell.lua').one()
 
 	code_elements = {
 		'Cell': True,

@@ -2,12 +2,13 @@ from ecolyzer.repository import Repository
 from ecolyzer.system import File, SourceFile, Call
 from ecolyzer.dataaccess import SQLAlchemyORM
 
+
 def test_call_crud():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/call_crud'
 	db = SQLAlchemyORM(db_url)
 	db.create_all(True)
 
-	#create
+	# create
 	filepath = 'some/path/file.src'
 	file = File(filepath)
 	src_file = SourceFile(file)
@@ -18,7 +19,7 @@ def test_call_crud():
 	session.add(src_file)
 	session.commit()
 
-	#read
+	# read
 	funcsdb = session.query(Call).all()
 	assert len(funcsdb) == 2
 	assert funcsdb[0].name == 'get'
@@ -31,7 +32,7 @@ def test_call_crud():
 	f1db = session.query(Call).get(1)
 	assert f1db.name == 'getX'
 	
-	#delete
+	# delete
 	session.delete(f1)
 	session.commit()
 	funcsdb = session.query(Call).all()
@@ -47,4 +48,3 @@ def test_call_crud():
 	
 	session.close()
 	db.drop_all()
-	

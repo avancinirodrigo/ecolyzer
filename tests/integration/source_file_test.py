@@ -1,15 +1,15 @@
-import os
 import pytest
 from ecolyzer.repository import Repository
 from ecolyzer.system import File, SourceFile, Operation, Call
 from ecolyzer.dataaccess import SQLAlchemyORM
+
 
 def test_source_file_crud():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/src_file_crud'
 	db = SQLAlchemyORM(db_url)
 	db.create_all(True)
 
-	#create
+	# create
 	filepath = 'some/path/file.src'
 	file = File(filepath)
 	src_file = SourceFile(file)
@@ -24,7 +24,7 @@ def test_source_file_crud():
 	session.add(file)
 	session.commit()
 
-	#read
+	# read
 	src_filedb = session.query(SourceFile).get(1)
 	assert src_filedb.file_id == file.id
 	assert src_filedb.file.ext == file.ext
@@ -32,28 +32,29 @@ def test_source_file_crud():
 	assert src_filedb.code_element_by_key(f2.key)
 	assert src_filedb.code_element_by_key(c1.key)
 
-	#update
+	# update
 	file.ext = 'crs'
 	f3 = Operation('update', src_file)
 	session.add(f3)
 	session.commit()
 	src_filedb = session.query(SourceFile).get(1)
-	code_elements = session.query(Operation).filter_by(source_file_id = src_filedb.id).all()	
+	code_elements = session.query(Operation).filter_by(source_file_id=src_filedb.id).all()	
 	assert src_filedb.file.ext == file.ext
 	assert len(code_elements) == 3
 
-	#delete
+	# delete
 	session.delete(src_file)
 	session.commit()
 	src_filedb = session.query(SourceFile).get(1)
 	filedb = session.query(File).get(1)
 	funcsdb = session.query(Operation).all()
-	assert src_filedb == None
+	assert src_filedb is None
 	assert filedb.name == 'file'
 	assert len(funcsdb) == 0
 
 	session.close()
 	db.drop_all()
+
 
 def test_one_to_one_relation():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/src_file_one_to_one'	
@@ -63,20 +64,21 @@ def test_one_to_one_relation():
 	filepath = 'some/path/file.src'
 	file = File(filepath)
 	src_file1 = SourceFile(file)
-	#src_file2 = SourceFile(file) #TODO(#42): how to test one-to-one relationship
+	# src_file2 = SourceFile(file) #TODO(#42): how to test one-to-one relationship
 	
 	session = db.create_session()
 	session.add(src_file1)
-	#session.add(src_file2)
+	# session.add(src_file2)
 	session.commit()
 	
-	src_filedb1 = session.query(SourceFile).get(1)
-	src_filedb2 = session.query(SourceFile).get(2)
+	# src_filedb1 = session.query(SourceFile).get(1)
+	# src_filedb2 = session.query(SourceFile).get(2)
 	assert src_file1.file_id == 1
-	#assert src_file2.file_id == 1 #TODO: one to one seems not working
+	# assert src_file2.file_id == 1 #TODO: one to one seems not working
 	
 	session.close()
 	db.drop_all()
+
 
 def test_add_operation():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/src_file_one_to_one'	
@@ -100,6 +102,7 @@ def test_add_operation():
 
 	session.close()
 	db.drop_all()	 
+
 
 def test_add_same_code_element():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/src_add_same'	
@@ -127,8 +130,9 @@ def test_add_same_code_element():
 	session.close()
 	db.drop_all()	 	
 
+
 def test_source_code():
 	filepath = 'repo/terrame/packages/base/lua/Cell.lua'
 	file = File(filepath)
 	src_file = SourceFile(file)
-	assert src_file.source_code != None	
+	assert src_file.source_code is not None	

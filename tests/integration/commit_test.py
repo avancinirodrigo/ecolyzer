@@ -1,16 +1,19 @@
 import datetime
-from ecolyzer.system import File, System
-from ecolyzer.repository import Repository, Commit, CommitInfo, Author, Person, Modification, ModificationInfo
+from ecolyzer.system import File
+from ecolyzer.repository import (Repository, Commit, CommitInfo,
+								Author, Person, Modification, 
+								ModificationInfo)
 from ecolyzer.dataaccess import SQLAlchemyORM
 
 db_url = 'postgresql://postgres:postgres@localhost:5432/commit_test'
 db = SQLAlchemyORM(db_url)
 db.create_all(True)
 
+
 def test_crud():
-	#create
+	# create
 	repo = Repository('repo/terrame')
-	sys = System('terrame', repo)
+	# sys = System('terrame', repo)
 	commit_info = CommitInfo('hashhashhash')
 	commit_info.date = datetime.datetime(2019, 2, 6, 14, 14, 55)  
 	commit_info.msg = 'commit message'
@@ -26,12 +29,16 @@ def test_crud():
 	modinfo.type = 'ADD'
 	file = File(modinfo.filename)
 	mod = Modification(modinfo, file, commit)	
+
+	assert mod.id is None
 	
 	session = db.create_session()
 	session.add(commit)
 	session.commit()
 
-	#read	
+	assert mod.id is not None
+
+	# read	
 	commitdb = session.query(Commit).get(1)
 	assert commitdb.msg == commit_info.msg
 	assert commitdb.date.strftime('%Y-%m-%d %H:%M:%S') == '2019-02-06 14:14:55'
@@ -40,13 +47,13 @@ def test_crud():
 	assert commitdb.author.name == commit_info.author_name
 	assert commitdb.author.email == commit_info.author_email
 
-	#update
+	# update
 	commit.msg = 'updating message'
 	session.commit()	
 	commitdb = session.query(Commit).get(1)
 	assert commitdb.msg == commit.msg
 
-	#delete
+	# delete
 	session.delete(commit)
 	session.commit()
 	commitdb = session.query(Commit).get(1)
@@ -54,12 +61,11 @@ def test_crud():
 	repodb = session.query(Repository).get(1)
 	authordb = session.query(Author).get(1)
 	filedb = session.query(File).get(1)
-	assert commitdb == None
-	assert moddb == None
+	assert commitdb is None
+	assert moddb is None
 	assert repodb.path == repo.path 
 	assert authordb.email == author.email
-	assert filedb.id == 1
+	assert filedb.id == 1 == file.id
 
 	session.close()
 	db.drop_all()
-	

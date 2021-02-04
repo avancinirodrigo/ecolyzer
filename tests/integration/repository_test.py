@@ -2,12 +2,13 @@ from ecolyzer.repository import Repository, Author, Person
 from ecolyzer.system import System
 from ecolyzer.dataaccess import SQLAlchemyORM
 
+
 def test_repository_crud():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/repo_crud'
 	db = SQLAlchemyORM(db_url)
 	db.create_all(True)
 
-	#create
+	# create
 	repo = Repository('repo/terrame')
 	sys = System('terrame', repo)
 	session = db.create_session()	
@@ -15,14 +16,14 @@ def test_repository_crud():
 	session.add(sys)
 	session.commit()
 
-	#read
+	# read
 	repodb = session.query(Repository).get(1)
 	sysdb = session.query(System).get(1)
 	assert repo.path == repodb.path	
 	assert repo.branch == 'master'
 	assert sysdb.repo_id == repodb.id
-	#sys2 = System('ca', repo) < TODO: review
-	#session.add(sys2)
+	# sys2 = System('ca', repo) < TODO: review
+	# session.add(sys2)
 
 	# update
 	repo.path = 'repo/ca'
@@ -31,17 +32,18 @@ def test_repository_crud():
 	assert repo.path == repodb.path	
 	assert sysdb.repo_id == repodb.id
 
-	#delete
+	# delete
 	session.delete(repo)
 	session.commit()
 	repodb = session.query(Repository).get(1)
 	sysdb = session.query(System).get(1)
-	assert repodb == None
-	assert sysdb == None
+	assert repodb is None
+	assert sysdb is None
 
 	session.close()
 	db.drop_all()
-	
+
+
 def test_two_repos():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/repo_two_repos'
 	db = SQLAlchemyORM(db_url)
@@ -58,8 +60,8 @@ def test_two_repos():
 	session.add(sys2)
 	session.commit()
 
-	sys1db = session.query(System).filter_by(name = sys1.name).one()
-	sys2db = session.query(System).filter_by(name = sys2.name).one()
+	sys1db = session.query(System).filter_by(name=sys1.name).one()
+	sys2db = session.query(System).filter_by(name=sys2.name).one()
 
 	assert sys1db.name == sys1.name
 	assert sys1db.repository.path == repo1.path 
@@ -72,13 +74,13 @@ def test_two_repos():
 	session.close()
 	db.drop_all()
 
+
 def test_authors():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/repo_authors'
 	db = SQLAlchemyORM(db_url)
 	db.create_all(True)
 
 	repo = Repository('repo/terrame')
-	sys = System('terrame', repo)
 	dev1 = Author(Person('dev1', 'dev1@mail.com'))
 	repo.add_author(dev1)
 	
@@ -94,13 +96,13 @@ def test_authors():
 	session.close()
 	db.drop_all()		
 
+
 def test_same_author_in_two_repo():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/repo_author_intwo'
 	db = SQLAlchemyORM(db_url)
 	db.create_all(True)
 
 	repo1 = Repository('repo/terrame')
-	sys1 = System('terrame', repo1)
 	person = Person('dev1', 'dev1@mail.com') 
 	dev1 = Author(person)
 	repo1.add_author(dev1)
@@ -110,7 +112,6 @@ def test_same_author_in_two_repo():
 	session.commit()
 
 	repo2 = Repository('repo/ca')
-	sys2 = System('ca', repo2)
 	
 	persondb = session.query(Person).get(1)
 
