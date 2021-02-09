@@ -44,4 +44,4 @@ def db_connection():
 
     yield db_connection
 
-    # db.drop_all()
+    db.drop_all()

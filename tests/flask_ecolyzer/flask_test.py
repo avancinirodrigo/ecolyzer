@@ -30,7 +30,7 @@ def app():
     return app
 
 
-def test_relationships(app, client, db_connection):
+def test_central_software_usage(app, client, db_connection):
 	with get_context_variables(app) as contexts:
 		client.get('/relationships')
 		contexts = next(contexts)
@@ -56,7 +56,7 @@ def get_from_url(relations, name):
 	return get_url_by_key(relations, name, 'from')					
 
 
-def test_source_relations(app, client, db_connection):
+def test_component_usage(app, client, db_connection):
 	source_relations_url = None
 	with get_context_variables(app) as contexts:
 		client.get('/relationships')
@@ -76,7 +76,7 @@ def test_source_relations(app, client, db_connection):
 		assert source_name == 'CellularSpace'
 
 
-def test_source_codes(app, client, db_connection):
+def test_components_side_by_side(app, client, db_connection):
 	source_relations_url = None
 	with get_context_variables(app) as contexts:
 		client.get('/relationships')
@@ -96,3 +96,20 @@ def test_source_codes(app, client, db_connection):
 		contexts = next(contexts)
 		code_elements = contexts['code_elements']
 		assert len(code_elements) == 4
+
+
+def test_component_source_code(app, client, db_connection):
+	source_code_url = None
+	with get_context_variables(app) as contexts:
+		client.get('/relationships')
+		contexts = next(contexts)
+		relations = contexts['relations']
+		source_code_url = get_source_url(relations, 'Directory')	
+
+	with get_context_variables(app) as contexts:
+		client.get(source_code_url)
+		contexts = next(contexts)
+		name = contexts['name']
+		language = contexts['language']
+		assert name == 'Directory'
+		assert language == 'lua'
