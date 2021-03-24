@@ -1,6 +1,7 @@
 import pytest	
-from ecolyzer.repository import Repository
+from ecolyzer.repository import Repository  # noqa: F401
 from ecolyzer.system import File, SourceFile, Operation
+
 
 def test_add_operation_same_name():
 	filepath = 'some/path/file.src'
@@ -15,6 +16,7 @@ def test_add_operation_same_name():
 	assert (('Code element \'get\' of type \'Operation\' is already present')
 			in str(e.value))		
 
+
 def test_operation_exists():
 	filepath = 'some/path/file.src'
 	file = File(filepath)
@@ -24,4 +26,3 @@ def test_operation_exists():
 	src_file.add_code_element(f1)	
 
 	assert src_file.code_element_exists(f1)
-	

@@ -1,6 +1,7 @@
 import pytest
 from ecolyzer.dataaccess import SQLAlchemyORM
 
+
 def test_createdb():
 	url = 'postgresql://postgres:postgres@localhost:5432/createdb'
 	db = SQLAlchemyORM(url)
@@ -8,6 +9,7 @@ def test_createdb():
 	assert db.existsdb()
 	db.dropdb()
 	assert not db.existsdb()
+
 
 def test_createdb_dbexists():
 	url = 'postgresql://postgres:postgres@localhost:5432/createdb'
@@ -18,6 +20,7 @@ def test_createdb_dbexists():
 	assert (('Database \'createdb\' already exists.')
 			in str(e.value))
 	db.dropdb()
+
 
 def test_overwrite():
 	url = 'postgresql://postgres:postgres@localhost:5432/overwritedb'

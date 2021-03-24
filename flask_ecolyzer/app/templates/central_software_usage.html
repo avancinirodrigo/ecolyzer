@@ -52,6 +52,9 @@
 	var numOfOperations = 0;
 	var numOfLoc = 0;
 	var numOfRelations = 0;
+	var numOfCoverage = 0;
+	var totalOfRelations = 0;
+	var withoutRelations = 0;
 	var infoByPath = [];
 
 	function addParents(relations, paths) {
@@ -59,6 +62,8 @@
 	   		numOfOperations += relations[i]["operations"];
 	   		numOfLoc += relations[i]["nloc"];
 	   		numOfRelations += relations[i]["count"];
+	   		totalOfRelations += relations[i]["total"];
+	   		numOfCoverage += relations[i]["coverage"];
 	   		var parentDir = paths[relations[i]["path"]];
 	   		relations[i]["parentDir"] = parentDir;
 	   		if(!infoByPath[parentDir]) {
@@ -66,10 +71,20 @@
 	   			infoByPath[parentDir]["operations"] = 0;
 	   			infoByPath[parentDir]["nloc"] = 0;
 	   			infoByPath[parentDir]["relations"] = 0;
+	   			infoByPath[parentDir]["total"] = 0;
+	   			infoByPath[parentDir]["coverage"] = 0;
+	   			infoByPath[parentDir]["without"] = 0;
+	   			infoByPath[parentDir]["dependents"] = 0;
 	   		}
 	   		infoByPath[parentDir]["operations"]  += relations[i]["operations"];
 	   		infoByPath[parentDir]["nloc"]  += relations[i]["nloc"];
 	   		infoByPath[parentDir]["relations"] += relations[i]["count"];
+	   		infoByPath[parentDir]["total"] += relations[i]["total"];
+	   		infoByPath[parentDir]["coverage"] += relations[i]["coverage"];
+	   		if(relations[i]["count"] == 0) {
+	   			infoByPath[parentDir]["without"] += 1;
+	   			withoutRelations += 1;
+	   		}
 	   	}
 	}
 
@@ -82,6 +97,28 @@
 	  	}
 
 	  	return parents;
+	}
+
+	function joinPaths(dependentsByPackage) {
+		var result = {};
+		for(var k in dependentsByPackage) { 
+			result[k] = {};
+			for(v in dependentsByPackage[k]) {
+				var parentDir = paths[v];
+				result[k][parentDir] = dependentsByPackage[k][v];
+	  		}
+		}
+		return result;
+	}
+
+	function calcDependentsByPackage(dependents) {
+		var dependents = joinPaths(dependentsByPackage);
+		for(var k in dependents) { 
+			for(v in dependents[k]) {
+				var parentDir = paths[v];
+	   			infoByPath[parentDir]["dependents"] += 1;
+	  		}
+		}
 	}
 
 	var relations = {{ relations|safe }}
@@ -103,6 +140,8 @@
 	mapperPaths(paths);
 	addParents(relations, paths);
 	var parents = removeSubdirs(paths);
+	var dependentsByPackage = {{dependents_by_package|safe}};
+	calcDependentsByPackage(dependentsByPackage);
 
     for(var k in parents) { 
         var info = {
@@ -120,7 +159,7 @@
 			    .parentId(function(d) { return d.parentDir; })
 			    (relations);
 
-	root.sort(function(a, b) {return b.count - a.count;})
+	root.sort(function(a, b) {return b.total - a.total;})
 
 	root.sum(function(d) {
 		return d.operations;
@@ -153,27 +192,44 @@
 	    //.padding(1)
 	    //.paddingOuter(10)
 	    .round(true)  
-		(root.sort(function(a, b) {return b.data.count - a.data.count;}))
+		(root.sort(function(a, b) {return b.data.total - a.data.total;}))
 
 	//treemap.nodes().sort(function(a, b) {return b.value - a.value;});
 
-	var minCount = d3.min(root.leaves(), function(d) {
-		if(d.data.count != 0)
-			return d.data.count;
+	var minTotal = d3.min(root.leaves(), function(d) {
+		if(d.data.total != 0)
+			return d.data.total;
 	});
 
-	var maxCount = d3.max(root.leaves(), function(d) {
-		return d.data.count;
+	var maxTotal = d3.max(root.leaves(), function(d) {
+		return d.data.total;
 	});
 
 	var heatmap = d3.scaleLinear()
-		.domain([0, minCount, maxCount])
+		.domain([0, minTotal, maxTotal])
 	    .range(["gray", "blue", "red"])
 
 	var tip = d3.select("#treemap")
 		.append("div")
         .attr("class", "tooltip");
 
+    function componentTooltipMouseMove(d) {
+    	if(d3.event.pageX > 7*width/8)
+    		tip.style("left", (d3.event.pageX - 6*d.data.fullpath.length) + "px");
+    	else
+        	tip.style("left", d3.event.pageX + 10 + "px");
+        tip.style("top", d3.event.pageY - 20 + "px");
+        tip.style("display", "inline-block");
+        tip.html("<center><b>" + d.data.source + "</b></center>"
+        			+ d.data.fullpath
+        			+ "<br>operations: " + d.data.operations
+        			+ "<br>coverage: " + d.data.coverage + " ("
+        			+ Math.round(d.data.coverage*100/d.data.operations) + "%)"
+        			+ "<br>relationships (distict): " + d.data.count         			
+        			+ "<br>relationships (total): " + d.data.total         			
+        			+ "<br>nloc: " + d.data.nloc);
+		               	
+    }
     // console.log(root.leaves());
     // var leaves = root.leaves().sort(function(a, b) {return b.data.count - a.data.count;});
     // console.log(leaves);
@@ -186,29 +242,20 @@
 				.attr("xlink:href", function(d) {
 					if(d.data.url)
 						return d.data.url; 
-				})		
+				})	
+				.attr("target", "_blank")	
 				.append("rect")
-					.attr('x', function (d) { return d.x0; })
-					.attr('y', function (d) { return d.y0; })
-					.attr('width', function (d) { return d.x1 - d.x0; })
-					.attr('height', function (d) { return d.y1 - d.y0; })
+					.attr('x', function(d) { return d.x0; })
+					.attr('y', function(d) { return d.y0; })
+					.attr('width', function(d) { return d.x1 - d.x0; })
+					.attr('height', function(d) { return d.y1 - d.y0; })
 					.style("fill", function(d) {
-						return heatmap(d.data.count);
+						return heatmap(d.data.total);
 					})
-		            .on("mousemove", function (d) {
-		            	if(d3.event.pageX > 7*width/8)
-		            		tip.style("left", (d3.event.pageX - 6*d.data.fullpath.length) + "px");
-		            	else
-		                	tip.style("left", d3.event.pageX + 10 + "px");
-		                tip.style("top", d3.event.pageY - 20 + "px");
-		                tip.style("display", "inline-block");
-		                tip.html("<center><b>" + d.data.source + "</b></center>"
-		                			+ d.data.fullpath
-		                			+ "<br>operations: " + d.data.operations 
-		                			+ "<br>relations: " + d.data.count
-		                			+ "<br>nloc: " + d.data.nloc);
-		            })
-		            .on("mouseout", function (d) {
+		            .on("mousemove", function(d) {
+		            	componentTooltipMouseMove(d);
+		             })
+		            .on("mouseout", function(d) {
 		                tip.style("display", "none");
 		            });
 
@@ -220,9 +267,18 @@
 			.attr("font", "10px sans-serif")
 			.attr("fill", "white")
 			.text(function(d) { 
-				if(d.data.count > minCount)
+				if(d.data.total > minTotal)
 					return d.data.source; 
 			})
+			.on("click", function(d) {window.open(d.data.url);})
+			.on("mousemove", function(d) {
+				componentTooltipMouseMove(d);
+		    })
+            .on("mouseout", function(d) {
+                tip.style("display", "none");
+            });
+
+    var dependentsCount = {{dependents_count}};
 
 	svg.append("text")
 		  .attr("x", 0)
@@ -237,8 +293,13 @@
                 tip.style("display", "inline-block");
                 tip.html("<center><b>{{system}}</b></center>"
                 			+ "total of source files: " + numOfSourceFiles
-                			+ "<br>total of relationships: " + numOfRelations
+                			+ "<br>source files without relationships: " + withoutRelations
+                			+ "<br>total of relationships (distict): " + numOfRelations
+                			+ "<br>total of relationships: " + totalOfRelations
                 			+ "<br>total of operations: " + numOfOperations
+                			+ "<br>total of coverage: " + numOfCoverage + " ("
+		                	+ Math.round(numOfCoverage*100/numOfOperations) + "%)"
+		                	+ "<br>total of dependents: " + dependentsCount
                 			+ "<br>total of loc: " + numOfLoc);
             })
             .on("mouseout", function (d) {
@@ -263,8 +324,13 @@
                 tip.style("display", "inline-block");
                 tip.html("<center><b>" + d.data.id + "</b></center>"
                 			+ "total of source files: " + d.children.length
-                			+ "<br> total of relationships: " + infoByPath[d.data.id]["relations"]
+                			+ "<br>source files without relationships: " + infoByPath[d.data.id]["without"]
+                			+ "<br> total of relationships (distict): " + infoByPath[d.data.id]["relations"]
+                			+ "<br> total of relationships: " + infoByPath[d.data.id]["total"]
                 			+ "<br>total of operations: " + infoByPath[d.data.id]["operations"]
+                			+ "<br>total of coverage: " + infoByPath[d.data.id]["coverage"] + " ("
+		                			+ Math.round(infoByPath[d.data.id]["coverage"]*100/infoByPath[d.data.id]["operations"]) + "%)"
+		                	+ "<br>total of dependents: " + infoByPath[d.data.id]["dependents"]		
                 			+ "<br>total of loc: " + infoByPath[d.data.id]["nloc"]);
             })
             .on("mouseout", function (d) {
@@ -276,8 +342,8 @@
 	var colorTicks = heatmap.ticks(); //(6);
 
 	colorTicks.splice(0, 2);	
-	colorTicks = [0, minCount].concat(colorTicks);
-	colorTicks.push(maxCount);
+	colorTicks = [0, minTotal].concat(colorTicks);
+	colorTicks.push(maxTotal);
 
 	var legend = svg.selectAll(".legend")
 		.data(colorTicks)
@@ -305,7 +371,7 @@
         .attr("x", (width - colorTicks.length*blockWidth - blockWidth + (blockWidth/2)))
         .attr("y", (margin.bottom/3 + 3) + blockHeight + 7 -15)
         .text(function(d, i) {
-        	if((i == 0) || (i == 1) || (i == 3)
+        	if((i == 0) || (i == 1) //|| (i == 3)
         			|| (i == Math.trunc((colorTicks.length)/2))
         			|| (i == (colorTicks.length - 1)))
  				return colorTicks[i];

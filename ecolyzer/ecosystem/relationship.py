@@ -1,7 +1,7 @@
-from sqlalchemy import Column, String, Integer, ForeignKey
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy import Column, Integer, ForeignKey
+from sqlalchemy.orm import relationship
 from ecolyzer.dataaccess import Base
-#from .ecosystem import Ecosystem
+
 
 class Relationship(Base):
 	"""Relationship"""
@@ -41,6 +41,7 @@ class Relationship(Base):
 		self.to_author = to_info.author
 		self.to_code_element = to_info.code_element		
 
+
 class RelationInfo():
 	"""RelationInfo"""
 	def __init__(self, system, source_file, code_element):
@@ -48,6 +49,7 @@ class RelationInfo():
 		self.source_file = source_file
 		self.code_element = code_element
 		self.author = code_element.author()				
+
 
 class FromRelationInfo(RelationInfo):
 	"""FromRelationInfo"""

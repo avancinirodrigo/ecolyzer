@@ -1,6 +1,6 @@
-from ecolyzer.ecosystem import EcosystemAnalyzer, Relationship
+from ecolyzer.ecosystem import EcosystemAnalyzer
 from ecolyzer.system import System
-from ecolyzer.repository import Repository, Person, Author, RepositoryMiner, GitPython
+from ecolyzer.repository import Repository, RepositoryMiner
 from ecolyzer.dataaccess import SQLAlchemyORM
 from ecolyzer.ecosystem import Ecosystem
 
@@ -36,10 +36,28 @@ def test_relations_last_commits():
 
 	relationships = ecosystem.relationships
 
-	assert len(relationships) == 9
+	assert len(relationships) == 11
 
 	rel1 = relationships[0]
-	rel2 = relationships[8]
+	rel2 = relationships[7]
+	rel3 = relationships[9]
+
+	expected_code_elements = {
+		'Day.Day': True,
+		'TimeSeries.add': True,
+		'TimeSeries.TimeSeries': True,
+		'TimeSeriesCollection.addSeries': True,
+		'TimeSeriesCollection.TimeSeriesCollection': True,
+		'DateRange.DateRange': True,
+		'Day.Day': True,
+		'TimeSeries.add': True,
+		'TimeSeries.TimeSeries': True,
+		'TimeSeriesCollection.addSeries': True,
+		'TimeSeriesCollection.TimeSeriesCollection': True,
+	} 
+
+	for i in range(len(relationships)):
+		assert expected_code_elements[relationships[i].to_code_element.name]
 
 	assert rel1.from_system.name == 'ProjectForge'
 	assert rel1.from_author.name == 'Florian Blumenstein'
@@ -47,17 +65,29 @@ def test_relations_last_commits():
 	assert rel1.to_system.name == 'JFreeChart'
 	assert rel1.to_author.name == 'David Gilbert'	
 	assert rel1.to_author.email == 'dave@jfree.org'	
-	assert rel1.from_code_element.name == rel1.to_code_element.name == 'getDayOfMonth'
+	assert rel1.from_code_element.name == rel1.to_code_element.name == 'Day.Day'
+	assert rel1.from_code_element.caller == 'new'
 	assert rel1.from_code_element_count == 2
-	
+
 	assert rel2.from_system.name == 'ProjectForge'
 	assert rel2.from_author.name == 'Florian Blumenstein'
 	assert rel2.from_author.email == 'f.blumenstein@micromata.de'	
 	assert rel2.to_system.name == 'JFreeChart'
 	assert rel2.to_author.name == 'David Gilbert'	
 	assert rel2.to_author.email == 'dave@jfree.org'	
-	assert rel2.from_code_element.name == rel2.to_code_element.name == 'addSeries'	
+	assert rel2.from_code_element.name == rel2.to_code_element.name == 'TimeSeries.add'	
+	assert rel2.from_code_element.caller == 'sollSeries'
 	assert rel2.from_code_element_count == 6
 
+	assert rel3.from_system.name == 'ProjectForge'
+	assert rel3.from_author.name == 'Florian Blumenstein'
+	assert rel3.from_author.email == 'f.blumenstein@micromata.de'	
+	assert rel3.to_system.name == 'JFreeChart'
+	assert rel3.to_author.name == 'David Gilbert'	
+	assert rel3.to_author.email == 'dave@jfree.org'	
+	assert rel3.from_code_element.name == rel3.to_code_element.name == 'TimeSeriesCollection.addSeries'	
+	assert rel3.from_code_element.caller == 'dataset'
+	assert rel3.from_code_element_count == 6	
+
 	session.close()
-	db.drop_all()	
+	db.drop_all()

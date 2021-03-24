@@ -1,16 +1,19 @@
 import datetime
-from ecolyzer.system import File, System
-from ecolyzer.repository import Repository, Commit, CommitInfo, Person, Author, Modification, ModificationInfo
+from ecolyzer.system import File
+from ecolyzer.repository import (Repository, Commit, CommitInfo, 
+								Person, Author, Modification, 
+								ModificationInfo)
 from ecolyzer.dataaccess import SQLAlchemyORM
 
 db_url = 'postgresql://postgres:postgres@localhost:5432/modific_test'
 db = SQLAlchemyORM(db_url)
 db.create_all(True)
 
+
 def test_crud():
-	#create
+	# create
 	repo = Repository('repo/terrame')
-	sys = System('terrame', repo)
+	# sys = System('terrame', repo)
 	commit_info = CommitInfo('hashhashhash')
 	commit_info.date = datetime.datetime(2019, 2, 6, 14, 14, 55)  
 	commit_info.msg = 'commit message'
@@ -31,7 +34,7 @@ def test_crud():
 	session.add(mod)
 	session.commit()
 
-	#read	
+	# read	
 	moddb = session.query(Modification).get(1)
 	assert moddb.new_path == 'some/path/file.ext'
 	assert moddb.old_path == ''
@@ -41,13 +44,13 @@ def test_crud():
 	assert moddb.commit_id == 1
 	assert moddb.file_id == 1
 
-	#update
+	# update
 	mod.status = 'DELETED'
 	session.commit()	
 	moddb = session.query(Modification).get(1)
 	assert moddb.status == 'DELETED'
 
-	#delete
+	# delete
 	session.delete(mod)
 	session.commit()
 	moddb = session.query(Modification).get(1)
@@ -55,13 +58,11 @@ def test_crud():
 	repodb = session.query(Repository).get(1)
 	authordb = session.query(Author).get(1)
 	filedb = session.query(File).get(1)
-	assert moddb == None
+	assert moddb is None
 	assert commitdb.id == 1
 	assert repodb.id == 1 
 	assert authordb.id == 1
 	assert filedb.id == 1
 
-
 	session.close()
 	db.drop_all()
-	

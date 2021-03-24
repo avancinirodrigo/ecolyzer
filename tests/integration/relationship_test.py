@@ -3,12 +3,13 @@ from ecolyzer.system import System, File, SourceFile, Operation, Call
 from ecolyzer.dataaccess import SQLAlchemyORM
 from ecolyzer.ecosystem import Relationship, RelationInfo, FromRelationInfo
 
+
 def test_crud(mocker):
 	db_url = 'postgresql://postgres:postgres@localhost:5432/relation_crud'
 	db = SQLAlchemyORM(db_url)
 	db.create_all(True)	
 
-	#create
+	# create
 	repo1 = Repository('repo/terrame')
 	sys1 = System('terrame', repo1)	
 	f1 = File('some/path/file1.src')

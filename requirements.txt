@@ -4,8 +4,9 @@ pytest
 pytest-mock
 pytest-cov
 codecov
-git+https://github.com/boolangery/py-lua-parser.git
+luaparser
 sqlalchemy
 sqlalchemy-utils
 javalang
 bs4
+flake8-tabs

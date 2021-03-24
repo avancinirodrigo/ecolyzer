@@ -1,5 +1,6 @@
 import lizard
 
+
 class Lizard(object):
 	"""Lizard"""
 	def __init__(self, filepath, source_code):

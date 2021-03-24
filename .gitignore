@@ -1,2 +1,4 @@
 __pycache__/
 gcloud/flask_ecolyzer
+.coverage
+tests/repo

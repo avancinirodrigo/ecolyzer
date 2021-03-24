@@ -24,10 +24,9 @@ class GitPython:
 		else:
 			return list(commit.hexsha for commit in commits)
 
-	def clone(self, url: str, to_path: str=None, branch='master'):
+	def clone(self, url: str, to_path: str = None, branch: str = None):
 		if not to_path:
-			path = urlparse(url).path
-			to_path = FileUtils.last_dir(path)
+			to_path = self.url_to_path(url)
 		self.path = to_path
 		try:
 			self.repo = Repo.clone_from(url, self.path, branch=branch)
@@ -37,12 +36,19 @@ class GitPython:
 				self.repo = Repo.clone_from(url, self.path, branch=branch)
 			else:
 				raise e
-		
+
+	def url_to_path(self, url):
+		path = urlparse(url).path
+		return FileUtils.last_dir(path)
+
 	@staticmethod
 	def IsGitRepo(path):
 		try:
 			Repo(path).git_dir 
-		except:
+		except Exception:
 			return False
 		return True		
-		
+
+	@staticmethod
+	def CurrentBranch(path):
+		return Repo(path).active_branch.name		

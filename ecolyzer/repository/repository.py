@@ -1,11 +1,13 @@
 from sqlalchemy import Column, String, Integer
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.collections import attribute_mapped_collection
+from sqlalchemy.ext.hybrid import hybrid_property
 from ecolyzer.dataaccess import Base
 from ecolyzer.utils import FileUtils
 from .author import Author
 from .commit import Commit
 from .gitpython import GitPython
+
 
 class Repository(Base):
 	"""Repository"""
@@ -13,6 +15,7 @@ class Repository(Base):
 
 	id = Column(Integer, primary_key=True)
 	_path = Column('path', String, nullable=False, unique=True)
+	_branch = Column('branch', String, nullable=False)
 	_authors = relationship(Author, 
 					collection_class=attribute_mapped_collection('email'))
 	_commits = relationship(Commit, 
@@ -21,16 +24,21 @@ class Repository(Base):
 	def __init__(self, path):
 		if GitPython.IsGitRepo(path):
 			self._path = path
+			self._branch = GitPython.CurrentBranch(path)
 		else:
 			raise Exception('Invalid repository path \'{0}\''.format(path))
 
-	@property
+	@hybrid_property
 	def path(self):
 		return self._path
 
 	@path.setter
 	def path(self, path):
 		self._path = path		
+
+	@property
+	def branch(self):
+		return self._branch
 
 	def add_author(self, author):
 		if author.email not in self._authors: 
@@ -66,4 +74,3 @@ class Repository(Base):
 	@property
 	def name(self) -> str:
 		return FileUtils.last_dir(self._path)
-	

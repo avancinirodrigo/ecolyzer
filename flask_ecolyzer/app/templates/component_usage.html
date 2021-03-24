@@ -5,6 +5,7 @@
         <title>{{ source_file }}</title>
         <script type="text/javascript" src="https://d3js.org/d3.v5.min.js"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='js/utils.js') }}"></script>
+        <script src="https://code.jquery.com/jquery-latest.min.js"></script>
         <style type="text/css">
             .tooltip {
                 position: absolute;
@@ -20,11 +21,40 @@
                 padding: 5px;
                 text-align: left;
                 opacity: 0.95;
-            }           
+            }  
+
+            .container {
+                width: 100%;
+                height: 100%;
+            }
+
+            .left {
+               float: left;
+            }    
+
+            .left_container {
+                position: absolute;
+            } 
+
+            select {
+              background: #fff;
+            }            
+       
         </style>        
     </head>
     <body>
-		<div id="treemap"></div>
+        <div class="container">
+            <div class="left_container">
+                <div class="left">
+                    <div id="component_name"></div>
+                </div>
+                <div class="left">
+                    <div id="operations"></div> 
+                </div>
+            </div>
+            <div id="treemap"></div>
+        </div>
+		
     </body>
 </html>
 
@@ -34,6 +64,9 @@
     
     var numOfLoc = 0;
     var infoBySystem = [];
+    var maxCallsBySystem = 0;
+    var numOfDistinctRelations = 0;
+    var totalOfRelations = 0;
     for(var i = 0; i < relations.length; i++) {
         numOfLoc += relations[i]["nloc"];
         var system = relations[i]["system"]
@@ -41,17 +74,20 @@
             infoBySystem[system] = [];
             infoBySystem[system]["ncalls"] = 0;
             infoBySystem[system]["nloc"] = 0;
-
         }
         infoBySystem[system]["ncalls"] += relations[i]["ncalls"];
         infoBySystem[system]["nloc"] += relations[i]["nloc"];
+        numOfDistinctRelations += relations[i]["count"];
+        totalOfRelations += relations[i]["ncalls"];
+        if(infoBySystem[system]["ncalls"] > maxCallsBySystem)
+            maxCallsBySystem = infoBySystem[system]["ncalls"];
     }
 
     var from_systems = {{ from_systems|safe }}
     var numOfSystems = Object.keys(from_systems).length;
 
     // set the dimensions and margins of the graph
-    var margin = {top: 30, right: 10, bottom: 10, left: 10},
+    var margin = {top: 20, right: 10, bottom: 10, left: 10},
     width = getWidth() - margin.left - margin.right - 20,
     height = getHeight() - margin.top - margin.bottom - 20;
 
@@ -102,7 +138,7 @@
         //     return d.ncalls; //Math.round(Math.log2(d.nloc)); //TODO
         return d.ncalls;
     })
-        .sort(function(a, b) {return b.value - a.value;});   // Compute the numeric value for each entity
+    .sort(function(a, b) {return b.value - a.value;});   // Compute the numeric value for each entity
 
     root.sum(function(d) { 
         // if(d.ncalls <= 3)
@@ -156,6 +192,28 @@
         .append("div")
         .attr("class", "tooltip");    
 
+    function componentTooltipMouseMove(d) {
+        // TODO: review tooltip side to show
+        if(d3.event.pageX > width*0.75) {
+            tip.style("left", (d3.event.pageX - 6*23) + "px");
+            if(d3.event.pageY > height/2) {
+                tip.style("top", d3.event.pageY - 90 + "px");
+            }
+            else {
+                tip.style("top", d3.event.pageY - 20 + "px");
+            }
+        }
+        else {
+            tip.style("left", d3.event.pageX + 10 + "px");
+            tip.style("top", d3.event.pageY - 20 + "px");
+        }
+        tip.style("display", "inline-block");
+        tip.html("<strong>" + d.data.fullpath + "</strong>"
+                    + "<br>distinct operations: " + d.data.count
+                    + "<br>total of relationships: " + d.data.ncalls
+                    + "<br>nloc: " + d.data.nloc);
+    }
+
     // use this information to add rectangles:
     svg.selectAll("rect")
     .data(root.leaves())    
@@ -163,7 +221,8 @@
     .append("g")
         .append("a")
             .attr("xlink:href", function(d) {
-                return d.data.url; })    
+                return d.data.url;})    
+            .attr("target", "_blank")
             .append("rect")
                 .attr('x', function (d) { return d.x0; })
                 .attr('y', function (d) { return d.y0; })
@@ -176,16 +235,7 @@
                 // .append("title")
                 // .text(function(d) { return d.data.fullpath; });
                 .on("mousemove", function (d) {
-                    if(d3.event.pageX > 7*width/8)
-                        tip.style("left", (d3.event.pageX - 10 - 6.5*d.data.fullpath.length) + "px");
-                    else
-                        tip.style("left", d3.event.pageX + 10 + "px");
-                    tip.style("top", d3.event.pageY - 20 + "px");
-                    tip.style("display", "inline-block");
-                    tip.html("<strong>" + d.data.fullpath + "</strong>"
-                                + "<br>used operations: " + d.data.count
-                                + "<br>total calls: " + d.data.ncalls
-                                + "<br>nloc: " + d.data.nloc);
+                    componentTooltipMouseMove(d);
                 })
                 .on("mouseout", function (d) {
                     tip.style("display", "none");
@@ -193,63 +243,148 @@
 
     // and to add the text labels
     svg.selectAll("g")
-        .append("text")
-            .attr("x", function(d){ return d.x0+2})
-            .attr("y", function(d){ return d.y0+15})
+        .append("text") 
+            .attr("x", function(d) {return d.x0+2;})
+            .attr("y", function(d) {return d.y0+15;})
             .attr("font", "10px sans-serif")
             .attr("fill", "white")
             .text(function(d) { 
                 if(d.data.ncalls > minCalls)
                     return d.data.from; 
             })  
+            .on("click", function(d) {window.open(d.data.url);})
+            .on("mousemove", function(d) {
+                componentTooltipMouseMove(d);
+            })
+            .on("mouseout", function (d) {
+                tip.style("display", "none");
+            });
+
+    var dependentsCoverage = {{ dependents_coverage|safe }};
+
+    var operationsCounter = {};
+    for(k in dependentsCoverage) {
+        for(v in dependentsCoverage[k]) {
+            if(!(v in operationsCounter)) {
+                operationsCounter[v] = 0;
+            }
+            operationsCounter[v] += dependentsCoverage[k][v];
+        }
+    }
 
      // Add title for groups
       svg.selectAll("titles")
         .data(root.descendants().filter(function(d){return d.depth==1}))
         .enter()
         .append("text")
-            .attr("x", function(d){ return d.x0})
-            .attr("y", function(d){ return d.y0+17})
-            .text(function(d){ return d.data.id })
-            .attr("font-size", "19px")
+            .attr("x", function(d){return d.x0;})
+            .attr("y", function(d){return d.y0+17;})
+            .text(function(d) {
+                if(infoBySystem[d.data.id]["ncalls"] > maxCalls/2)
+                    return d.data.id;
+                else if(infoBySystem[d.data.id]["ncalls"] <= minCalls + 1)
+                    return d.data.id.substr(0, 2);
+                else
+                    return d.data.id.substr(0, 3);
+            })
+            .attr("font-size", "19px") //function(d) {
+                // return (infoBySystem[d.data.id]["ncalls"]*19)/maxCallsBySystem + "px";})
             .attr("fill", "black")
             .on("mousemove", function (d) {
-                if(d3.event.pageX > 7*width/8)
+                // TODO: review tooltip side to show
+                if(d3.event.pageX > width*0.75) {
+                        // && d3.event.pageY > height/2) {
                     tip.style("left", (d3.event.pageX - 6*23) + "px");
-                else
+                    tip.style("top", d3.event.pageY - 90 + "px");
+                }
+                else {
                     tip.style("left", d3.event.pageX + 10 + "px");
-                tip.style("top", d3.event.pageY - 20 + "px");
+                    tip.style("top", d3.event.pageY - 20 + "px");
+                }
                 tip.style("display", "inline-block");
                 tip.html("<center><b>" + d.data.id + "</b></center>"
                             + "total of source files: " + d.children.length
-                            + "<br>total of relations: " + infoBySystem[d.data.id]["ncalls"]
+                            + "<br>distinct operations: " + Object.keys(dependentsCoverage[d.data.id]).length 
+                            + " (" + Math.round(Object.keys(dependentsCoverage[d.data.id]).length*100/operationsCount) + "%)"
+                            + "<br>total of relationships: " + infoBySystem[d.data.id]["ncalls"]
                             + "<br>total of loc: " + infoBySystem[d.data.id]["nloc"]);
             })
             .on("mouseout", function (d) {
                 tip.style("display", "none");
-            });                 
+            });                    
 
-      // Add title for the 3 groups
-      svg.append("text")
-            .attr("x", 0)
-            .attr("y", 0)
+    var operations = {{ operations|safe }};
+    var operationsCount = Object.keys(operations).length;
+    var coverageCount = 0;
+    var componentUrl = "{{ component_url }}";
+    var selectedOperation = "{{ selected_operation }}";
+    var operationsDropDown = "<select onchange=\"location=this.value;\">";
+    operationsDropDown += "<option value=\"" + componentUrl + "\" selected >"
+                            + "" + "</option>";
+    function formatFilterOperation(operation, disabled) {
+        let option = operation.split(".");
+        let result = ""; 
+        if((option[0] == "extends") || (option[0] == "implements")) {
+            result = option[0];
+        }
+        else {
+            result = option[1];  
+        }
+
+        if(disabled) {
+            return result;
+        }
+
+        return result + " (" + operationsCounter[operation] + ")";
+    }
+
+    for(const [key, value] of Object.entries(operations)) {
+        let disabled = true;
+        if(value == 0) {
+            operationsDropDown += "<option disabled >";
+        }
+        else {
+            operationsDropDown += "<option value=\"" + componentUrl 
+                            + "?operation=" + key + "\""
+            if (selectedOperation == key)
+                operationsDropDown += " selected "
+            operationsDropDown += ">"
+            coverageCount += 1;
+            disabled = false;
+        }
+        operationsDropDown += formatFilterOperation(key, disabled); + "</option>";
+        console.log(key, value);
+    }
+    operationsDropDown += "</select>"    
+    $("#operations").html(operationsDropDown);
+    $("#operations").css({"position": "relative"});
+    $("#operations").css({"top": "3px"});
+
+    d3.select("#component_name")
+            .append("text")
             .text("{{ source_file }}")
-            .attr("font-size", "20px")
+            .style("font-size", "20px")
             .attr("fill", "black")
             .style("font-weight", "bold")   
+            .style("margin-left", margin.left + "px")
+            .style("padding-right", "4px")
             .on("mousemove", function (d) {
                 tip.style("left", d3.event.pageX + 10 + "px");
                 tip.style("top", d3.event.pageY - 20 + "px");
                 tip.style("display", "inline-block");
                 tip.html("<center><b>{{source_file}}</b></center>"
-                            + "total of systems: " + numOfSystems
+                            + "operations: " + operationsCount
+                            + "<br>coverage: " +  coverageCount + " ("
+                            + Math.round(coverageCount*100/operationsCount) + "%)"
+                            + "<br>total of dependents: " + numOfSystems
                             + "<br>total of source files: " + numOfSourceFiles
-                            + "<br>total of relations: " + root.value
+                            + "<br>total of relationships (distinct): " + numOfDistinctRelations
+                            + "<br>total of relationships: " + totalOfRelations
                             + "<br>total of loc: " + numOfLoc);
             })
             .on("mouseout", function (d) {
                 tip.style("display", "none");
-            });            
+            });    
 
     var blockWidth = 15;
     var blockHeight = 20;   
@@ -295,8 +430,8 @@
 
     svg.append("text")
         .attr("x", width - colorTicks.length*blockWidth - RELATIONS_LABEL.length*RELATIONS_LABEL_FONT_SIZE/2)
-        .attr("y", 0)
         .text(RELATIONS_LABEL)       
         .style("font-weight", "bolder")
-        .attr("font-size", RELATIONS_LABEL_FONT_SIZE + "px");                 
+        .attr("font-size", RELATIONS_LABEL_FONT_SIZE + "px");        
+
 </script>

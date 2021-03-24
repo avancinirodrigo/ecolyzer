@@ -3,12 +3,13 @@ from ecolyzer.repository import Repository
 from ecolyzer.dataaccess import SQLAlchemyORM
 from ecolyzer.ecosystem import CentralSystem
 
+
 def test_crud():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/central_system_crud'
 	db = SQLAlchemyORM(db_url)
 	db.create_all(True)	
 
-	#create
+	# create
 	repo = Repository('repo/terrame')
 	sys = System('terrame', repo)
 	central = CentralSystem(sys)

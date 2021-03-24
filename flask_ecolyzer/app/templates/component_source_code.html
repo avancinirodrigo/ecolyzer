@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    	<meta charset="utf-8">
+        <title>{{name}}</title>
+        <style type="text/css">
+        	body {
+        		overflow: hidden;
+        	}
+
+			.wrapper {
+				position: absolute;
+			    width:100%;
+			    margin: 0 auto;
+			    height: 100%;
+			    display: flex;
+			}
+
+			#source_code {
+				float:left;
+			    height: 96%;
+			    background-color: #FFFFFF;
+			    overflow: scroll;
+			    margin-left: 2%;
+			}
+
+			a {
+			    text-decoration: none;
+			}	
+			
+			a, a:visited, a:active {
+			  	color: blue;
+			}					
+
+			a:hover {
+				text-decoration: underline;
+			}
+
+			i {
+			  	border: solid black;
+			  	border-width: 0 3px 3px 0;
+			  	display: inline-block;
+			  	padding: 3px;
+			}
+
+			.up {
+			  	transform: rotate(-135deg);
+			  	-webkit-transform: rotate(-135deg);
+			}						
+        </style>     
+		<script src="https://code.jquery.com/jquery-latest.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/mark.js/8.6.0/jquery.mark.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+		<script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/lang-lua.js"></script>	
+		<style type="text/css">
+			pre.prettyprint
+			{
+			    padding-left:20px; 
+			    border: 0px;
+			    tab-size: 4;
+			}			
+
+			ol.linenums
+			{
+			    margin-top: 0;
+			    margin-bottom: 0;
+			}	
+
+			li.L0, li.L1, li.L2, li.L3, li.L4,
+			li.L5, li.L6, li.L7, li.L8, li.L9 {
+				background: none;
+				color: #C0C0C0;
+				list-style-type: decimal;
+			}			
+		</style>
+    </head>
+    <body>
+		<div class="wrapper">
+			<div id="source_code">
+				<h2><span>{{ system_name }}/{{ fullpath }}</span></h2>
+				<src></src>
+			</div>
+		</div>		                                    
+    </body>
+</html>
+<script type="text/javascript">
+	var sourceCode = {{ source_code|tojson }}
+	var sourceCodeLines = sourceCode.split("\n");
+	var sourceCodeView = "<pre class=\"prettyprint lang-{{language}} linenums\">";
+
+	for(var i = 0; i < sourceCodeLines.length; i++) {
+		var line = sourceCodeLines[i].replace(/</g,"&lt;").replace(/>/g,"&gt;");
+		sourceCodeView += line + "\n";	
+	}
+
+	sourceCodeView += "</pre>"
+	$("#source_code").find("src").html(sourceCodeView);
+</script>

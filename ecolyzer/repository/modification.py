@@ -2,6 +2,7 @@ from sqlalchemy import Column, String, Integer, ForeignKey
 from sqlalchemy.orm import relationship, backref
 from ecolyzer.dataaccess import Base
 
+
 class Modification(Base):
 	"""Modification"""
 	__tablename__ = 'modification'
@@ -32,7 +33,8 @@ class Modification(Base):
 
 	def author(self):
 		return self.commit.author
-	
+
+
 class ModificationInfo:
 	def __init__(self, filename):
 		self.filename = filename

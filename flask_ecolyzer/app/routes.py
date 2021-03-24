@@ -1,136 +1,74 @@
-from flask import jsonify, render_template, url_for
-import json
+from flask import render_template, url_for, request
 from . import db
 from . import bp as app
-from ecolyzer.repository import Author, Modification
-from ecolyzer.ecosystem import Relationship
-from ecolyzer.system import Operation, SourceFile
+from ecolyzer.ucs import (CentralSoftwareUsage, ComponentUsage,
+						ComponentsSideBySide, ComponentSourceCode)
 
 
 @app.route('/', methods=['GET'])
 @app.route('/relationships', methods=['GET'])
 def relationships():
-	relations = db.session.query(Relationship).all()
-	to_system = relations[0].to_system
-	relations_count = []
-	source_pos = {}
-	paths = {}
-	source_ids = []
-	for rel in relations:
-		source_id = rel.to_source_file_id
-		if source_id in source_pos:
-			pos = source_pos[source_id]
-			relations_count[pos]['count'] = relations_count[pos]['count'] + 1
+	dataaccess = db.session
+	uc = CentralSoftwareUsage()
+	central_software_info = uc.execute(dataaccess)
+	components = central_software_info['components']
+	for comp in components:
+		if comp['count'] > 0:
+			comp['url'] = url_for('.component_usage', id=comp['id'])
 		else:
-			source_pos[source_id] = len(relations_count)
-			operations = db.session.query(Operation).\
-						filter_by(source_file_id=source_id).count()		
-			file_mod = db.session.query(Modification).\
-						filter_by(file_id = rel.to_source_file.file_id).one()					
-			info = {
-				'id': source_id,
-				'source': rel.to_source_file.name,
-				'fullpath': rel.to_source_file.fullpath,
-				'path': rel.to_source_file.path,
-				'url': url_for('.source_relations', id=source_id),
-				'system': rel.to_system.name,
-				'operations': operations,
-				'nloc': file_mod.nloc,
-				'count': 1
-			}
-			relations_count.append(info)
-			paths[rel.to_source_file.path] = 0
-			source_ids.append(source_id)
+			comp['url'] = url_for('.component_source_code', id=comp['id'])
+	dataaccess.close()
+	return render_template('central_software_usage.html', 
+						relations=central_software_info['components'],
+						system=central_software_info['central_software'], 
+						paths=central_software_info['component_paths'],
+						dependents_count=central_software_info['dependents_count'],
+						dependents_by_package=central_software_info['dependents_by_package'])
 
-	sources_without_relation = db.session.query(SourceFile).\
-					filter(SourceFile.id.notin_(source_ids)).\
-					filter_by(system_id=to_system.id).all()
-	sources_without_relation_info = []
-	for src in sources_without_relation:
-		operations = db.session.query(Operation).\
-					filter_by(source_file_id=src.id).count()
-		if operations > 0:		
-			file_mod = db.session.query(Modification).\
-						filter_by(file_id = src.file_id).one()
-			info = {
-				'id': src.id,
-				'source': src.name,
-				'fullpath': src.fullpath,
-				'path': src.path,
-				'url': '',
-				'system': to_system.name,
-				'operations': operations,
-				'nloc': file_mod.nloc,
-				'count': 0
-			}
-			sources_without_relation_info.append(info)
-			paths[src.path] = 0
-	
-	relations_count = relations_count + sources_without_relation_info
-
-	return render_template('relations_count.html', relations=relations_count,
-						system=to_system.name, paths=paths)
 
 @app.route('/relationships/<int:id>', methods=['GET'])
-def source_relations(id):
-	relations = db.session.query(Relationship).filter_by(to_source_file_id = id).all()
-	source_file = relations[0].to_source_file
-	source_relations = []
-	from_source_pos = {}
-	from_systems = {}
-	for rel in relations:
-		from_source_id = rel.from_source_file_id
-		if from_source_id in from_source_pos:
-			pos = from_source_pos[from_source_id]
-			source_relations[pos]['count'] += 1
-			source_relations[pos]['ncalls'] += rel.from_code_element_count
-		else: # enter here just in the first time
-			from_source_pos[from_source_id] = len(source_relations)
-			from_systems[rel.from_system_id] = rel.from_system.name
-			from_source_file = rel.from_source_file
-			file_mod = db.session.query(Modification).\
-						filter_by(file_id = from_source_file.file_id).one()	
-			info = {
-				'id': from_source_id,
-				'from': from_source_file.name,
-				'fullpath': from_source_file.fullpath,
-				'code': rel.from_code_element.name + '()',
-				'count': 1,
-				'system': rel.from_system.name,
-				'nloc': file_mod.nloc,
-				'ncalls': rel.from_code_element_count,
-				'url': url_for('.source_codes', from_id=from_source_id, to_id=id)
-			}
-			source_relations.append(info)
+def component_usage(id):
+	operation = request.args.get('operation', default=None, type=str)
+	dataaccess = db.session
+	uc = ComponentUsage(id, operation)
+	component_info = uc.execute(dataaccess, url_for)
+	dependents = component_info['dependents']['info']
+	for dep in dependents:
+		dep['url'] = url_for('.source_codes', from_id=dep['id'], to_id=id)
+	component_url = url_for('.component_usage', id=id)
+	return render_template('component_usage.html', 
+						relations=component_info['dependents']['info'],
+						source_file=component_info['component']['name'], 
+						from_systems=component_info['dependents']['ids'],
+						operations=component_info['component']['operations'],
+						dependents_coverage=component_info['dependents']['coverage'],
+						component_url=component_url,
+						selected_operation=operation)
 
-	return render_template('source_relations.html', relations=source_relations,
-						source_file=source_file.name, from_systems=from_systems)
 
 @app.route('/relationships/<int:from_id>/<int:to_id>', methods=['GET'])
 def source_codes(from_id, to_id):
-	relations = db.session.query(Relationship)\
-					.filter_by(to_source_file_id = to_id,\
-					from_source_file_id = from_id).all()
-	from_file = relations[0].from_source_file.file
-	to_file = relations[0].to_source_file.file
-	from_system = relations[0].from_system.name
-	to_system = relations[0].to_system.name
-	from_source = db.session.query(Modification.source_code).\
-					filter_by(file_id = from_file.id).one()
-	to_source = db.session.query(Modification.source_code).\
-					filter_by(file_id = to_file.id).one()					
-	code_elements = []
-	for rel in relations:
-		# print(rel.to_code_element.name)
-		code_elements.append(rel.to_code_element.name)
+	dataaccess = db.session
+	uc = ComponentsSideBySide(to_id, from_id)
+	components_info = uc.execute(dataaccess)
+	central = components_info['central']
+	dependent = components_info['dependent']
+	return render_template('components_side_by_side.html', from_source=dependent['source_code'], 
+						to_source=central['source_code'], code_elements=central['code_elements'],
+						dependent_refs=dependent['code_elements'],
+						from_fullpath=dependent['fullpath'], to_fullpath=central['fullpath'],
+						from_system=dependent['system'], to_system=central['system'], 
+						language=components_info['language'])
 
-	language = ''
-	if to_file.ext == 'lua':
-		language = 'lua'
-	elif to_file.ext == 'java':
-		language = 'java'
 
-	return render_template('source_codes.html', from_source=from_source[0], 
-						to_source=to_source[0], code_elements=code_elements,
-						from_fullpath=from_file.fullpath, to_fullpath=to_file.fullpath,
-						from_system=from_system, to_system=to_system, language=language)
+@app.route('/source_code/<int:id>', methods=['GET'])	
+def component_source_code(id):
+	dataaccess = db.session
+	uc = ComponentSourceCode(id)
+	component_info = uc.execute(dataaccess)
+	return render_template('component_source_code.html', 
+						source_code=component_info['source_code'],
+						name=component_info['name'], 
+						fullpath=component_info['fullpath'], 
+						system_name=component_info['system'], 
+						language=component_info['language'])	

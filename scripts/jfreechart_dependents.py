@@ -1,10 +1,10 @@
-import csv
 from ecolyzer.repository import GitHub
 
 
 repo_url = 'https://github.com/jfree/jfreechart'
 gh = GitHub(repo_url)
 dependents = gh.dependents()
+dependents = gh.remove_duplicated(dependents, by_forks=True)
 
 list_all = []
 list_forks = []

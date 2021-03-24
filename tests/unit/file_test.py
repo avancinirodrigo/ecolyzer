@@ -1,5 +1,6 @@
-from ecolyzer.repository import Repository #TODO: why import module?
+from ecolyzer.repository import Repository  # noqa: F401
 from ecolyzer.system import File
+
 
 def test_fullpath():
 	filepath1 = 'some/path/file1.exa'
@@ -31,6 +32,7 @@ def test_fullpath():
 	assert file4.ext == 'ext'
 	assert file4.fullpath == filepath4	
 
+
 def test_more_than_one_dot():
 	file_2dots = File('file.ex.t')
 	assert file_2dots.name == 'file.ex'
@@ -39,6 +41,7 @@ def test_more_than_one_dot():
 	file_3dots = File('path/file.e.x.t')
 	assert file_3dots.name == 'file.e.x'
 	assert file_3dots.ext == 't'
+
 
 def test_dot_at_begin():
 	file1 = File('.file')
@@ -57,6 +60,7 @@ def test_dot_at_begin():
 	assert file3.ext == 't' 
 	assert file3.path == 'some/path'
 	assert file3.fullpath == 'some/path/.file.e.x.t' 
+
 
 def test_without_ext():
 	file1 = File('some/path/noextfile')

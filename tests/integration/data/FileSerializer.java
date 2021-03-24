@@ -37,18 +37,6 @@ public class FileSerializer implements Serializer
 	public void generateFile(String filename, Object obj)
 	{
 		byte[] bytes = df.formatData(getPropertiesList(obj));
-
-// MethodInvocation(arguments=[
-// 							MethodInvocation(arguments=[
-// 								MemberReference(member=obj, postfix_operators=[], 
-// 									prefix_operators=[], qualifier=, selectors=[])
-// 								], 
-// 								member=getPropertiesList, postfix_operators=[], 
-// 								prefix_operators=[], qualifier=, selectors=[], 
-// 								type_arguments=None)
-// 							], 
-// 							member=formatData, postfix_operators=[], prefix_operators=[], qualifier=df, selectors=[], type_arguments=None)		
-		
 		try {
 			bytes = pp.postProcess(bytes);	
 			FileOutputStream fileout = new FileOutputStream(filename);

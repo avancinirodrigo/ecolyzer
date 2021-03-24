@@ -2,8 +2,10 @@ from ecolyzer.system import System, File, SourceFile, Operation, Call
 from ecolyzer.repository import Repository, Person, Author, GitPython
 from ecolyzer.ecosystem import Ecosystem, RelationInfo, FromRelationInfo, Relationship
 
+
 def test_add_same_relation(mocker):
 	mocker.patch.object(GitPython, 'IsGitRepo', return_value=True)
+	mocker.patch.object(GitPython, 'CurrentBranch', return_value='master')
 	repo1 = Repository('some/path/terrame')
 	sys1 = System('terrame', repo1)
 	f1 = File('Cell.lua')

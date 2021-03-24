@@ -1,10 +1,12 @@
 import os
-from ecolyzer.repository import (RepositoryMiner, Repository, CommitInfo, 
+from ecolyzer.repository import (RepositoryMiner, Repository, 
 								Commit, Author, Person, Modification,
 								GitPython)
-from ecolyzer.system import System, File, SourceFile, Operation, Call, Association
+from ecolyzer.system import (System, File, SourceFile, 
+							Operation, Call, Association)
 from ecolyzer.dataaccess import SQLAlchemyORM
-	
+
+
 def test_get_commit():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/miner_java_get_commit'
 	db = SQLAlchemyORM(db_url)
@@ -23,7 +25,7 @@ def test_get_commit():
 	assert commit_info.author_email == 'jfree@users.noreply.github.com'
 	assert len(commit_info.modifications) == 999
 	assert commit_info.modifications[0].filename == 'ChangeLog'
-	assert commit_info.modifications[0].old_path == None
+	assert commit_info.modifications[0].old_path is None
 	assert commit_info.modifications[0].new_path == 'ChangeLog'
 	assert commit_info.modifications[0].added == 5759
 	assert commit_info.modifications[0].removed == 0
@@ -52,7 +54,7 @@ def test_get_commit():
 	assert commitdb.author.name == 'David Gilbert'
 	assert commitdb.author.email == 'jfree@users.noreply.github.com'
 	assert filedb.fullpath == 'ChangeLog'
-	assert filemoddb.old_path == None
+	assert filemoddb.old_path is None
 	assert filemoddb.new_path == 'ChangeLog'
 	assert filemoddb.added == 5759
 	assert filemoddb.removed == 0
@@ -66,7 +68,7 @@ def test_get_commit():
 	assert commit_info.hash == 'a5119ef9ba0146bba26a23bffbd200e8fb7aa17b'
 	assert commit_info.author_name == 'David Gilbert'
 	assert commit_info.author_email == 'jfree@users.noreply.github.com'
-	assert len(commit_info.modifications) == 0 # Why zero?
+	assert len(commit_info.modifications) == 0  # Why zero?
 
 	t3th_hash = git.commit_hashs_reverse(23)[-1]
 	commit_info = miner.get_commit_info(t3th_hash)
@@ -117,7 +119,7 @@ def test_get_commit():
 	assert commitdb1.author.name == 'David Gilbert'
 	assert commitdb1.author.email == 'jfree@users.noreply.github.com'
 	assert filedb1.fullpath == 'ChangeLog'
-	assert filemoddb1.old_path == None
+	assert filemoddb1.old_path is None
 	assert filemoddb1.new_path == 'ChangeLog'
 	assert filemoddb1.added == 5759
 	assert filemoddb1.removed == 0
@@ -125,8 +127,9 @@ def test_get_commit():
 
 	session.close()
 	db.drop_all()
-	
-def test_extract():
+
+
+def test_extract_first_commit():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/miner_java_extract'
 	db = SQLAlchemyORM(db_url)
 	db.create_all(True)
@@ -142,13 +145,13 @@ def test_extract():
 	git = GitPython(repo.path)
 	first_hash = git.commit_hashs_reverse(1)[0]
 	miner.extract(session, first_hash)
-	filedb = session.query(File).filter_by(fullpath = 'source/org/jfree/chart/JFreeChart.java').first()
-	srcfiledb = session.query(SourceFile).filter_by(file_id = filedb.id).first()
+	filedb = session.query(File).filter_by(fullpath='source/org/jfree/chart/JFreeChart.java').first()
+	srcfiledb = session.query(SourceFile).filter_by(file_id=filedb.id).first()
 	commitdb = session.query(Commit).filter(Commit.hash == first_hash).one()
 	assert commitdb.msg == 'Branch for 1.0.x (starts with version 1.0.6).'
 	authordb = session.query(Author).filter(Author.id == commitdb.author_id).one()
 	assert authordb.name == 'David Gilbert'
-	modificationsdb = session.query(Modification).filter_by(commit_id = commitdb.id).all()
+	modificationsdb = session.query(Modification).filter_by(commit_id=commitdb.id).all()
 
 	files_mod = {
 		'source/org/jfree/chart/ChartColor.java': True,
@@ -665,70 +668,80 @@ def test_extract():
 		'source/org/jfree/data/xy/YIntervalSeriesCollection.java': True,
 		'source/org/jfree/data/xy/YWithXInterval.java': True,
 		'source/org/jfree/data/xy/YisSymbolic.java': True	
- 	}
+	}
 
 	for mod in modificationsdb:
 		assert files_mod[mod.new_path]
 
-	operationsdb = session.query(Operation).filter_by(source_file_id = srcfiledb.id).all()
+	operationsdb = session.query(Operation).filter_by(source_file_id=srcfiledb.id).all()
 
 	operations = {
-		'getRenderingHints': True,
-		'setRenderingHints': True,
-		'isBorderVisible': True,
-		'setBorderVisible': True,
-		'getBorderStroke': True,
-		'setBorderStroke': True,
-		'getBorderPaint': True,
-		'setBorderPaint': True,
-		'getPadding': True,
-		'setPadding': True,
-		'getTitle': True,
-		'setTitle': True,
-		'addLegend': True,
-		'getLegend': True,
-		'removeLegend': True,
-		'getSubtitles': True,
-		'setSubtitles': True,
-		'getSubtitleCount': True,
-		'getSubtitle': True,
-		'addSubtitle': True,
-		'clearSubtitles': True,
-		'removeSubtitle': True,
-		'getPlot': True,
-		'getCategoryPlot': True,
-		'getXYPlot': True,
-		'getAntiAlias': True,
-		'setAntiAlias': True,
-		'getTextAntiAlias': True,
-		'setTextAntiAlias': True,
-		'getBackgroundPaint': True,
-		'setBackgroundPaint': True,
-		'getBackgroundImage': True,
-		'setBackgroundImage': True,
-		'getBackgroundImageAlignment': True,
-		'setBackgroundImageAlignment': True,
-		'getBackgroundImageAlpha': True,
-		'setBackgroundImageAlpha': True,
-		'isNotify': True,
-		'setNotify': True,
-		'draw': True,
-		'drawTitle': True,
-		'createBufferedImage': True,
-		'handleClick': True,
-		'addChangeListener': True,
-		'removeChangeListener': True,
-		'fireChartChanged': True,
-		'notifyListeners': True,
-		'addProgressListener': True,
-		'removeProgressListener': True,
-		'titleChanged': True,
-		'plotChanged': True,
-		'equals': True,
-		'main': True,
-		'clone': True,
-		'getLogo': True
+		'extends.JFreeChart': True,
+		'JFreeChart.INFO': True,
+		'JFreeChart.DEFAULT_TITLE_FONT': True,
+		'JFreeChart.DEFAULT_BACKGROUND_PAINT': True,
+		'JFreeChart.DEFAULT_BACKGROUND_IMAGE': True,
+		'JFreeChart.DEFAULT_BACKGROUND_IMAGE_ALIGNMENT': True,
+		'JFreeChart.DEFAULT_BACKGROUND_IMAGE_ALPHA': True,
+		'JFreeChart.JFreeChart': True,
+		'JFreeChart.getRenderingHints': True,
+		'JFreeChart.setRenderingHints': True,
+		'JFreeChart.isBorderVisible': True,
+		'JFreeChart.setBorderVisible': True,
+		'JFreeChart.getBorderStroke': True,
+		'JFreeChart.setBorderStroke': True,
+		'JFreeChart.getBorderPaint': True,
+		'JFreeChart.setBorderPaint': True,
+		'JFreeChart.getPadding': True,
+		'JFreeChart.setPadding': True,
+		'JFreeChart.getTitle': True,
+		'JFreeChart.setTitle': True,
+		'JFreeChart.addLegend': True,
+		'JFreeChart.getLegend': True,
+		'JFreeChart.removeLegend': True,
+		'JFreeChart.getSubtitles': True,
+		'JFreeChart.setSubtitles': True,
+		'JFreeChart.getSubtitleCount': True,
+		'JFreeChart.getSubtitle': True,
+		'JFreeChart.addSubtitle': True,
+		'JFreeChart.clearSubtitles': True,
+		'JFreeChart.removeSubtitle': True,
+		'JFreeChart.getPlot': True,
+		'JFreeChart.getCategoryPlot': True,
+		'JFreeChart.getXYPlot': True,
+		'JFreeChart.getAntiAlias': True,
+		'JFreeChart.setAntiAlias': True,
+		'JFreeChart.getTextAntiAlias': True,
+		'JFreeChart.setTextAntiAlias': True,
+		'JFreeChart.getBackgroundPaint': True,
+		'JFreeChart.setBackgroundPaint': True,
+		'JFreeChart.getBackgroundImage': True,
+		'JFreeChart.setBackgroundImage': True,
+		'JFreeChart.getBackgroundImageAlignment': True,
+		'JFreeChart.setBackgroundImageAlignment': True,
+		'JFreeChart.getBackgroundImageAlpha': True,
+		'JFreeChart.setBackgroundImageAlpha': True,
+		'JFreeChart.isNotify': True,
+		'JFreeChart.setNotify': True,
+		'JFreeChart.draw': True,
+		'JFreeChart.drawTitle': True,
+		'JFreeChart.createBufferedImage': True,
+		'JFreeChart.handleClick': True,
+		'JFreeChart.addChangeListener': True,
+		'JFreeChart.removeChangeListener': True,
+		'JFreeChart.fireChartChanged': True,
+		'JFreeChart.notifyListeners': True,
+		'JFreeChart.addProgressListener': True,
+		'JFreeChart.removeProgressListener': True,
+		'JFreeChart.titleChanged': True,
+		'JFreeChart.plotChanged': True,
+		'JFreeChart.equals': True,
+		'JFreeChart.main': True,
+		'JFreeChart.clone': True,
 	}
+
+	# for op in operationsdb:
+	# 	print(f'\'{op.name}\': True,')
 
 	operationsdb_dict = {}
 	for op in operationsdb:
@@ -739,88 +752,183 @@ def test_extract():
 		assert operationsdb_dict[k]
 
 	calls = {
-		'getColor': True,
-		'setMargin': True,
-		'setFrame': True,
-		'setPosition': True,
-		'add': True,
-		'setText': True,
-		'iterator': True,
-		'hasNext': True,
-		'next': True,
-		'size': True,
-		'get': True,
-		'clear': True,
-		'remove': True,
-		'put': True,
-		'setChartArea': True,
-		'getClip': True,
-		'clip': True,
-		'addRenderingHints': True,
-		'setPaint': True,
-		'fill': True,
-		'getComposite': True,
-		'setComposite': True,
-		'getInstance': True,
-		'getWidth': True,
-		'getHeight': True,
-		'align': True,
-		'drawImage': True,
-		'getX': True,
-		'getY': True,
-		'setStroke': True,
-		'setRect': True,
-		'trim': True,
-		'getEntityCollection': True,
-		'addAll': True,
-		'getPlotInfo': True,
-		'setClip': True,
-		'getCenterX': True,
-		'getMaxX': True,
-		'getCenterY': True,
-		'getMaxY': True,
-		'getPosition': True,
-		'setGenerateEntities': True,
-		'arrange': True,
-		'getHorizontalAlignment': True,
-		'min': True,
-		'max': True,
-		'getVerticalAlignment': True,
-		'createGraphics': True,
-		'dispose': True,
-		'getScaleInstance': True,
-		'transform': True,
-		'getListenerList': True,
-		'setChart': True,
-		'equal': True,
-		'defaultWriteObject': True,
-		'writeStroke': True,
-		'writePaint': True,
-		'defaultReadObject': True,
-		'readStroke': True,
-		'readPaint': True,
-		'println': True,
-		'toString': True,
-		'getBundle': True,
-		'setName': True,
-		'getString': True,
-		'setVersion': True,
-		'setInfo': True,
-		'setCopyright': True,
-		'setLogo': True,
-		'setLicenceName': True,
-		'setLicenceText': True,
-		'getLGPL': True,
-		'setContributors': True,
-		'asList': True,
-		'addLibrary': True,
-		'getClass': True,
-		'getClassLoader': True,
-		'getResource': True,
-		'getImage': True
+		'NullPointerException.NullPointerException': True,
+		'EventListenerList.EventListenerList': True,
+		'RenderingHints.RenderingHints': True,
+		'RenderingHints.KEY_ANTIALIASING': True,
+		'RenderingHints.VALUE_ANTIALIAS_ON': True,
+		'BasicStroke.BasicStroke': True,
+		'Color.black': True,
+		'RectangleInsets.ZERO_INSETS': True,
+		'Plot.addChangeListener': True,
+		'ArrayList.ArrayList': True,
+		'LegendTitle.LegendTitle': True,
+		'LegendTitle.setMargin': True,
+		'RectangleInsets.RectangleInsets': True,
+		'LegendTitle.setFrame': True,
+		'LineBorder.LineBorder': True,
+		'LegendTitle.setBackgroundPaint': True,
+		'Color.white': True,
+		'LegendTitle.setPosition': True,
+		'RectangleEdge.BOTTOM': True,
+		'List.add': True,
+		'LegendTitle.addChangeListener': True,
+		'TextTitle.TextTitle': True,
+		'TextTitle.addChangeListener': True,
+		'IllegalArgumentException.IllegalArgumentException': True,
+		'ChartChangeEvent.ChartChangeEvent': True,
+		'TextTitle.setText': True,
+		'List.iterator': True,
+		'List.size': True,
+		'List.get': True,
+		'Title.addChangeListener': True,
+		'List.clear': True,
+		'List.remove': True,
+		'RenderingHints.get': True,
+		'RenderingHints.VALUE_ANTIALIAS_DEFAULT': True,
+		'RenderingHints.VALUE_ANTIALIAS_OFF': True,
+		'RenderingHints.put': True,
+		'RenderingHints.KEY_TEXT_ANTIALIASING': True,
+		'RenderingHints.VALUE_TEXT_ANTIALIAS_ON': True,
+		'RenderingHints.VALUE_TEXT_ANTIALIAS_OFF': True,
+		'notifyListeners.notifyListeners': True,
+		'Paint.equals': True,
+		'Image.equals': True,
+		'ChartProgressEvent.ChartProgressEvent': True,
+		'ChartProgressEvent.DRAWING_STARTED': True,
+		'ChartRenderingInfo.clear': True,
+		'ChartRenderingInfo.setChartArea': True,
+		'Graphics2D.getClip': True,
+		'Graphics2D.clip': True,
+		'Graphics2D.addRenderingHints': True,
+		'Graphics2D.setPaint': True,
+		'Graphics2D.fill': True,
+		'Graphics2D.getComposite': True,
+		'Graphics2D.setComposite': True,
+		'AlphaComposite.getInstance': True,
+		'AlphaComposite.SRC_OVER': True,
+		'Rectangle2D.Rectangle2D': True,
+		'Rectangle2D.Double': True,
+		'Image.getWidth': True,
+		'Image.getHeight': True,
+		'Align.align': True,
+		'Graphics2D.drawImage': True,
+		'Rectangle2D.getX': True,
+		'Rectangle2D.getY': True,
+		'Rectangle2D.getWidth': True,
+		'Rectangle2D.getHeight': True,
+		'Graphics2D.setStroke': True,
+		'Graphics2D.draw': True,
+		'Rectangle2D.setRect': True,
+		'RectangleInsets.trim': True,
+		'ChartRenderingInfo.getEntityCollection': True,
+		'EntityCollection.addAll': True,
+		'ChartRenderingInfo.getPlotInfo': True,
+		'Plot.draw': True,
+		'Graphics2D.setClip': True,
+		'ChartProgressEvent.DRAWING_FINISHED': True,
+		'Double.NaN': True,
+		'HorizontalAlignment.LEFT': True,
+		'HorizontalAlignment.CENTER': True,
+		'Rectangle2D.getCenterX': True,
+		'Size2D.width': True,
+		'HorizontalAlignment.RIGHT': True,
+		'Rectangle2D.getMaxX': True,
+		'VerticalAlignment.TOP': True,
+		'VerticalAlignment.CENTER': True,
+		'Rectangle2D.getCenterY': True,
+		'Size2D.height': True,
+		'VerticalAlignment.BOTTOM': True,
+		'Rectangle2D.getMaxY': True,
+		'Title.getPosition': True,
+		'RectangleConstraint.RectangleConstraint': True,
+		'Range.Range': True,
+		'LengthConstraintType.RANGE': True,
+		'BlockParams.BlockParams': True,
+		'BlockParams.setGenerateEntities': True,
+		'RectangleEdge.TOP': True,
+		'Title.arrange': True,
+		'Title.getHorizontalAlignment': True,
+		'Title.draw': True,
+		'Math.min': True,
+		'Math.max': True,
+		'RectangleEdge.RIGHT': True,
+		'Title.getVerticalAlignment': True,
+		'RectangleEdge.LEFT': True,
+		'RuntimeException.RuntimeException': True,
+		'EntityBlockResult.getEntityCollection': True,
+		'BufferedImage.TYPE_INT_RGB': True,
+		'BufferedImage.BufferedImage': True,
+		'BufferedImage.createGraphics': True,
+		'Graphics2D.dispose': True,
+		'AffineTransform.getScaleInstance': True,
+		'Graphics2D.transform': True,
+		'Plot.handleClick': True,
+		'EventListenerList.add': True,
+		'EventListenerList.remove': True,
+		'EventListenerList.getListenerList': True,
+		'Object.length': True,
+		'TitleChangeEvent.setChart': True,
+		'PlotChangeEvent.setChart': True,
+		'RenderingHints.equals': True,
+		'ObjectUtilities.equal': True,
+		'PaintUtilities.equal': True,
+		'RectangleInsets.equals': True,
+		'IOException.IOException': True,
+		'ObjectOutputStream.defaultWriteObject': True,
+		'SerialUtilities.writeStroke': True,
+		'SerialUtilities.writePaint': True,
+		'ClassNotFoundException.ClassNotFoundException': True,
+		'ObjectInputStream.defaultReadObject': True,
+		'SerialUtilities.readStroke': True,
+		'SerialUtilities.readPaint': True,
+		'System.out': True,
+		'ProjectInfo.toString': True,
+		'CloneNotSupportedException.CloneNotSupportedException': True,
+		'Object.clone': True,
+		'RenderingHints.clone': True,
+		'TextTitle.clone': True,
+		'Plot.clone': True,
+		'ResourceBundle.getBundle': True,
+		'JFreeChartInfo.setName': True,
+		'ResourceBundle.getString': True,
+		'JFreeChartInfo.setVersion': True,
+		'JFreeChartInfo.setInfo': True,
+		'JFreeChartInfo.setCopyright': True,
+		'JFreeChartInfo.setLogo': True,
+		'JFreeChartInfo.setLicenceName': True,
+		'JFreeChartInfo.setLicenceText': True,
+		'Licences.getInstance': True,
+		'JFreeChartInfo.setContributors': True,
+		'Arrays.asList': True,
+		'JFreeChartInfo.addLibrary': True,
+		'JCommon.INFO': True,
+		'ProjectInfo.getLogo': True,
+		'getClass.getClass': True,
+		'getClass.getClassLoader': True,
+		'getClass.getResource': True,
+		'ImageIcon.ImageIcon': True,
+		'ImageIcon.getImage': True,
+		'JFreeChartInfo.JFreeChartInfo': True,
+		'Font.Font': True,
+		'Font.BOLD': True,
+		'UIManager.getColor': True,
+		'Align.FIT': True,
+		'implements.Drawable': True,
+		'implements.TitleChangeListener': True,
+		'implements.PlotChangeListener': True,
+		'implements.Serializable': True,
+		'implements.Cloneable': True,
+		'extends.ProjectInfo': True,
 	}
 
-	callsdb = session.query(Call).filter_by(source_file_id = srcfiledb.id).all()	
+	callsdb = session.query(Call).filter_by(source_file_id=srcfiledb.id).all()
+
+	'''
+	for call in callsdb:
+		print(f'\'{call.name}\': True,')
+	'''
+
 	callsdb_dict = {}	
 	for call in callsdb:
 		callsdb_dict[call.name] = True
@@ -896,18 +1004,19 @@ def test_extract():
 		'org/jfree/util/PaintUtilities': True
 	}
 
-	assocsdb = session.query(Association).filter_by(source_file_id = srcfiledb.id).all()		
+	assocsdb = session.query(Association).filter_by(source_file_id=srcfiledb.id).all()		
 	assocsdb_dict = {}	
 	for assoc in assocsdb:
 		assocsdb_dict[assoc.name] = True
 		assert associations[assoc.name]
-		#print('\'' + assoc.name + '\': ' + 'True,')
+		# print('\'' + assoc.name + '\': ' + 'True,')
 
 	for k in associations.keys():
 		assert assocsdb_dict[k]
 
 	session.close()
 	db.drop_all()
+
 
 def test_get_commit_source_file():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/miner_java_sources'
@@ -932,23 +1041,25 @@ def test_get_commit_source_file():
 			srcfile = SourceFile(file)
 			code_elements = miner.extract_code_elements(srcfile, mod)
 			for element in code_elements:
-			 	element.modification = mod
-			 	session.add(element)		
+				element.modification = mod
+				session.add(element)		
 			session.add(mod)			
 
 	session.commit()
 	afile = sys.get_file('source/org/jfree/chart/JFreeChart.java')
-	srcfiledb = session.query(SourceFile).filter_by(file_id = afile.id).first()
+	srcfiledb = session.query(SourceFile).filter_by(file_id=afile.id).first()
 	assert srcfiledb.ext == 'java'
 	assert srcfiledb.name == 'JFreeChart'
-	assert srcfiledb.code_elements_len() == 198
+	assert srcfiledb.code_elements_len() == 294
 
-	functions = session.query(Operation).filter_by(source_file_id = srcfiledb.id).all()	
+	functions = session.query(Operation).filter_by(source_file_id=srcfiledb.id).all()	
 	assert srcfiledb.code_element_exists(functions[0])
-	assert functions[0].name == 'getRenderingHints'
+	assert functions[0].name == 'extends.JFreeChart'
+	assert functions[1].name == 'JFreeChart.INFO'
 
 	session.close()
 	db.drop_all()
+
 
 def test_extract_tag_interval():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/miner_java_tag_interval'
@@ -973,6 +1084,7 @@ def test_extract_tag_interval():
 	session.close()
 	db.drop_all()	
 
+
 def test_extract_current_files():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/miner_java_curr_files'
 	db = SQLAlchemyORM(db_url)
@@ -991,6 +1103,7 @@ def test_extract_current_files():
 	session.close()
 	db.drop_all()
 
+
 def test_extract_last_commits():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/miner_java_last_commits'
 	db = SQLAlchemyORM(db_url)
@@ -1007,25 +1120,37 @@ def test_extract_last_commits():
 	miner.extract_last_commits(session)
 
 	srcfile = session.query(SourceFile).join(SourceFile.file)\
-				.filter_by(fullpath = 'src/main/java/org/jfree/chart/entity/PlotEntity.java').one()
+				.filter_by(fullpath='src/main/java/org/jfree/chart/entity/PlotEntity.java').one()
 
 	code_elements = {
-		'getPlot': True,
-		'toString': True,
-		'equals': True,
-		'hashCode': True,
-		'clone': True,
-		'nullNotPermitted': True,
-		'append': True,
-		'getToolTipText': True,
-		'getArea': True,
-		'getURLText': True,
-		'defaultWriteObject': True,
-		'writeShape': True,
-		'defaultReadObject': True,
-		'setArea': True,
-		'readShape': True,
-		'Override': True,
+		'extends.PlotEntity': True,
+		'PlotEntity.PlotEntity': True,
+		'PlotEntity.getPlot': True,
+		'PlotEntity.toString': True,
+		'PlotEntity.equals': True,
+		'PlotEntity.hashCode': True,
+		'PlotEntity.clone': True,
+		'ChartEntity.ChartEntity': True,
+		'Args.nullNotPermitted': True,
+		'StringBuilder.StringBuilder': True,
+		'StringBuilder.append': True,
+		'PlotEntity.getToolTipText': True,
+		'StringBuilder.toString': True,
+		'PlotEntity.getArea': True,
+		'Objects.equals': True,
+		'PlotEntity.getURLText': True,
+		'HashUtils.hashCode': True,
+		'CloneNotSupportedException.CloneNotSupportedException': True,
+		'ChartEntity.clone': True,
+		'IOException.IOException': True,
+		'ObjectOutputStream.defaultWriteObject': True,
+		'SerialUtils.writeShape': True,
+		'ClassNotFoundException.ClassNotFoundException': True,
+		'ObjectInputStream.defaultReadObject': True,
+		'PlotEntity.setArea': True,
+		'SerialUtils.readShape': True,
+		'Override.@': True,
+		'extends.ChartEntity': True,
 		'java/awt/Shape': True,
 		'java/io/IOException': True,
 		'java/io/ObjectInputStream': True,
@@ -1041,14 +1166,48 @@ def test_extract_last_commits():
 
 	for k in src_code_elements:
 		assert code_elements[srcfile.code_element_by_key(k).name]
-		#print('\'' + srcfile.code_element_by_key(k).name + '\': ' + 'True,')
+		# print('\'' + srcfile.code_element_by_key(k).name + '\': ' + 'True,')
 
-	assert srcfile.code_elements_len() == 25
+	assert srcfile.code_elements_len() == 37
 
 	file_mod = session.query(Modification).\
-					filter_by(file_id = srcfile.file_id).one()	
+					filter_by(file_id=srcfile.file_id).one()	
 
 	assert file_mod.nloc == file_mod.added == 79
 
+	session.close()
+	db.drop_all()
+
+
+def test_string_cannot_contain_nul_characters():
+	db_url = 'postgresql://postgres:postgres@localhost:5432/string_nul'
+	db = SQLAlchemyORM(db_url)
+	db.create_all(True)
+
+	file_nul_chars = os.path.join(os.getcwd(), 
+		'repo/VideoOptimzer/ARO.Core/src/test/java/com/att/aro/core/bestpractice/impl', 
+		'MinificationImplTest.java')
+	source_code_nul_chars = open(file_nul_chars).read()
+	assert '\x00' in source_code_nul_chars
+
+	repo = Repository('repo/VideoOptimzer')
+	sys = System('VideoOptimzer', repo)
+	miner = RepositoryMiner(repo, sys)
+	miner.add_ignore_dir_with('ARO.Analytics')
+	miner.add_ignore_dir_with('ARO.Console')
+	miner.add_ignore_dir_with('ARO.Parent')
+	miner.add_ignore_dir_with('ARO.UI')
+	miner.add_ignore_dir_with('DataCollectors')
+	miner.add_ignore_dir_with('DataCollectorsClients')
+	miner.add_ignore_dir_with('rulesets')
+	miner.add_ignore_dir_with('lib')
+	session = db.create_session()		
+	miner.extract_last_commits(session)
+	source_file = sys.get_source_file(
+		'ARO.Core/src/test/java/com/att/aro/core/bestpractice/impl/MinificationImplTest.java')
+	code_elements = list(source_file.code_elements().values())
+	source_file_mod = code_elements[0].modification
+	source_code_clean = source_file_mod.source_code
+	assert '\x00' not in source_code_clean
 	session.close()
 	db.drop_all()

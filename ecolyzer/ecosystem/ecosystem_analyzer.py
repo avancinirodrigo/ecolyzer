@@ -1,7 +1,8 @@
-from ecolyzer.system import System, Call, Operation, Association
+from ecolyzer.system import Call, Operation, Association
 from ecolyzer.dataaccess import NullSession
 from ecolyzer.parser import StaticAnalyzer
 from .relationship import Relationship, RelationInfo, FromRelationInfo
+
 
 class EcosystemAnalyzer():
 	"""EcosystemAnalyzer"""
@@ -49,4 +50,5 @@ class EcosystemAnalyzer():
 
 	def _total_of_calls(self, from_source_file, from_code_element):
 		analyzer = StaticAnalyzer()
-		return analyzer.number_of_calls(from_source_file, from_code_element.source_code, from_code_element.name)
+		return analyzer.number_of_calls(from_source_file,
+			from_code_element.source_code, from_code_element.name)

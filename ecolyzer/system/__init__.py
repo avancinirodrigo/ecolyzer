@@ -4,3 +4,4 @@ from .file import File
 from .operation import Operation
 from .call import Call
 from .association import Association
+from .code_element import CodeElement

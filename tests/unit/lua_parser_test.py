@@ -1,5 +1,6 @@
 from ecolyzer.parser import LuaParser
 
+
 def test_extract_globals():
 	src = """
 			v1 = "global"
