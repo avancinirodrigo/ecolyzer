@@ -5,7 +5,7 @@ pytest-mock
 pytest-cov
 codecov
 luaparser
-sqlalchemy
+sqlalchemy==1.3.23
 sqlalchemy-utils
 javalang
 bs4
