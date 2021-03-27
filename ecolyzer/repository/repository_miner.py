@@ -132,7 +132,7 @@ class RepositoryMiner:
 		blobs = self._repo_file_blobs(repo)
 		self._extract_current_files(blobs, session)
 
-	def _repo_file_blobs(self, repo, rev):
+	def _repo_file_blobs(self, repo, rev=None):
 		tree = repo.tree(rev)
 		blobs = []
 		for dir in tree.trees:

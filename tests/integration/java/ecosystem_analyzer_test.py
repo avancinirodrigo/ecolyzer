@@ -20,7 +20,7 @@ def test_relations_last_commits():
 	miner = RepositoryMiner(repo1, sys1)
 	miner.add_ignore_dir_with('chart')
 	miner.add_ignore_dir_with('test')	
-	miner.extract_last_commits(session, 'v1.5.0')
+	miner.extract_last_commits(session, 'v1.5.3')
 
 	repo2 = Repository('repo/projectforge')
 	sys2 = System('ProjectForge', repo2)
@@ -77,7 +77,7 @@ def test_relations_last_commits():
 	assert rel2.to_author.email == 'dave@jfree.org'	
 	assert rel2.from_code_element.name == rel2.to_code_element.name == 'TimeSeries.add'	
 	assert rel2.from_code_element.caller == 'sollSeries'
-	assert rel2.from_code_element_count == 6
+	assert rel2.from_code_element_count == 4
 
 	assert rel3.from_system.name == 'ProjectForge'
 	assert rel3.from_author.name == 'Florian Blumenstein'
@@ -87,7 +87,7 @@ def test_relations_last_commits():
 	assert rel3.to_author.email == 'dave@jfree.org'	
 	assert rel3.from_code_element.name == rel3.to_code_element.name == 'TimeSeriesCollection.addSeries'	
 	assert rel3.from_code_element.caller == 'dataset'
-	assert rel3.from_code_element_count == 6	
+	assert rel3.from_code_element_count == 4	
 
 	session.close()
 	db.drop_all()

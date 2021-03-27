@@ -1087,7 +1087,7 @@ def test_extract_tag_interval():
 
 def test_extract_current_files():
 	db_url = 'postgresql://postgres:postgres@localhost:5432/miner_java_curr_files'
-	db = SQLAlchemyORM(db_url).tags[rev]
+	db = SQLAlchemyORM(db_url)
 	db.create_all(True)	
 	repo = Repository('repo/jfreechart')
 	sys = System('JFreeChart', repo)

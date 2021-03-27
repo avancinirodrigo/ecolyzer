@@ -84,4 +84,3 @@ class ComponentsSideBySide():
 		if caller:
 			return f'{caller}.{name}' 	
 		return f'{name}'	
-		
