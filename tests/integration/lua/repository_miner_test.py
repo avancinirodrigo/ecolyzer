@@ -507,7 +507,7 @@ def test_extract_last_commits():
 	miner.add_ignore_dir_with('example')
 
 	session = db.create_session()		
-	miner.extract_last_commits(session)
+	miner.extract_last_commits(session, '2.0')
 
 	srcfile = session.query(SourceFile).join(SourceFile.file)\
 				.filter_by(fullpath='packages/base/lua/Cell.lua').one()
