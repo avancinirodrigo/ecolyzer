@@ -64,4 +64,4 @@ def test_no_relationships():
 	assert len(ecosystem.relationships) == 0
 
 	session.close()
-	db.drop_all()	
+	db.drop_all()
