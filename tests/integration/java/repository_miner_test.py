@@ -1117,7 +1117,7 @@ def test_extract_last_commits():
 	miner.add_ignore_dir_with('xy')
 
 	session = db.create_session()		
-	miner.extract_last_commits(session)
+	miner.extract_last_commits(session, 'v1.5.3')
 
 	srcfile = session.query(SourceFile).join(SourceFile.file)\
 				.filter_by(fullpath='src/main/java/org/jfree/chart/entity/PlotEntity.java').one()

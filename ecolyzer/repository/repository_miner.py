@@ -69,7 +69,7 @@ class RepositoryMiner:
 
 	def extract_last_commits(self, session=NullSession(), rev=None):
 		repo = Repo(self.repo.path)
-		blobs = self._repo_file_blobs(repo)
+		blobs = self._repo_file_blobs(repo, rev)
 		file_count = 0
 		for blob in blobs:
 			try:
@@ -90,7 +90,6 @@ class RepositoryMiner:
 					session.commit()
 					file_count = 0
 			except FileNoExistsOnRevException:
-				print('FileNoExistsOnRevException', blob.path)
 				pass
 			except ValueError as e:
 				print(blob.path)
@@ -133,8 +132,8 @@ class RepositoryMiner:
 		blobs = self._repo_file_blobs(repo)
 		self._extract_current_files(blobs, session)
 
-	def _repo_file_blobs(self, repo):
-		tree = repo.tree()
+	def _repo_file_blobs(self, repo, rev=None):
+		tree = repo.tree(rev)
 		blobs = []
 		for dir in tree.trees:
 			self._navigate_dirs(dir.trees, blobs)

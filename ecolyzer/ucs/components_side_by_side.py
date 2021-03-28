@@ -83,4 +83,4 @@ class ComponentsSideBySide():
 	def _get_reference(self, caller, name):
 		if caller:
 			return f'{caller}.{name}' 	
-		return f'{name}'			
+		return f'{name}'	
