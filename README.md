@@ -8,6 +8,12 @@ Ecolyzer is a tool that aims to explore dependencies of software components from
 ## Overview
 [Software Visualization Tool for Evaluating API Usage in the Context of Software Ecosystems: A Proof of Concept](https://doi.org/10.1007/978-3-030-58817-5_26)
 
+## How to Use
+See in [tests](https://github.com/avancinirodrigo/ecolyzer/tree/master/tests) and [scripts](https://github.com/avancinirodrigo/ecolyzer/tree/master/scripts).
+
+## How to Contribute
+Fork & Pull Request.
+
 ## Style Guide for Python Code
 https://www.python.org/dev/peps/pep-0008/
 
