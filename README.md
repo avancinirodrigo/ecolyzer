@@ -2,8 +2,8 @@
 [![codecov](https://codecov.io/gh/avancinirodrigo/ecolyzer/branch/master/graph/badge.svg?token=s6IQehSnnQ)](https://codecov.io/gh/avancinirodrigo/ecolyzer)
 [![BCH compliance](https://bettercodehub.com/edge/badge/avancinirodrigo/ecolyzer?branch=master&token=6d8614cbef4cf7651e3c754b572d8e7fcee2f018)](https://bettercodehub.com/)
 
-# ecolyzer
-ecolyzer is a tool that aims to explore dependencies of software components from the point of view of software ecosystem, providing visualization of software involved and their relationships. Software ecosystem is a new and rapidly evolving phenomenon in software engineering, and it has been subject of much research in recent years.
+# Ecolyzer
+Ecolyzer is a tool that aims to explore dependencies of software components from the point of view of software ecosystem, providing visualization of software involved and their relationships. Software ecosystem is a new and rapidly evolving phenomenon in software engineering, and it has been subject of much research in recent years.
 
 ## Overview
 [Software Visualization Tool for Evaluating API Usage in the Context of Software Ecosystems: A Proof of Concept](https://doi.org/10.1007/978-3-030-58817-5_26)
