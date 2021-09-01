@@ -1,0 +1,6 @@
+pytest
+pytest-mock
+pytest-cov
+pytest-flask
+codecov
+flake8-tabs==2.2.2
