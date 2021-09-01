@@ -222,7 +222,7 @@
         tip.style("display", "inline-block");
         tip.html("<center><b>" + d.data.source + "</b></center>"
         			+ d.data.fullpath
-        			+ "<br>operations: " + d.data.operations
+        			+ "<br>referenceable elements: " + d.data.operations
         			+ "<br>coverage: " + d.data.coverage + " ("
         			+ Math.round(d.data.coverage*100/d.data.operations) + "%)"
         			+ "<br>relationships (distict): " + d.data.count         			
@@ -296,7 +296,7 @@
                 			+ "<br>source files without relationships: " + withoutRelations
                 			+ "<br>total of relationships (distict): " + numOfRelations
                 			+ "<br>total of relationships: " + totalOfRelations
-                			+ "<br>total of operations: " + numOfOperations
+                			+ "<br>total of referenceable elements: " + numOfOperations
                 			+ "<br>total of coverage: " + numOfCoverage + " ("
 		                	+ Math.round(numOfCoverage*100/numOfOperations) + "%)"
 		                	+ "<br>total of dependents: " + dependentsCount
@@ -327,7 +327,7 @@
                 			+ "<br>source files without relationships: " + infoByPath[d.data.id]["without"]
                 			+ "<br> total of relationships (distict): " + infoByPath[d.data.id]["relations"]
                 			+ "<br> total of relationships: " + infoByPath[d.data.id]["total"]
-                			+ "<br>total of operations: " + infoByPath[d.data.id]["operations"]
+                			+ "<br>total of referenceable elements: " + infoByPath[d.data.id]["operations"]
                 			+ "<br>total of coverage: " + infoByPath[d.data.id]["coverage"] + " ("
 		                			+ Math.round(infoByPath[d.data.id]["coverage"]*100/infoByPath[d.data.id]["operations"]) + "%)"
 		                	+ "<br>total of dependents: " + infoByPath[d.data.id]["dependents"]		

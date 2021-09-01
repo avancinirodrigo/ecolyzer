@@ -1,12 +1,8 @@
 pydriller==1.7
 psycopg2-binary
-pytest
-pytest-mock
-pytest-cov
-codecov
 luaparser
 sqlalchemy==1.3.23
 sqlalchemy-utils
 javalang
 bs4
-flake8-tabs==2.2.2
+-r flask_ecolyzer/requirements.txt

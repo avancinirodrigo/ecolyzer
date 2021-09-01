@@ -209,7 +209,7 @@
         }
         tip.style("display", "inline-block");
         tip.html("<strong>" + d.data.fullpath + "</strong>"
-                    + "<br>distinct operations: " + d.data.count
+                    + "<br>referenceable elements (distinct): " + d.data.count
                     + "<br>total of relationships: " + d.data.ncalls
                     + "<br>nloc: " + d.data.nloc);
     }
@@ -304,7 +304,7 @@
                 tip.style("display", "inline-block");
                 tip.html("<center><b>" + d.data.id + "</b></center>"
                             + "total of source files: " + d.children.length
-                            + "<br>distinct operations: " + Object.keys(dependentsCoverage[d.data.id]).length 
+                            + "<br>referenceable elements (distinct): " + Object.keys(dependentsCoverage[d.data.id]).length 
                             + " (" + Math.round(Object.keys(dependentsCoverage[d.data.id]).length*100/operationsCount) + "%)"
                             + "<br>total of relationships: " + infoBySystem[d.data.id]["ncalls"]
                             + "<br>total of loc: " + infoBySystem[d.data.id]["nloc"]);
@@ -373,7 +373,7 @@
                 tip.style("top", d3.event.pageY - 20 + "px");
                 tip.style("display", "inline-block");
                 tip.html("<center><b>{{source_file}}</b></center>"
-                            + "operations: " + operationsCount
+                            + "referenceable elements: " + operationsCount
                             + "<br>coverage: " +  coverageCount + " ("
                             + Math.round(coverageCount*100/operationsCount) + "%)"
                             + "<br>total of dependents: " + numOfSystems
