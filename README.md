@@ -25,7 +25,7 @@ pip install -r flask_ecolyzer/requirements.txt
 ## How to Use
 Run some script e.g.
 ```bash
-cd ~/ecolyzer/tests
+cd ~/ecolyzer/scripts
 export PYTHONPATH=~/ecolyzer
 python ~/ecolyzer/scripts/jfreechart_ecosystem_top5.py
 export FLASK_APP=~/ecolyzer/flask_ecolyzer/main.py
